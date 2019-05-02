@@ -19,8 +19,8 @@ mainClassName = 'App'
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    // https://mvnrepository.com/artifact/org.jgroups/jgroups
     compile group: 'org.jgroups', name: 'jgroups', version: '3.4.3.Final'
+    implementation 'com.google.code.gson:gson:2.8.5'
 }
 
 run {

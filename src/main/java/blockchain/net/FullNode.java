@@ -1,4 +1,4 @@
 package blockchain.net;
 
-public class FullNode {
+public class FullNode extends Node {
 }
