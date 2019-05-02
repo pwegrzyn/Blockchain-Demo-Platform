@@ -9,6 +9,7 @@ import com.google.gson.reflect.TypeToken;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.TreeMap;
 
 public class Block {
 
@@ -57,7 +58,11 @@ public class Block {
         jsonBlock.addProperty("nonce", nonce);
         JsonArray transactionsArray = (JsonArray) new Gson().toJsonTree(transactions, new TypeToken<List<Transaction>>(){}.getType());
         jsonBlock.add("transactions", transactionsArray);
-        return Hash.hashSHA256(jsonBlock.getAsString());
+        // Need to make sure keys are always in the right order in the JSON
+        String unorderedJson = jsonBlock.getAsString();
+        Gson gson = new Gson();
+        TreeMap<String, Object> map = gson.fromJson(unorderedJson, TreeMap.class);
+        return Hash.hashSHA256(gson.toJson(map));
     }
 
     public int getIndex() {
