@@ -1,4 +1,5 @@
-package blockchain;
+package blockchain.model;
 
 public class Blockchain {
+
 }

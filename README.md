@@ -3,7 +3,7 @@
 ## Gradle
 Building and running the application:
 ```bash
-gradle run --console=plain
+gradle run --console=plain --args='client'
 ```
 
 ## Usage
@@ -12,4 +12,7 @@ gradle run --console=plain
 ## Project Structure
 
 
-## Tests
+## Troubleshooting
+
+
+## TODO
