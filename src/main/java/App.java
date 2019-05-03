@@ -11,7 +11,6 @@ public class App extends Application {
     public static void main(String[] args) {
 
         Properties properties = loadProperties();
-        System.out.println("Configuration loaded successfully.");
         launch(args);
 
     }
@@ -36,6 +35,7 @@ public class App extends Application {
                 return null;
             }
             prop.load(input);
+            System.out.println("Configuration loaded successfully.");
             return  prop;
         } catch (IOException ex) {
             ex.printStackTrace();

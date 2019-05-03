@@ -31,7 +31,7 @@ public class AppGUI {
 
     public void update(){
         Platform.runLater(()-> {
-            // update code can go here
+            // Any Runnable can go here at any time during runtime
         });
     }
 

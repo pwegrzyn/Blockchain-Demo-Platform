@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="500.0" prefWidth="807.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="blockchain.controller.AppController">
+<BorderPane prefHeight="700.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="blockchain.controller.AppController">
     <center>
         <AnchorPane fx:id="mainPane" maxHeight="-1.0" maxWidth="-1.0" prefHeight="450.0" prefWidth="699.0" VBox.vgrow="ALWAYS">
             <children>

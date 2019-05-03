@@ -20,32 +20,32 @@ public class Block {
     private final int nonce;
     private final long timestamp;
 
-    public Block(int index, List<Transaction> transactions, String previousHash, String currentHash,
+    public Block(int index, List<Transaction> transactions, String previousHash,
                  int nonce, long timestamp) {
         this.index = index;
         this.transactions = transactions;
         this.previousHash = previousHash;
-        this.currentHash = currentHash;
+        this.currentHash = calculateBlockHash(index, transactions, previousHash, timestamp, nonce);
         this.nonce = nonce;
         this.timestamp = timestamp;
     }
 
     public static Block getGenesisBlock() {
+        String txId = "0";
         int index = 0;
         int nonce = 0;
         String previousHash = "0";
-        String receiver = "1";
-        String sender = "0";
+        String receiver = "0";
         double amount = 50.0;
         long timestamp = 0;
         String transactionHash = "0";
-        String transactionSignature = "0";
-        Transaction genesisTransaction = new Transaction(sender, receiver, amount, timestamp, transactionHash,
-                transactionSignature);
+        List<TransactionOutput> genesisTransactionOutputs = new LinkedList<>();
+        genesisTransactionOutputs.add(new TransactionOutput(amount, receiver));
+        Transaction genesisTransaction = new Transaction(txId, transactionHash, TransactionType.GENESIS,
+                new LinkedList<>(), genesisTransactionOutputs);
         List<Transaction> initialTransactionList = new LinkedList<>();
         initialTransactionList.add(genesisTransaction);
-        String currentHash = calculateBlockHash(index, initialTransactionList, previousHash, timestamp, nonce);
-        Block genesisBlock = new Block(index, initialTransactionList, previousHash, currentHash, nonce, timestamp);
+        Block genesisBlock = new Block(index, initialTransactionList, previousHash, nonce, timestamp);
         return genesisBlock;
     }
 
@@ -96,10 +96,10 @@ public class Block {
         Block block = (Block) o;
         return index == block.index &&
                 nonce == block.nonce &&
+                timestamp == block.timestamp &&
                 Objects.equals(transactions, block.transactions) &&
                 Objects.equals(previousHash, block.previousHash) &&
-                Objects.equals(currentHash, block.currentHash) &&
-                Objects.equals(timestamp, block.timestamp);
+                currentHash.equals(block.currentHash);
     }
 
     @Override
