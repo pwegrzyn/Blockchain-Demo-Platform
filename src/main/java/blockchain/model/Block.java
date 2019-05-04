@@ -30,6 +30,15 @@ public class Block {
         this.timestamp = timestamp;
     }
 
+    public Transaction findTransaction(String hashToFind) {
+        for (Transaction tx : this.transactions) {
+            if(tx.getHash().equals(hashToFind)) {
+                return tx;
+            }
+        }
+        return null;
+    }
+
     public static Block getGenesisBlock() {
         String txId = "0";
         int index = 0;
@@ -38,10 +47,9 @@ public class Block {
         String receiver = "0";
         double amount = 50.0;
         long timestamp = 0;
-        String transactionHash = "0";
         List<TransactionOutput> genesisTransactionOutputs = new LinkedList<>();
         genesisTransactionOutputs.add(new TransactionOutput(amount, receiver));
-        Transaction genesisTransaction = new Transaction(txId, transactionHash, TransactionType.GENESIS,
+        Transaction genesisTransaction = new Transaction(txId, TransactionType.GENESIS,
                 new LinkedList<>(), genesisTransactionOutputs);
         List<Transaction> initialTransactionList = new LinkedList<>();
         initialTransactionList.add(genesisTransaction);

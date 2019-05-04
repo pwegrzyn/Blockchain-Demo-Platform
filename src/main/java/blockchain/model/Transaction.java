@@ -1,11 +1,19 @@
 package blockchain.model;
 
+import blockchain.crypto.Hash;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
+
 import java.util.List;
 import java.util.Objects;
+import java.util.TreeMap;
 
 public class Transaction {
 
     private final String id;
+    // Hash of the ID + inputs + outputs
     private final String hash;
     private final TransactionType type;
     // Any number of input transactions
@@ -13,12 +21,26 @@ public class Transaction {
     // And at max 2 outputs (to recipient and leftover change to self)
     private final List<TransactionOutput> outputs;
 
-    public Transaction(String id, String hash, TransactionType type, List<TransactionInput> inputs, List<TransactionOutput> outputs) {
+    public Transaction(String id, TransactionType type, List<TransactionInput> inputs, List<TransactionOutput> outputs) {
         this.id = id;
-        this.hash = hash;
+        this.hash = calculateTransactionHash(id, inputs, outputs);
         this.type = type;
         this.inputs = inputs;
         this.outputs = outputs;
+    }
+
+    public static String calculateTransactionHash(String id, List<TransactionInput> inputs, List<TransactionOutput> outputs) {
+        JsonObject jsonBlock = new JsonObject();
+        jsonBlock.addProperty("id", id);
+        JsonArray inputsArray = (JsonArray) new Gson().toJsonTree(inputs, new TypeToken<List<TransactionInput>>(){}.getType());
+        JsonArray outputsArray = (JsonArray) new Gson().toJsonTree(outputs, new TypeToken<List<TransactionOutput>>(){}.getType());
+        jsonBlock.add("inputs", inputsArray);
+        jsonBlock.add("outputs", outputsArray);
+        // Need to make sure keys are always in the right order in the JSON
+        String unorderedJson = jsonBlock.getAsString();
+        Gson gson = new Gson();
+        TreeMap<String, Object> map = gson.fromJson(unorderedJson, TreeMap.class);
+        return Hash.hashSHA256(gson.toJson(map));
     }
 
     public String getId() {

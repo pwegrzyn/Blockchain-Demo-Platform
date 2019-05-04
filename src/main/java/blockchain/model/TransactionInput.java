@@ -10,7 +10,8 @@ public class TransactionInput {
     private final String fromAddress;
     private final String signature;
 
-    public TransactionInput(String previousTransactionHash, int previousTransactionOutputIndex, double amount, String fromAddress, String signature) {
+    public TransactionInput(String previousTransactionHash, int previousTransactionOutputIndex, double amount,
+                            String fromAddress, String signature) {
         this.previousTransactionHash = previousTransactionHash;
         this.previousTransactionOutputIndex = previousTransactionOutputIndex;
         this.amount = amount;
