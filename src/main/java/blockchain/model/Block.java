@@ -70,7 +70,7 @@ public class Block {
         String unorderedJson = jsonBlock.getAsString();
         Gson gson = new Gson();
         TreeMap<String, Object> map = gson.fromJson(unorderedJson, TreeMap.class);
-        return Hash.hashSHA256(gson.toJson(map));
+        return Hash.SHA256(gson.toJson(map));
     }
 
     public int getIndex() {

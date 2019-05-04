@@ -6,7 +6,7 @@ import java.security.NoSuchAlgorithmException;
 
 public class Hash {
 
-    public static String hashSHA256(String in) {
+    public static String SHA256(String in) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(in.getBytes(StandardCharsets.UTF_8));
@@ -17,7 +17,7 @@ public class Hash {
         return null;
     }
 
-    private static String toHexString(byte[] in) {
+    public static String toHexString(byte[] in) {
         StringBuilder sb = new StringBuilder();
         for (byte b : in) {
             sb.append(String.format("%02x", b));
