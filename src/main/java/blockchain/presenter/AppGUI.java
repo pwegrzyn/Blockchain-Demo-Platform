@@ -27,6 +27,7 @@ public class AppGUI {
         this.primaryStage.show();
         this.controller = loader.getController();
         this.controller.setPrimaryStageElements(primaryStage, scene);
+        System.out.println("GUI initialized successfully.");
     }
 
     public void update(){

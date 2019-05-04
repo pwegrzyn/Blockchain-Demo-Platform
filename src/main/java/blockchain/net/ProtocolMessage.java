@@ -3,19 +3,19 @@ package blockchain.net;
 import blockchain.model.Block;
 import blockchain.model.Transaction;
 
-public class Message {
+public class ProtocolMessage {
 
     final MessageType type;
     final Block block;
     final Transaction transaction;
 
-    public Message(Block block) {
+    public ProtocolMessage(Block block) {
         this.type = MessageType.NEW_BLOCK;
         this.block = block;
         this.transaction = null;
     }
 
-    public Message(Transaction transaction) {
+    public ProtocolMessage(Transaction transaction) {
         this.type = MessageType.NEW_TRANSACTION;
         this.block = null;
         this.transaction = transaction;

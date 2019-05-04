@@ -65,6 +65,7 @@ public class Miner {
 
         int nonce = 0;
         long currentTimestamp = System.currentTimeMillis();
+        // Upgrade to use GPUHashSolver if ready
         while(!Block.calculateBlockHash(newBlockIndex, transactionsToAdd, previousHash, currentTimestamp, nonce)
                 .substring(0, 4).equals("0000")) {
             /*A new block may have been added to the chain while we were hashing, if so then we need to put back
