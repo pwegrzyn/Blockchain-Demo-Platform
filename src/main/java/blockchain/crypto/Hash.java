@@ -1,5 +1,7 @@
 package blockchain.crypto;
 
+import blockchain.util.Utils;
+
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -10,19 +12,11 @@ public class Hash {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(in.getBytes(StandardCharsets.UTF_8));
-            return toHexString(hash);
+            return Utils.bytesToHexStr(hash);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
         return null;
-    }
-
-    public static String toHexString(byte[] in) {
-        StringBuilder sb = new StringBuilder();
-        for (byte b : in) {
-            sb.append(String.format("%02x", b));
-        }
-        return sb.toString();
     }
 
 }

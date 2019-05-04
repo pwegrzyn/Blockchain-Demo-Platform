@@ -6,6 +6,7 @@ import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 import java.io.UnsupportedEncodingException;
 import java.security.*;
 
+//https://en.bitcoin.it/wiki/Elliptic_Curve_Digital_Signature_Algorithm
 public class ECDSA {
 
     public ECDSA() {
@@ -29,8 +30,9 @@ public class ECDSA {
         return ecdsaVerifier.verify(signature);
     }
 
+    // https://en.bitcoin.it/wiki/Secp256k1
     public KeyPair generateKeyPair() throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException{
-        ECNamedCurveParameterSpec ecSpec = ECNamedCurveTable.getParameterSpec("B-571");
+        ECNamedCurveParameterSpec ecSpec = ECNamedCurveTable.getParameterSpec("secp256k1");
         KeyPairGenerator generator = KeyPairGenerator.getInstance("ECDSA", "BC");
         generator.initialize(ecSpec, new SecureRandom());
         return generator.generateKeyPair();

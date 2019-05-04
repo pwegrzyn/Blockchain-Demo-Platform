@@ -1,6 +1,8 @@
 package blockchain.proto;
 
 import blockchain.model.*;
+import blockchain.net.BlockBroadcastResult;
+import blockchain.net.FullNode;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -10,21 +12,48 @@ public class Miner {
 
     private Blockchain blockchain;
     private Validator validator;
+    private FullNode fullNode;
+    private boolean isMining;
     private static final int MAX_TRANSACTIONS_PER_BLOCK = 5;
+    // TODO fetch mining difficulty from the properties file
     private static final int MINING_DIFFICULTY = 4;
 
-    public Miner(Blockchain blockchain) {
+    public Miner(Blockchain blockchain, FullNode node) {
         this.blockchain = blockchain;
         this.validator = new Validator();
+        this.isMining = false;
+        this.fullNode = node;
     }
 
-    public Block mineBlock() {
+    // Probably should run in its own thread
+    public void startMining() {
+        this.isMining = true;
+        while (isMining) {
+            Block latestBlock = this.blockchain.getLatestBlock();
+            String latestHash = latestBlock.getCurrentHash();
+            int latestIndex = latestBlock.getIndex();
+
+            Block newMinedBlock = this.mineBlock();
+            if (newMinedBlock == null)
+                continue;
+            BlockBroadcastResult result = this.fullNode.broadcastNewBlock(newMinedBlock);
+            // TODO finish
+            if (result.isConfirmed()) {
+                /*All is cool, other nodes confirm the validity of the block, add it to your local blockchain*/
+            } else {
+                /*Synchronize your blockchain state with other nodes, if a new block was added after the sync, then
+                stop working on your current block and recycle its transactions to the unconfirmed transaction pool*/
+            }
+        }
+    }
+
+    private Block mineBlock() {
         Block latestBlock = this.blockchain.getLatestBlock();
         int newBlockIndex = latestBlock.getIndex() + 1;
         String previousHash = latestBlock.getCurrentHash();
 
         /*Go through all the unconfirmed transactions and pick at most MAX_TRANSACTIONS_PER_BLOCK of them to be included
-        in the next block (NOTE: Some of the logic here probably belongs to the Validator class?)*/
+        in the next block (TODO: Some of the logic here probably belongs to the Validator class)*/
         List<Transaction> transactionsToAdd = new LinkedList<>();
         for (int i = 0; i < MAX_TRANSACTIONS_PER_BLOCK; i++) {
             Transaction unconfirmedTransaction;

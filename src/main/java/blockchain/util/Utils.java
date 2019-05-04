@@ -13,4 +13,12 @@ public class Utils {
         return builder.toString();
     }
 
+    public static String bytesToHexStr(byte[] in) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : in) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
+    }
+
 }
