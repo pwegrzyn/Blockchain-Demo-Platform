@@ -50,6 +50,10 @@ public class Miner {
         }
     }
 
+    public void stopMining() {
+        this.isMining = false;
+    }
+
     private Block mineBlock() {
         Block latestBlock = this.blockchain.getLatestBlock();
         int newBlockIndex = latestBlock.getIndex() + 1;
