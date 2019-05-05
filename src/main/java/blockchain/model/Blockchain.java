@@ -25,6 +25,16 @@ public class Blockchain {
         return null;
     }
 
+    public void recycleInvalidBlock(Block newMinedBlock) {
+        /*The passed block was marked as invalid by the network, we need to extract all the txs included in it and add them
+        to the pool of unconfirmed txs again*/
+        // TODO recycling invalid block
+    }
+
+    public void addBlock(Block newMinedBlock) {
+        // TODO adding new block to the blockchain (need to handle chain branching)
+    }
+
     public List<Block> getBlockList() {
         return blockList;
     }

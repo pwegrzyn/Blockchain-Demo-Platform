@@ -14,4 +14,7 @@ public class FullNode extends Node {
         return null;
     }
 
+    public void synchronizeWithOthers() {
+        // TODO synchronize state with other fullNodes
+    }
 }

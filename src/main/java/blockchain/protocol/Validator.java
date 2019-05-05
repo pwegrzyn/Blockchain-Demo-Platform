@@ -1,4 +1,4 @@
-package blockchain.proto;
+package blockchain.protocol;
 
 import blockchain.model.Transaction;
 

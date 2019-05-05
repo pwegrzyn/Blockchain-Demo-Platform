@@ -1,4 +1,4 @@
-package blockchain.proto;
+package blockchain.protocol;
 
 import blockchain.model.*;
 import blockchain.net.BlockBroadcastResult;
@@ -37,13 +37,16 @@ public class Miner {
             if (newMinedBlock == null)
                 continue;
             BlockBroadcastResult result = this.fullNode.broadcastNewBlock(newMinedBlock);
-            // TODO finish
             if (result.isConfirmed()) {
                 /*All is cool, other nodes confirm the validity of the block, add it to your local blockchain*/
+                this.blockchain.addBlock(newMinedBlock);
             } else {
                 /*Synchronize your blockchain state with other nodes, if a new block was added after the sync, then
                 stop working on your current block and recycle its transactions to the unconfirmed transaction pool*/
+                this.fullNode.synchronizeWithOthers();
+                this.blockchain.recycleInvalidBlock(newMinedBlock);
             }
+
         }
     }
 
