@@ -1,6 +1,6 @@
 package blockchain.model;
 
-import blockchain.crypto.Hash;
+import blockchain.crypto.Sha256;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -40,7 +40,7 @@ public class Transaction {
         String unorderedJson = jsonBlock.getAsString();
         Gson gson = new Gson();
         TreeMap<String, Object> map = gson.fromJson(unorderedJson, TreeMap.class);
-        return Hash.SHA256(gson.toJson(map));
+        return Sha256.calculateSHA256(gson.toJson(map));
     }
 
     public String getId() {
