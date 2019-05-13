@@ -7,9 +7,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 public class App extends Application {
 
@@ -43,11 +41,11 @@ public class App extends Application {
     }
 
     private static List<Block> blockListDemo() {
-        Block block1 = new Block(1, null, "prevHash0", 515, 101);
-        Block block2 = new Block(2, null, "prevHash1", 3654, 202);
-        Block block3 = new Block(3, null, "prevHash2", 9, 303);
-        Block block4 = new Block(4, null, "prevHash3", 7544632, 404);
-        Block block5 = new Block(5, null, "prevHash4", 61, 505);
+        Block block1 = new Block(1, Collections.emptyList(), "prevHash0", 515, 101);
+        Block block2 = new Block(2, Collections.emptyList(), "prevHash1", 3654, 202);
+        Block block3 = new Block(3, Collections.emptyList(), "prevHash2", 9, 303);
+        Block block4 = new Block(4, Collections.emptyList(), "prevHash3", 7544632, 404);
+        Block block5 = new Block(5, Collections.emptyList(), "prevHash4", 61, 505);
         return new ArrayList<Block>() {{
             add(block1);
             add(block2);
