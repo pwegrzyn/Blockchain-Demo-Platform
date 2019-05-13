@@ -51,13 +51,14 @@ public class AppGUI {
             loader.setLocation(getClass().getClassLoader().getResource("views/initView.fxml"));
             BorderPane layout = loader.load();
             Stage initStage = new Stage();
-            Scene initScene = new Scene(layout,600,400);
+            Scene initScene = new Scene(layout,600,340);
             initStage.setScene(initScene);
             initStage.setTitle("Blockchain Demo Platform - Init");
             InitController initController = loader.getController();
             initController.setStage(initStage);
             initController.setPrimaryController(this.controller);
             initController.setBlockchain(this.blockchain);
+            initController.init();
             initStage.setAlwaysOnTop(true);
             initStage.setResizable(false);
             initStage.show();

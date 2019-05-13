@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="blockchain.controller.InitController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="340.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="blockchain.controller.InitController">
    <top>
       <Label alignment="CENTER" text="Blockchain Demo Platform" textAlignment="CENTER" BorderPane.alignment="CENTER">
          <font>
@@ -21,19 +21,19 @@
             <Insets bottom="20.0" top="20.0" />
          </BorderPane.margin>
          <padding>
-            <Insets bottom="30.0" top="30.0" />
+            <Insets bottom="20.0" />
          </padding>
       </Label>
    </top>
    <bottom>
       <HBox prefHeight="80.0" prefWidth="200.0" spacing="200.0" BorderPane.alignment="CENTER">
          <children>
-            <Button id="OkButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" prefWidth="100.0" text="OK" textAlignment="CENTER" onAction="#handleOkButton">
+            <Button id="OkButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#handleOkButton" prefWidth="100.0" text="OK" textAlignment="CENTER">
                <font>
                   <Font size="16.0" />
                </font>
             </Button>
-            <Button id="CancelButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" prefWidth="100.0" text="Cancel" textAlignment="CENTER" onAction="#handleCancelButton">
+            <Button id="CancelButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#handleCancelButton" prefWidth="100.0" text="Cancel" textAlignment="CENTER">
                <font>
                   <Font size="16.0" />
                </font>
@@ -43,7 +43,7 @@
             <Insets top="20.0" />
          </BorderPane.margin>
          <padding>
-            <Insets bottom="40.0" left="100.0" top="50.0" />
+            <Insets bottom="30.0" left="100.0" top="30.0" />
          </padding>
       </HBox>
    </bottom>
@@ -57,7 +57,7 @@
                         <Font size="14.0" />
                      </font>
                   </Label>
-                  <TextField id="PublicKeyInput" prefWidth="300.0" />
+                  <TextField id="PublicKeyInput" fx:id="PublicKeyInput" prefWidth="300.0" />
                </children>
                <padding>
                   <Insets left="80.0" top="20.0" />
@@ -73,7 +73,7 @@
                         <Font size="14.0" />
                      </font>
                   </Label>
-                  <TextField id="PrivateKeyInput" prefWidth="300.0" />
+                  <TextField id="PrivateKeyInput" fx:id="PrivateKeyInput" prefWidth="300.0" />
                </children>
                <padding>
                   <Insets left="80.0" top="20.0" />
@@ -86,7 +86,7 @@
                         <Font size="14.0" />
                      </font>
                   </Label>
-                  <ChoiceBox id="ModeChoiceBox" prefWidth="150.0" />
+                  <ChoiceBox id="ModeChoiceBox" fx:id="ModeChoiceBox" prefWidth="150.0" />
                </children>
                <padding>
                   <Insets left="80.0" top="20.0" />
@@ -99,7 +99,7 @@
                         <Font size="14.0" />
                      </font>
                   </Label>
-                  <CheckBox id="AutoGenerateKeysCheckbox" mnemonicParsing="false" />
+                  <CheckBox id="AutoGenerateKeysCheckbox" fx:id="AutoGenerateKeysCheckbox" mnemonicParsing="false" />
                </children>
                <padding>
                   <Insets left="80.0" top="20.0" />

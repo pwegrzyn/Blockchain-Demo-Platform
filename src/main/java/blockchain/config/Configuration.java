@@ -16,6 +16,9 @@ public class Configuration {
     private Mode nodeRunningMode;
     private String mcast_addr;
     private String version;
+    private boolean shouldAutoGenerateKeys;
+    private String publicKey;
+    private String privateKey;
 
     private Configuration() {
         Properties properties = loadProperties();
@@ -46,6 +49,30 @@ public class Configuration {
 
     public String getVersion() {
         return version;
+    }
+
+    public boolean isShouldAutoGenerateKeys() {
+        return shouldAutoGenerateKeys;
+    }
+
+    public void setShouldAutoGenerateKeys(boolean shouldAutoGenerateKeys) {
+        this.shouldAutoGenerateKeys = shouldAutoGenerateKeys;
+    }
+
+    public String getPublicKey() {
+        return publicKey;
+    }
+
+    public void setPublicKey(String publicKey) {
+        this.publicKey = publicKey;
+    }
+
+    public String getPrivateKey() {
+        return privateKey;
+    }
+
+    public void setPrivateKey(String privateKey) {
+        this.privateKey = privateKey;
     }
 
     private Properties loadProperties() {
