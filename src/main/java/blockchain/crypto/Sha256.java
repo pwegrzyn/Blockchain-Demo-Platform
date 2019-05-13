@@ -43,14 +43,13 @@ public class Sha256 {
     private int[] datai = new int[3];
     private int[] result;
 
-
     public static String calculateSHA256(String in) {
         Sha256 sha256 = new Sha256();
         try {
             sha256.init();
             sha256.setData(in);
             return sha256.crypt();
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.err.println("An error occurred while calculating Sha256 hash");
             e.printStackTrace();
         } finally {
