@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 public class Configuration {
 
@@ -14,11 +15,13 @@ public class Configuration {
 
     private Mode nodeRunningMode;
     private String mcast_addr;
+    private String version;
 
     private Configuration() {
         Properties properties = loadProperties();
         initMode(properties);
         initMcastAddr(properties);
+        initVersion(properties);
     }
 
     public static Configuration getInstance() {
@@ -39,6 +42,10 @@ public class Configuration {
 
     public void setMcast_addr(String mcast_addr) {
         this.mcast_addr = mcast_addr;
+    }
+
+    public String getVersion() {
+        return version;
     }
 
     private Properties loadProperties() {
@@ -81,5 +88,14 @@ public class Configuration {
         }
     }
 
+    private void initVersion(Properties properties) {
+        String version = properties.getProperty("version").toLowerCase().trim();
+        if (Pattern.matches("\\d\\.\\d\\.\\d", version)) {
+            this.version = version;
+        } else {
+            LOGGER.warning("Invalid version number provided. Setting default value (1.0.0).");
+            this.version = "1.0.0";
+        }
+    }
 
 }

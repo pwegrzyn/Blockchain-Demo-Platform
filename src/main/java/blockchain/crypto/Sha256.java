@@ -161,7 +161,7 @@ public class Sha256 {
 
     private void load() throws IOException {
         // Read kernel
-        BufferedReader br = new BufferedReader(new FileReader("src/main/java/blockchain/gpuKernel/Sha256.cl"));
+        BufferedReader br = new BufferedReader(new FileReader("src/main/java/blockchain/kernel/Sha256.cl"));
         StringBuilder sb = new StringBuilder();
         String line = null;
         while (true) {

@@ -1,15 +1,19 @@
 import blockchain.model.Block;
 import blockchain.model.Blockchain;
 import blockchain.net.Node;
-import blockchain.presenter.AppGUI;
+import blockchain.controller.AppGUI;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class App extends Application {
 
 
+    private static final Logger LOGGER = Logger.getLogger(App.class.getName());
     private static Blockchain blockchain;
 
     public static void main(String[] args) {
@@ -53,10 +57,15 @@ public class App extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
-        AppGUI gui = new AppGUI(primaryStage);
-        gui.setBlockchain(blockchain);
-        gui.initApplication();
+    public void start(Stage primaryStage) {
+        try {
+            AppGUI gui = new AppGUI(primaryStage);
+            gui.setBlockchain(blockchain);
+            gui.initApplication();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "An error occurred while initializing the GUI!", e);
+            System.exit(1);
+        }
     }
 
     @Override
