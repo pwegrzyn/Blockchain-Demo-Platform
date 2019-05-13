@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<GridPane alignment="center" hgap="10" prefHeight="300.0" prefWidth="400.0" vgap="10" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.edu.agh.io.jappka.controller.GraphColorPickerController">
+    <padding>
+        <Insets bottom="40" left="100" right="30" top="40" />
+    </padding>
+    <columnConstraints>
+        <ColumnConstraints halignment="RIGHT" maxWidth="Infinity" minWidth="88.0" prefWidth="88.0">
+        </ColumnConstraints>
+        <ColumnConstraints hgrow="ALWAYS" maxWidth="Infinity" minWidth="123.0" prefWidth="212.0">
+        </ColumnConstraints>
+    </columnConstraints>
+
+
+    <!-- First color picker's label-->
+    <Label text="App 1 color" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+    <!-- Add Name Text Field -->
+    <ColorPicker fx:id="inactiveColorPicker" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+
+    <!-- Second color picker's label-->
+    <Label text="App 2 color" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+    <!-- Add Name Text Field -->
+    <ColorPicker fx:id="activeColorPicker" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+    <!-- Third color picker's label-->
+    <Label text="App 3 color" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+    <!-- Add Name Text Field -->
+    <ColorPicker fx:id="otherColorPicker" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+
+    <!-- Add Cancel Button -->
+    <Button defaultButton="true" onAction="#handleChangeColors" prefHeight="30" prefWidth="100" text="Set colors" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="4">
+        <GridPane.margin>
+            <Insets bottom="10" left="0" right="0" top="10" />
+        </GridPane.margin>
+    </Button>
+
+    <Button fx:id="setColors" onAction="#handleCancel" prefHeight="30" prefWidth="72.0" text="Cancel" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="4">
+        <GridPane.margin>
+            <Insets bottom="10" left="0" right="0" top="10" />
+        </GridPane.margin>
+    </Button>
+    <rowConstraints>
+        <RowConstraints />
+        <RowConstraints maxHeight="41.0" minHeight="22.0" prefHeight="24.0" />
+        <RowConstraints maxHeight="28.0" minHeight="9.0" prefHeight="26.0" />
+        <RowConstraints />
+        <RowConstraints />
+    </rowConstraints>
+</GridPane>

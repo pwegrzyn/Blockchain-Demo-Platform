@@ -7,9 +7,11 @@ import blockchain.net.FullNode;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.logging.Logger;
 
 public class Miner {
 
+    private static final Logger LOGGER = Logger.getLogger(Miner.class.getName());
     private Blockchain blockchain;
     private Validator validator;
     private FullNode fullNode;
@@ -91,7 +93,7 @@ public class Miner {
             if(!this.validator.verifySignature(unconfirmedTransaction)) continue;
         }
         if(transactionsToAdd.size() < 1) {
-            System.out.println("Miner: Not enough transactions to begin mining a new block!");
+            LOGGER.info("Not enough transactions to begin mining a new block!");
             return null;
         }
 

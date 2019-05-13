@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package blockchain.crypto;
 
 import java.io.BufferedReader;
@@ -13,11 +8,6 @@ import static org.jocl.CL.*;
 
 import org.jocl.*;
 
-/**
- * Call SHA256 kernel using JOCL
- *
- * @author Zhuowen Fang
- */
 public class Sha256 {
 
     private static final int SHA256_PLAINTEXT_LENGTH = 64; // 64 Bytes = 512 bits per block

@@ -1,5 +1,6 @@
 package blockchain.net;
 
+import blockchain.config.Configuration;
 import org.jgroups.JChannel;
 import org.jgroups.Message;
 import org.jgroups.protocols.*;
@@ -9,9 +10,12 @@ import org.jgroups.util.Util;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Node {
 
+    private static final Logger LOGGER = Logger.getLogger(Node.class.getName());
     private JChannel channel;
     private String clusterName;
 
@@ -25,11 +29,10 @@ public class Node {
             this.channel.connect(clusterName);
             this.channel.getState(null, 0);
         } catch (Exception e) {
-            System.out.println("Could not create blockchain's channel");
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Could not create blockchain's channel", e);
             System.exit(1);
         }
-        System.out.println("Connection with the network established successfully.");
+        LOGGER.fine("Connection with the network established successfully.");
     }
 
     public void broadcast(ProtocolMessage msg) {
@@ -37,8 +40,7 @@ public class Node {
             org.jgroups.Message message = new Message(null, Util.objectToByteBuffer(msg));
             channel.send(message);
         } catch (Exception e) {
-            System.out.println("Error occurred while broadcasting ProtocolMessage");
-            e.printStackTrace();
+            LOGGER.log(Level.WARNING, "Error occurred while broadcasting ProtocolMessage", e);
         }
     }
 
@@ -53,7 +55,8 @@ public class Node {
         Protocol[] protocolStack = new Protocol[0];
         try {
             protocolStack = new Protocol[]{
-                    new UDP().setValue("mcast_group_addr", InetAddress.getByName("230.100.200.26")),
+                    new UDP().setValue("mcast_group_addr", InetAddress.getByName(Configuration.getInstance()
+                            .getMcast_addr())),
                     new PING(),
                     new MERGE3(),
                     new FD_SOCK(),
@@ -71,8 +74,7 @@ public class Node {
                     new SEQUENCER(),
                     new FLUSH()};
         } catch (UnknownHostException e) {
-            System.out.println("Error occurred while creating the protocol stack");
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Error occurred while creating the protocol stack", e);
             System.exit(1);
         }
         return protocolStack;

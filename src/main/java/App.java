@@ -5,8 +5,6 @@ import blockchain.presenter.AppGUI;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 
 public class App extends Application {
@@ -21,7 +19,6 @@ public class App extends Application {
 
         addBlockToBlockListTask();
 
-        Properties properties = loadProperties();
         Node node = new Node("test_net");
         launch(args);
     }
@@ -66,22 +63,6 @@ public class App extends Application {
     public void stop() throws Exception {
         super.stop();
         System.exit(0);
-    }
-
-    private static Properties loadProperties() {
-        try (InputStream input = App.class.getClassLoader().getResourceAsStream("config.properties")) {
-            Properties prop = new Properties();
-            if (input == null) {
-                System.err.println("Unable to find config.properties!");
-                return null;
-            }
-            prop.load(input);
-            System.out.println("Configuration loaded successfully.");
-            return  prop;
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            return null;
-        }
     }
 
 }
