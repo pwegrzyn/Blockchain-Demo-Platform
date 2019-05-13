@@ -37,7 +37,7 @@ public class Transaction {
         jsonBlock.add("inputs", inputsArray);
         jsonBlock.add("outputs", outputsArray);
         // Need to make sure keys are always in the right order in the JSON
-        String unorderedJson = jsonBlock.getAsString();
+        String unorderedJson = jsonBlock.toString();
         Gson gson = new Gson();
         TreeMap<String, Object> map = gson.fromJson(unorderedJson, TreeMap.class);
         return Sha256.calculateSHA256(gson.toJson(map));

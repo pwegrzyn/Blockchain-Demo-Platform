@@ -32,7 +32,7 @@ public class App extends Application {
             try {
                 while(true){
                     Thread.sleep(5000);
-                    blockchain.getBlockList().add(new Block(ind++, null, "prevHash" + (ind-1), ind * 23, ind * 101));
+                    blockchain.getBlockList().add(new Block(ind++, Collections.emptyList(), "prevHash" + (ind-1), ind * 23, ind * 101));
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
