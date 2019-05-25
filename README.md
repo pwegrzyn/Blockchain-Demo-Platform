@@ -5,9 +5,16 @@
 Blockchain demo platform for educational purposes
 
 ## Gradle
-Building and running the application:
+Building and running the main application:
 ```bash
 gradle run --console=plain
+```
+
+## node.js
+Running the visualization client:
+```bash
+npm install
+npm start
 ```
 
 ## Current progress
@@ -22,3 +29,6 @@ gradle run --console=plain
 * Visualization
 * Improvement of the SHA256 kernel and effective parallelization
 
+## Prerequisites
+* JDK8+ or JDK12 and OpenJFX (check out `gradle.build` for more info)
+* Node.js 10.15.x
