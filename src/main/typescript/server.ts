@@ -7,7 +7,6 @@ export class VisualizationServer {
     private server: http.Server;
     
     constructor(private _port: number) {
-        catServer.info(() => "Creating serve instance...");
         this.server = http.createServer(function (req, res) {
             res.write('Hello World!');
             res.end();
