@@ -185,3 +185,8 @@ build/
 
 node_modules
 dist
+
+.classpath
+.project
+.settings/
+bin/
