@@ -1,5 +1,5 @@
 
-let isConnected: boolean = false;
+let isConnected: boolean = true;
 
 function update_dashboard() {
     if (!isConnected) {
