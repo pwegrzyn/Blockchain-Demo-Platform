@@ -14,8 +14,7 @@ function createWindow() {
         width: 1350,
     });
 
-    // mainWindow.loadFile(path.join(__dirname, "../src/main/resources/templates/index.html"));
-    mainWindow.loadFile(path.join(__dirname, "../src/main/resources/ElaAdmin/index.html"));
+    mainWindow.loadFile(path.join(__dirname, "../src/main/resources/templates/index.html"));
 
     mainWindow.on("closed", () => {
         catMain.info(() => "Shutting down...");
