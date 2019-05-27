@@ -1,6 +1,6 @@
 #!/bin/sh
 
-usage () {
+function usage () {
     echo "Blockchain Demo Platform (BDP) - simple cryptocurrency with visualization"
     echo "usage: bdp [--version] [--help] <command> [<args>]"
     echo "   "
