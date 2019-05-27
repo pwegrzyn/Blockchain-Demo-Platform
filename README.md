@@ -4,17 +4,14 @@
 
 Blockchain demo platform for educational purposes
 
-## Gradle
-Building and running the main application:
-```bash
-gradle run --console=plain
-```
+## Prerequisites
+* JDK8+ or JDK12 and OpenJFX (check out `gradle.build` for more info)
+* Node.js 10.15.x
 
-## node.js
-Running the visualization client:
+## Starting
+Use the provided `bdp.sh` bash script to run the platform:
 ```bash
-npm install
-npm start
+bash ./bdp.sh --help
 ```
 
 ## Current progress
@@ -22,13 +19,11 @@ npm start
 * Stub of the network layer done
 * GUI initial views
 * Protocol mostly implemented
+* Electron visualization module stub done
 
 ## TODO
 * Tests
 * Network layer communication
 * Visualization
 * Improvement of the SHA256 kernel and effective parallelization
-
-## Prerequisites
-* JDK8+ or JDK12 and OpenJFX (check out `gradle.build` for more info)
-* Node.js 10.15.x
+* Communication between Java and Node
