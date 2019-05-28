@@ -1,8 +1,9 @@
 package blockchain.model;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class TransactionInput {
+public class TransactionInput implements Serializable {
 
     private final String previousTransactionHash;
     private final int previousTransactionOutputIndex;

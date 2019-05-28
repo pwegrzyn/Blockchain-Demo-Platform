@@ -1,8 +1,9 @@
 package blockchain.model;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class Blockchain {
+public class Blockchain implements Serializable {
 
     private List<Block> blockList;
     private Queue<Transaction> unconfirmedTransactions;
@@ -52,7 +53,7 @@ public class Blockchain {
     }
 
     // The queue of unconfirmed transactions is sorted by the maximum possible fee for miners
-    private static class MaximumFeeComparator implements Comparator<Transaction> {
+    private static class MaximumFeeComparator implements Comparator<Transaction>, Serializable {
         @Override
         public int compare(Transaction o1, Transaction o2) {
             // TODO compare transactions to find which one gives a bigger fee to the miner

@@ -1,6 +1,7 @@
 package blockchain.controller;
 
 import blockchain.model.Blockchain;
+import blockchain.net.WalletNode;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -17,7 +18,7 @@ public class AppGUI {
     private static final Logger LOGGER = Logger.getLogger(AppGUI.class.getName());
     private Stage primaryStage;
     private AppController controller;
-    private Blockchain blockchain;
+    private WalletNode node;
 
     public AppGUI(Stage primaryStage) {
         this.primaryStage = primaryStage;
@@ -41,8 +42,8 @@ public class AppGUI {
         });
     }
 
-    public void setBlockchain(Blockchain blockchain) {
-        this.blockchain = blockchain;
+    public void setNode(WalletNode node) {
+        this.node = node;
     }
 
     public void showInitScreen() {
@@ -57,7 +58,7 @@ public class AppGUI {
             InitController initController = loader.getController();
             initController.setStage(initStage);
             initController.setPrimaryController(this.controller);
-            initController.setBlockchain(this.blockchain);
+            initController.setNode(this.node);
             initController.init();
             initStage.setAlwaysOnTop(true);
             initStage.setResizable(false);

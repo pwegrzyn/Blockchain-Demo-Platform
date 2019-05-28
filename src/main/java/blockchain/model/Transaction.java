@@ -6,11 +6,12 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 import java.util.TreeMap;
 
-public class Transaction {
+public class Transaction implements Serializable {
 
     private final String id;
     // Hash of the ID + inputs + outputs

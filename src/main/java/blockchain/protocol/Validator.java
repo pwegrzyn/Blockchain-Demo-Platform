@@ -19,6 +19,14 @@ public class Validator {
         return true;
     }
 
+    public boolean validateKeyPair(String privateKey, String publicKey) {
+        if (!validatePrivateKey(privateKey) || !validatePublicKey(publicKey)) {
+            return false;
+        }
+        // TODO Use bouncyCastle to validate the key pair
+        return true;
+    }
+
     // TODO validation of incoming blocks
     // TODO validation of incoming transactions
 

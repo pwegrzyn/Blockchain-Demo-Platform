@@ -24,6 +24,7 @@ export class VisualizationServer {
             // Notify the rendering process of the incoming connection
             this.mainWindow.webContents.send('hasServerConnection', true);
             catServer.info(() => "Accepted new connection.");
+            this.handle_request(req);
             res.end();
         }).bind(this));
     }
@@ -35,6 +36,10 @@ export class VisualizationServer {
     listen(): void {
         catServer.info(() => "Listening for BDP client on localhost:" + this._port);
         this.server.listen(this._port);
+    }
+
+    handle_request(req: any) {
+        //TODO finish handling the POST update from the client
     }
 
 }

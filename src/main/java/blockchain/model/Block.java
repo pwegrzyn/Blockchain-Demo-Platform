@@ -6,12 +6,13 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.TreeMap;
 
-public class Block {
+public class Block implements Serializable {
 
     private final int index;
     private final List<Transaction> transactions;

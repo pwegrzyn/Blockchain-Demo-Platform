@@ -1,7 +1,10 @@
+import blockchain.config.Configuration;
 import blockchain.model.Block;
 import blockchain.model.Blockchain;
+import blockchain.net.FullNode;
 import blockchain.net.Node;
 import blockchain.controller.AppGUI;
+import blockchain.net.WalletNode;
 import blockchain.net.visualization.VisualizationClient;
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -16,63 +19,30 @@ public class App extends Application {
 
 
     private static final Logger LOGGER = Logger.getLogger(App.class.getName());
-    private static Blockchain blockchain;
+    private static final String CLUSTER_NAME = "test_net";
+    private static WalletNode node;
 
     public static void main(String[] args) {
 
-        // Connection to visualization server test
-        try {
-            VisualizationClient visualizationClient = new VisualizationClient();
-            visualizationClient.postToServer("parameter");
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        Blockchain blockchain = new Blockchain();
+
+        switch(Configuration.getInstance().getNodeRunningMode()) {
+            case FULL:
+                node = new FullNode(CLUSTER_NAME, blockchain);
+                break;
+            case WALLET:
+                node = new WalletNode(CLUSTER_NAME, blockchain);
+                break;
         }
 
-        blockchain = new Blockchain();
-        blockchain.setBlockList(blockListDemo());
-
-        addBlockToBlockListTask();
-
-        Node node = new Node("test_net");
         launch(args);
-    }
-
-    private static void addBlockToBlockListTask() {
-        new Thread(() -> {
-            int ind = 6;
-            try {
-                while(true){
-                    Thread.sleep(5000);
-                    blockchain.getBlockList().add(new Block(ind++, Collections.emptyList(), "prevHash" + (ind-1), ind * 23, ind * 101));
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }).start();
-    }
-
-    private static List<Block> blockListDemo() {
-        Block block1 = new Block(1, Collections.emptyList(), "prevHash0", 515, 101);
-        Block block2 = new Block(2, Collections.emptyList(), "prevHash1", 3654, 202);
-        Block block3 = new Block(3, Collections.emptyList(), "prevHash2", 9, 303);
-        Block block4 = new Block(4, Collections.emptyList(), "prevHash3", 7544632, 404);
-        Block block5 = new Block(5, Collections.emptyList(), "prevHash4", 61, 505);
-        return new ArrayList<Block>() {{
-            add(block1);
-            add(block2);
-            add(block3);
-            add(block4);
-            add(block5);
-        }};
     }
 
     @Override
     public void start(Stage primaryStage) {
         try {
             AppGUI gui = new AppGUI(primaryStage);
-            gui.setBlockchain(blockchain);
+            gui.setNode(node);
             gui.initApplication();
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "An error occurred while initializing the GUI!", e);

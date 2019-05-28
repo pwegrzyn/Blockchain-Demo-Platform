@@ -1,6 +1,8 @@
 package blockchain.model;
 
-public enum TransactionType {
+import java.io.Serializable;
+
+public enum TransactionType implements Serializable {
 
     // Transaction composed of leftover outputs from transactions included in a new-mined block by a miner
     FEE,

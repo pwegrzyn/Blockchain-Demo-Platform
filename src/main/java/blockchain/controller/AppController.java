@@ -2,6 +2,7 @@ package blockchain.controller;
 
 import blockchain.model.Block;
 import blockchain.model.Blockchain;
+import blockchain.net.WalletNode;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -25,7 +26,7 @@ public class AppController {
 
     private Stage primaryStage;
     private Scene primaryScene;
-    private List<Block> blockList;
+    private WalletNode node;
 
     @FXML
     private AnchorPane mainPane;
@@ -52,10 +53,31 @@ public class AppController {
         primaryStage.show();
     }
 
-    public void initTreeView(List<Block> blockList) {
+    public void init() {
+        this.initTreeView();
+    }
 
-        this.blockList = blockList;
+    public void updateTreeView() {
+        treeView.setVisible(false);
+        initTreeView();
+        treeView.setVisible(true);
+    }
 
+    public void setNode(WalletNode node) {
+        this.node = node;
+    }
+
+    @FXML
+    private void handleShowInfo(ActionEvent event) {
+        System.out.println("Showing Info");
+    }
+
+    private void initTreeView() {
+
+        List<Block> blockList = this.node.getBlockchain().getBlockList();
+        if (blockList.size() < 1) {
+            return;
+        }
         Block firstBlock = blockList.get(0);
         BlockDecorator rootBlockDecorator = new BlockDecorator(firstBlock);
         TreeItem<BlockDecorator> rootItem = new TreeItem<BlockDecorator>(rootBlockDecorator);
@@ -67,18 +89,6 @@ public class AppController {
         treeView.setRoot(rootItem);
         addListenerToTreeView(treeView);
     }
-
-    public void updateTreeView(List<Block> blockList) {
-        treeView.setVisible(false);
-        initTreeView(blockList);
-        treeView.setVisible(true);
-    }
-
-    @FXML
-    private void handleShowInfo(ActionEvent event) {
-        System.out.println("Showing Info");
-    }
-
 
     private ArrayList<TreeItem<BlockDecorator>> blockListToTreeItem(List<Block> blockList) {
         ArrayList<TreeItem<BlockDecorator>> resultList = new ArrayList<>();
@@ -124,7 +134,7 @@ public class AppController {
             @Override
             public void handle(ActionEvent event) {
                 if (event.getSource().equals(refreshMenuItem)) {
-                    updateTreeView(blockList);
+                    updateTreeView();
                 }
             }
         });

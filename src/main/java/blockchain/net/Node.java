@@ -1,13 +1,17 @@
 package blockchain.net;
 
 import blockchain.config.Configuration;
+import blockchain.model.Block;
+import blockchain.model.Blockchain;
 import org.jgroups.JChannel;
 import org.jgroups.Message;
+import org.jgroups.ReceiverAdapter;
 import org.jgroups.protocols.*;
 import org.jgroups.protocols.pbcast.*;
 import org.jgroups.stack.Protocol;
 import org.jgroups.util.Util;
 
+import java.io.*;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.logging.Level;
@@ -18,12 +22,14 @@ public class Node {
     private static final Logger LOGGER = Logger.getLogger(Node.class.getName());
     private JChannel channel;
     private String clusterName;
+    protected Blockchain blockchain;
 
-    public Node(String clusterName) {
+    public Node(String clusterName, Blockchain blockchain) {
+        this.blockchain = blockchain;
         System.setProperty("java.net.preferIPv4Stack", "true");
         this.clusterName = clusterName;
         try {
-            this.channel = new JChannel(getProtocolStack()).name(clusterName);
+            this.channel = new JChannel(getProtocolStack()).name(this.clusterName);
             this.channel.setDiscardOwnMessages(true);
             this.channel.setReceiver(new MessageReceiver());
             this.channel.connect(clusterName);
@@ -49,6 +55,10 @@ public class Node {
             channel.disconnect();
         else
             channel.close();
+    }
+
+    public Blockchain getBlockchain() {
+        return this.blockchain;
     }
 
     private Protocol[] getProtocolStack() {
@@ -78,6 +88,35 @@ public class Node {
             System.exit(1);
         }
         return protocolStack;
+    }
+
+    private class MessageReceiver extends ReceiverAdapter {
+
+        @Override
+        public void receive(Message msg) {
+            super.receive(msg);
+        }
+
+        @Override
+        public void getState(OutputStream outputStream) throws Exception {
+            LOGGER.info("Providing state to newly connected node.");
+            synchronized (Node.this.blockchain) {
+                try(ObjectOutputStream objectStream = new ObjectOutputStream(new BufferedOutputStream(outputStream, 32768))) {
+                    objectStream.writeObject(Node.this.blockchain);
+                }
+            }
+        }
+
+        @Override
+        public void setState(InputStream inputStream) throws Exception {
+            LOGGER.info("Receiving state from existing nodes.");
+            Blockchain receivedState;
+            try(ObjectInputStream objectStream = new ObjectInputStream(inputStream)) {
+                receivedState = (Blockchain) objectStream.readObject();
+            }
+            Node.this.blockchain = receivedState;
+        }
+
     }
 
 }

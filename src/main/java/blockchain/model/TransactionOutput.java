@@ -1,8 +1,9 @@
 package blockchain.model;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class TransactionOutput {
+public class TransactionOutput implements Serializable {
 
     private final double amount;
     private final String receiverAddress;
