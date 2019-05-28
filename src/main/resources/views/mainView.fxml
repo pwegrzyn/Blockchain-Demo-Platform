@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="530.0" prefWidth="842.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="blockchain.controller.AppController">
+<BorderPane prefHeight="530.0" prefWidth="842.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="blockchain.gui.AppController">
    <center>
       <VBox prefHeight="400.0" prefWidth="640.0">
         <children>

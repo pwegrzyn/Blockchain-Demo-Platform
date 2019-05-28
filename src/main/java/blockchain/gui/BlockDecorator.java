@@ -1,4 +1,4 @@
-package blockchain.controller;
+package blockchain.gui;
 
 import blockchain.model.Block;
 

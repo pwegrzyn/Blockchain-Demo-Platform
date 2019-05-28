@@ -1,17 +1,11 @@
 import blockchain.config.Configuration;
-import blockchain.model.Block;
 import blockchain.model.Blockchain;
 import blockchain.net.FullNode;
-import blockchain.net.Node;
-import blockchain.controller.AppGUI;
+import blockchain.gui.AppGUI;
 import blockchain.net.WalletNode;
-import blockchain.net.visualization.VisualizationClient;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

@@ -3,9 +3,12 @@ package blockchain.model;
 import java.io.Serializable;
 import java.util.*;
 
+
 public class Blockchain implements Serializable {
 
+    // Arbitrarily sorted list of blocks in the block-dag (main branch as well as all past forks)
     private List<Block> blockList;
+    // Mempool of unconfirmed transactions
     private Queue<Transaction> unconfirmedTransactions;
 
     public Blockchain() {

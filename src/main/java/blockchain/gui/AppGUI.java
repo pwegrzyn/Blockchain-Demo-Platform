@@ -1,12 +1,10 @@
-package blockchain.controller;
+package blockchain.gui;
 
-import blockchain.model.Blockchain;
 import blockchain.net.WalletNode;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;

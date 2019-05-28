@@ -31,7 +31,7 @@ app.on("ready", () =>{
     const props = propertiesReader('src/main/resources/config.properties');
     const serverPort = props.get('vis.visualization_port');
     const visualizationServer: VisualizationServer = new VisualizationServer(Number(serverPort), mainWindow);
-    
+
     visualizationServer.listen();
 });
 

@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# FIXME Need to test this script and possibly change it so it spawns a new terminal when running the client/visualization
+# module so as not to block stdin/stdout
+
 function usage () {
     echo "Blockchain Demo Platform (BDP) - simple cryptocurrency with visualization"
     echo "usage: bdp [--version] [--help] <command> [<args>]"
