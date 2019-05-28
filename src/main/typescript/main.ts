@@ -24,7 +24,16 @@ function createWindow() {
 
 }
 
-app.on("ready", createWindow);
+app.on("ready", () =>{
+    createWindow();
+    // Client-server communication with the jvm process
+    catMain.info(() => "Reading config files...");
+    const props = propertiesReader('src/main/resources/config.properties');
+    const serverPort = props.get('vis.visualization_port');
+    const visualizationServer: VisualizationServer = new VisualizationServer(Number(serverPort), mainWindow);
+    
+    visualizationServer.listen();
+});
 
 // OS-X specific 
 app.on("activate", () => {
@@ -32,12 +41,3 @@ app.on("activate", () => {
         createWindow();
     }
 });
-
-// Client-server communication with the jvm process
-catMain.info(() => "Reading config files...");
-const props = propertiesReader('src/main/resources/config.properties');
-const serverPort = props.get('vis.visualization_port');
-const visualizationServer: VisualizationServer = new VisualizationServer(Number(serverPort), 
-    () => mainWindow.webContents.send('hasServerConnection', true));
-
-visualizationServer.listen();
