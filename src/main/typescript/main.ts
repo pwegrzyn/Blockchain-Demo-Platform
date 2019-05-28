@@ -37,10 +37,7 @@ app.on("activate", () => {
 catMain.info(() => "Reading config files...");
 const props = propertiesReader('src/main/resources/config.properties');
 const serverPort = props.get('vis.visualization_port');
-const visualizationServer: VisualizationServer = new VisualizationServer(Number(serverPort));
+const visualizationServer: VisualizationServer = new VisualizationServer(Number(serverPort), 
+    () => mainWindow.webContents.send('hasServerConnection', true));
 
 visualizationServer.listen();
-
-setInterval(() => {
-    mainWindow.webContents.send('hasServerConnection', visualizationServer.hasConnection)
-}, 1000);

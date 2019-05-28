@@ -5,23 +5,17 @@ import { catServer } from "./config"
 export class VisualizationServer {
 
     private server: http.Server;
-    private _hasConnection: boolean = false;
 
-    constructor(private _port: number) {
+    constructor(private _port: number, connectionCallback: () => void) {
         this.server = http.createServer((function (req: any, res: any) {
-            this._hasConnection = true;
+            connectionCallback();
             catServer.info(() => "Accepted new connection.");
-            res.write('Hello World!');
             res.end();
         }).bind(this));
     }
 
     get port() {
         return this._port;
-    }
-
-    get hasConnection() {
-        return this._hasConnection;
     }
 
     listen(): void {
