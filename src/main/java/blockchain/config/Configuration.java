@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 public class Configuration {
 
     private static final Logger LOGGER = Logger.getLogger(Configuration.class.getName());
-    private static Configuration instance = new Configuration();
+    private static Configuration instance;
 
     private Mode nodeRunningMode;
     private String mcast_addr;
@@ -19,15 +19,19 @@ public class Configuration {
     private boolean shouldAutoGenerateKeys;
     private String publicKey;
     private String privateKey;
+    private int visualizationPort;
 
     private Configuration() {
         Properties properties = loadProperties();
         initMode(properties);
         initMcastAddr(properties);
         initVersion(properties);
+        initVisualizationPort(properties);
     }
 
     public static Configuration getInstance() {
+        if (instance == null)
+            instance = new Configuration();
         return instance;
     }
 
@@ -73,6 +77,14 @@ public class Configuration {
 
     public void setPrivateKey(String privateKey) {
         this.privateKey = privateKey;
+    }
+
+    public int getVisualizationPort() {
+        return visualizationPort;
+    }
+
+    public void setVisualizationPort(int visualizationPort) {
+        this.visualizationPort = visualizationPort;
     }
 
     private Properties loadProperties() {
@@ -123,6 +135,11 @@ public class Configuration {
             LOGGER.warning("Invalid version number provided. Setting default value (1.0.0).");
             this.version = "1.0.0";
         }
+    }
+
+    private void initVisualizationPort(Properties properties) {
+        String port = properties.getProperty("vis.visualization_port").toLowerCase().trim();
+        this.visualizationPort = Integer.parseInt(port);
     }
 
 }

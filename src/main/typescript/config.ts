@@ -7,6 +7,7 @@ CategoryServiceFactory.setDefaultConfiguration(new CategoryConfiguration(LogLeve
 // Create categories, they will autoregister themselves, one category without parent (root) and a child category.
 export const catServer = new Category("server");
 export const catMain = new Category("main");
+export const catIndex = new Category("index");
 
 // Optionally get a logger for a category, since 0.5.0 this is not necessary anymore, you can use the category itself to log.
   // export const log: CategoryLogger = CategoryServiceFactory.getLogger(cat);

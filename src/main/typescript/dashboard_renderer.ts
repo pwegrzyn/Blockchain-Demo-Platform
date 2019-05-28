@@ -1,7 +1,7 @@
+import { ipcRenderer } from "electron";
 
-let isConnected: boolean = true;
-
-function update_dashboard() {
+// Check the connection
+function update_dashboard(isConnected: boolean): void {
     if (!isConnected) {
         document.getElementById("mainContent").style.display = "none";
         document.getElementById("loadingIcon").style.display = "block";
@@ -11,5 +11,8 @@ function update_dashboard() {
     } 
 }
 
-update_dashboard()
-setInterval(update_dashboard, 1000)
+ipcRenderer.on('hasServerConnection', function(event: any, arg: any) {
+    update_dashboard(arg);
+})
+
+update_dashboard(false)

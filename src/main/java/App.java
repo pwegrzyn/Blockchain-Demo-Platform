@@ -2,9 +2,12 @@ import blockchain.model.Block;
 import blockchain.model.Blockchain;
 import blockchain.net.Node;
 import blockchain.controller.AppGUI;
+import blockchain.net.visualization.VisualizationClient;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,6 +19,16 @@ public class App extends Application {
     private static Blockchain blockchain;
 
     public static void main(String[] args) {
+
+        // Connection to visualization server test
+        try {
+            VisualizationClient visualizationClient = new VisualizationClient();
+            visualizationClient.postToServer("parameter");
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         blockchain = new Blockchain();
         blockchain.setBlockList(blockListDemo());

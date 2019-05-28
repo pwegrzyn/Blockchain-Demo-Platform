@@ -1,8 +1,8 @@
 import { app, BrowserWindow } from "electron";
 import * as path from "path";
-import {VisualizationServer} from "./server";
-import * as propertiesReader from "properties-reader";
 import { catMain } from "./config"
+import * as propertiesReader from "properties-reader";
+import { VisualizationServer } from "./server";
 
 // GUI
 let mainWindow: Electron.BrowserWindow;
@@ -40,3 +40,7 @@ const serverPort = props.get('vis.visualization_port');
 const visualizationServer: VisualizationServer = new VisualizationServer(Number(serverPort));
 
 visualizationServer.listen();
+
+setInterval(() => {
+    mainWindow.webContents.send('hasServerConnection', visualizationServer.hasConnection)
+}, 1000);
