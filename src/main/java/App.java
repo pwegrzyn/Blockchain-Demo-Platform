@@ -1,11 +1,17 @@
 import blockchain.config.Configuration;
+import blockchain.crypto.ECDSA;
 import blockchain.model.Blockchain;
 import blockchain.net.FullNode;
 import blockchain.gui.AppGUI;
 import blockchain.net.WalletNode;
+import blockchain.util.Utils;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
+import java.security.InvalidAlgorithmParameterException;
+import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

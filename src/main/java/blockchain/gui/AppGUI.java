@@ -4,6 +4,7 @@ import blockchain.net.WalletNode;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.TabPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
@@ -25,8 +26,8 @@ public class AppGUI {
     public void initApplication() throws IOException {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getClassLoader().getResource("views/mainView.fxml"));
-        BorderPane rootLayout = loader.load();
-        Scene scene = new Scene(rootLayout);
+        TabPane rootLayout = loader.load();
+        Scene scene = new Scene(rootLayout, 1200, 750);
         this.primaryStage.setScene(scene);
         this.primaryStage.setResizable(false);
         this.controller = loader.getController();
@@ -50,7 +51,7 @@ public class AppGUI {
             loader.setLocation(getClass().getClassLoader().getResource("views/initView.fxml"));
             BorderPane layout = loader.load();
             Stage initStage = new Stage();
-            Scene initScene = new Scene(layout,600,340);
+            Scene initScene = new Scene(layout,600,400);
             initStage.setScene(initScene);
             initStage.setTitle("Blockchain Demo Platform - Init");
             InitController initController = loader.getController();
@@ -58,7 +59,6 @@ public class AppGUI {
             initController.setPrimaryController(this.controller);
             initController.setNode(this.node);
             initController.init();
-            initStage.setAlwaysOnTop(true);
             initStage.setResizable(false);
             initStage.show();
         }catch(IOException e){
