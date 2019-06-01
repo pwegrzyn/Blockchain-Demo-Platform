@@ -5,10 +5,12 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.TabPane;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,6 +32,7 @@ public class AppGUI {
         Scene scene = new Scene(rootLayout, 1200, 750);
         this.primaryStage.setScene(scene);
         this.primaryStage.setResizable(false);
+        this.primaryStage.getIcons().add(new Image(Paths.get("src/main/resources/assets/icons/coin.png").toUri().toString()));
         this.controller = loader.getController();
         this.controller.setPrimaryStageElements(primaryStage, scene);
         showInitScreen();
@@ -53,6 +56,7 @@ public class AppGUI {
             Stage initStage = new Stage();
             Scene initScene = new Scene(layout,600,400);
             initStage.setScene(initScene);
+            initStage.getIcons().add(new Image(Paths.get("src/main/resources/assets/icons/coin.png").toUri().toString()));
             initStage.setTitle("Blockchain Demo Platform - Init");
             InitController initController = loader.getController();
             initController.setStage(initStage);

@@ -27,3 +27,5 @@ bash ./bdp.sh --help
 * Visualization
 * Improvement of the SHA256 kernel and effective parallelization
 * Communication between Java and Node
+
+## Known Issues

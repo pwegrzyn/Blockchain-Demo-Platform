@@ -50,6 +50,7 @@ public class ECDSA {
     }
 
     // pkcs8 format required, otherwise method returns false
+    // FIXME: definitely need to properly test this method
     public boolean verifyKeys(String privateKey, String publicKey) throws NoSuchProviderException, NoSuchAlgorithmException {
 
         KeyFactory keyFactory = KeyFactory.getInstance("SHA256withECDSA", "BC");
