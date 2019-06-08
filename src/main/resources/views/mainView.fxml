@@ -1,10 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<TabPane prefHeight="750.0" prefWidth="1200.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="blockchain.gui.AppController">
+<TabPane prefHeight="750.0" prefWidth="1200.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="blockchain.gui.AppController">
   <tabs>
     <Tab closable="false" text="Summary">
          <content>
@@ -12,7 +20,84 @@
          </content></Tab>
     <Tab closable="false" text="Blockchain">
          <content>
-            <AnchorPane prefHeight="200.0" prefWidth="200.0" />
+            <AnchorPane prefHeight="200.0" prefWidth="200.0">
+               <children>
+                  <HBox prefHeight="721.0" prefWidth="1200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <children>
+                        <VBox>
+                           <children>
+                              <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="40.0" prefWidth="400.0" text="Block list" textAlignment="CENTER">
+                                 <font>
+                                    <Font size="24.0" />
+                                 </font>
+                              </Label>
+                              <ListView fx:id="blockListView" prefHeight="700.0" prefWidth="400.0" />
+                           </children>
+                        </VBox>
+                        <VBox>
+                           <children>
+                              <Label alignment="CENTER" contentDisplay="CENTER" prefWidth="400.0" text="Transaction list" textAlignment="CENTER">
+                                 <font>
+                                    <Font size="24.0" />
+                                 </font>
+                              </Label>
+                              <ListView fx:id="txListView" prefHeight="700.0" prefWidth="400.0" />
+                           </children>
+                        </VBox>
+                        <VBox prefHeight="721.0" prefWidth="400.0">
+                           <children>
+                              <AnchorPane prefHeight="721.0" prefWidth="400.0">
+                                 <children>
+                                    <Separator layoutX="50.0" layoutY="300.0" prefWidth="300.0" />
+                                    <Label layoutX="136.0" layoutY="14.0" text="Block properties">
+                                       <font>
+                                          <Font size="18.0" />
+                                       </font>
+                                    </Label>
+                                    <Label layoutX="111.0" layoutY="314.0" text="Transaction properties">
+                                       <font>
+                                          <Font size="18.0" />
+                                       </font>
+                                    </Label>
+                                    <Label layoutX="58.0" layoutY="67.0" text="Index" textAlignment="RIGHT" />
+                                    <Label layoutX="26.0" layoutY="148.0" text="Transactions count" />
+                                    <Label layoutX="46.0" layoutY="108.0" text="Block hash" textAlignment="RIGHT" />
+                                    <Label layoutX="22.0" layoutY="185.0" text="Previous block hash" />
+                                    <Label layoutX="55.0" layoutY="227.0" text="Nonce" />
+                                    <Label layoutX="43.0" layoutY="266.0" text="Timestamp" />
+                                    <Label layoutX="58.0" layoutY="361.0" text="Index" />
+                                    <Label layoutX="59.0" layoutY="408.0" text="Hash" />
+                                    <Label layoutX="29.0" layoutY="455.0" text="Transaction type" />
+                                    <Label layoutX="23.0" layoutY="543.0" text="Output transactions" />
+                                    <Label layoutX="28.0" layoutY="647.0" text="Input transactions" wrapText="true" />
+                                    <TableView layoutX="156.0" layoutY="608.0" prefHeight="95.0" prefWidth="200.0">
+                                      <columns>
+                                        <TableColumn prefWidth="100.0" text="Tx index" />
+                                        <TableColumn prefWidth="100.0" text="Tx value" />
+                                      </columns>
+                                    </TableView>
+                                    <TableView layoutX="156.0" layoutY="504.0" prefHeight="95.0" prefWidth="200.0">
+                                       <columns>
+                                          <TableColumn prefWidth="100.0" text="Tx index" />
+                                          <TableColumn prefWidth="100.0" text="Tx value" />
+                                       </columns>
+                                    </TableView>
+                                    <Label fx:id="blockIndexLabel" layoutX="220.0" layoutY="67.0" text="BlockIndexLabel" />
+                                    <Label fx:id="blockHashLabel" layoutX="220.0" layoutY="108.0" text="BlockHashLabel" />
+                                    <Label fx:id="txCountLabel" layoutX="220.0" layoutY="148.0" text="TxCountLabel" />
+                                    <Label fx:id="prevBlockHashLabel" layoutX="220.0" layoutY="185.0" text="PrevBlockHashLabel" />
+                                    <Label fx:id="nonceLabel" layoutX="220.0" layoutY="227.0" text="NonceLabel" />
+                                    <Label fx:id="timestampLabel" layoutX="220.0" layoutY="266.0" text="TimestampLabel" />
+                                    <Label fx:id="txIndexLabel" layoutX="222.0" layoutY="361.0" text="TxIndexLabel" />
+                                    <Label fx:id="txHashLabel" layoutX="223.0" layoutY="408.0" text="TxHashLabel" />
+                                    <Label fx:id="txTypeLabel" layoutX="223.0" layoutY="455.0" text="TxTypeLabel" />
+                                 </children>
+                              </AnchorPane>
+                           </children>
+                        </VBox>
+                     </children>
+                  </HBox>
+               </children></AnchorPane>
          </content></Tab>
       <Tab closable="false" text="Transactions">
          <content>
