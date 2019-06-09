@@ -6,11 +6,20 @@ import blockchain.model.Blockchain;
 import blockchain.net.FullNode;
 import blockchain.net.WalletNode;
 import blockchain.protocol.Validator;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 
 public class InitController {
@@ -71,23 +80,53 @@ public class InitController {
         }
         config.setNodeRunningMode(this.ModeChoiceBox.getValue());
 
-        // Initialize the node and blockchain
-        Blockchain blockchain = new Blockchain();
-        WalletNode node = null;
-        switch(Configuration.getInstance().getNodeRunningMode()) {
-            case FULL:
-                node = new FullNode(CLUSTER_NAME, blockchain);
-                break;
-            case WALLET:
-                node = new WalletNode(CLUSTER_NAME, blockchain);
-                break;
-        }
+        // Initialize the node and blockchain (do it in a separate thread so as to not stall the main JavaFX thread)
+        ProgressForm pForm = new ProgressForm();
+        Task<Void> task = new Task<Void>() {
+            @Override
+            public Void call() throws InterruptedException {
 
-        // Pass the control to the main controller of the app
-        this.stage.close();
-        this.primaryController.setNode(node);
-        this.primaryController.init();
-        this.primaryController.backToMainView();
+                // Step 1
+                Thread.sleep(200);
+                // Actually create the blockchain object
+                Blockchain blockchain = new Blockchain();
+                updateProgress(1,4);
+
+                // Step 2
+                // Init the connection with the cluster
+                WalletNode node = null;
+                switch(Configuration.getInstance().getNodeRunningMode()) {
+                    case FULL:
+                        node = new FullNode(CLUSTER_NAME, blockchain);
+                        break;
+                    case WALLET:
+                        node = new WalletNode(CLUSTER_NAME, blockchain);
+                        break;
+                }
+                updateProgress(2, 4);
+
+                // Step 3
+                Thread.sleep(500);
+                InitController.this.primaryController.setNode(node);
+                updateProgress(3, 4);
+
+                // Step 4
+                Thread.sleep(200);
+                // Initialize the main app view
+                InitController.this.primaryController.init();
+                updateProgress(4, 4);
+                return null ;
+            }
+        };
+
+        pForm.activateProgressBar(task);
+        task.setOnSucceeded(e -> {
+            pForm.getDialogStage().close();
+            this.stage.close();
+            this.primaryController.backToMainView();
+        });
+        pForm.getDialogStage().show();
+        new Thread(task).start();
     }
 
     @FXML
@@ -117,4 +156,43 @@ public class InitController {
         alert.setContentText(content);
         alert.showAndWait();
     }
+
+
+    // Initialization Progress Stage
+    private static class ProgressForm {
+
+        private final Stage dialogStage;
+        private final ProgressBar pb = new ProgressBar();
+
+        public ProgressForm() {
+            dialogStage = new Stage();
+            dialogStage.initStyle(StageStyle.UTILITY);
+            dialogStage.setResizable(false);
+            dialogStage.initModality(Modality.APPLICATION_MODAL);
+            dialogStage.setTitle("Please wait");
+
+            final Label label = new Label();
+            label.setText("Connecting with other nodes...");
+
+            pb.setProgress(-1F);
+
+            final HBox hb = new HBox();
+            hb.setSpacing(5);
+            hb.setAlignment(Pos.CENTER);
+            hb.getChildren().addAll(label, pb);
+
+            Scene scene = new Scene(hb);
+            dialogStage.setScene(scene);
+        }
+
+        public void activateProgressBar(final Task<?> task)  {
+            pb.progressProperty().bind(task.progressProperty());
+            dialogStage.show();
+        }
+
+        public Stage getDialogStage() {
+            return dialogStage;
+        }
+    }
+
 }
