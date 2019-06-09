@@ -1,5 +1,6 @@
 package blockchain.gui;
 
+import blockchain.model.Blockchain;
 import blockchain.net.WalletNode;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -70,4 +71,7 @@ public class AppGUI {
         }
     }
 
+    public void injectBlockchain(Blockchain blockchain) {
+        controller.setBlockchain(blockchain);
+    }
 }

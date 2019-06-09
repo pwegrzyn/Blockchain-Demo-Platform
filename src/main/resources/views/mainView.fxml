@@ -46,51 +46,57 @@
                         </VBox>
                         <VBox prefHeight="721.0" prefWidth="400.0">
                            <children>
-                              <AnchorPane prefHeight="721.0" prefWidth="400.0">
+                              <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="35.0" prefWidth="400.0" text="Block properties" textAlignment="CENTER">
+                                 <font>
+                                    <Font size="24.0" />
+                                 </font>
+                              </Label>
+                              <Separator prefWidth="300.0" />
+                              <AnchorPane fx:id="blockPropertiesPane" prefHeight="290.0" prefWidth="400.0" visible="false">
                                  <children>
-                                    <Separator layoutX="50.0" layoutY="300.0" prefWidth="300.0" />
-                                    <Label layoutX="136.0" layoutY="14.0" text="Block properties">
-                                       <font>
-                                          <Font size="18.0" />
-                                       </font>
-                                    </Label>
-                                    <Label layoutX="111.0" layoutY="314.0" text="Transaction properties">
-                                       <font>
-                                          <Font size="18.0" />
-                                       </font>
-                                    </Label>
-                                    <Label layoutX="58.0" layoutY="67.0" text="Index" textAlignment="RIGHT" />
-                                    <Label layoutX="26.0" layoutY="148.0" text="Transactions count" />
-                                    <Label layoutX="46.0" layoutY="108.0" text="Block hash" textAlignment="RIGHT" />
-                                    <Label layoutX="22.0" layoutY="185.0" text="Previous block hash" />
-                                    <Label layoutX="55.0" layoutY="227.0" text="Nonce" />
-                                    <Label layoutX="43.0" layoutY="266.0" text="Timestamp" />
-                                    <Label layoutX="58.0" layoutY="361.0" text="Index" />
-                                    <Label layoutX="59.0" layoutY="408.0" text="Hash" />
-                                    <Label layoutX="29.0" layoutY="455.0" text="Transaction type" />
-                                    <Label layoutX="23.0" layoutY="543.0" text="Output transactions" />
-                                    <Label layoutX="28.0" layoutY="647.0" text="Input transactions" wrapText="true" />
-                                    <TableView layoutX="156.0" layoutY="608.0" prefHeight="95.0" prefWidth="200.0">
+                                    <Label layoutX="62.0" layoutY="30.0" text="Index" textAlignment="RIGHT" />
+                                    <Label layoutX="28.0" layoutY="118.0" text="Transactions count" />
+                                    <Label layoutX="49.0" layoutY="74.0" text="Block hash" textAlignment="RIGHT" />
+                                    <Label layoutX="24.0" layoutY="162.0" text="Previous block hash" />
+                                    <Label layoutX="59.0" layoutY="206.0" text="Nonce" />
+                                    <Label layoutX="47.0" layoutY="250.0" text="Timestamp" />
+                                    <Label fx:id="blockIndexLabel" layoutX="242.0" layoutY="30.0" text="BlockIndexLabel" />
+                                    <Label fx:id="blockHashLabel" layoutX="243.0" layoutY="74.0" text="BlockHashLabel" />
+                                    <Label fx:id="txCountLabel" layoutX="249.0" layoutY="118.0" text="TxCountLabel" />
+                                    <Label fx:id="prevBlockHashLabel" layoutX="232.0" layoutY="162.0" text="PrevBlockHashLabel" />
+                                    <Label fx:id="nonceLabel" layoutX="253.0" layoutY="206.0" text="NonceLabel" />
+                                    <Label fx:id="timestampLabel" layoutX="241.0" layoutY="250.0" text="TimestampLabel" />
+                                 </children>
+                              </AnchorPane>
+                              <Separator prefWidth="300.0" />
+                              <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="35.0" prefWidth="400.0" text="Transaction properties" textAlignment="CENTER">
+                                 <font>
+                                    <Font size="24.0" />
+                                 </font>
+                              </Label>
+                              <Separator prefWidth="300.0" />
+                              <AnchorPane fx:id="txPropertiesPane" prefHeight="350.0" prefWidth="200.0" visible="false">
+                                 <children>
+                                    <Label layoutX="73.0" layoutY="24.0" text="Index" />
+                                    <Label layoutX="74.0" layoutY="71.0" text="Hash" />
+                                    <Label layoutX="44.0" layoutY="122.0" text="Transaction type" />
+                                    <Label layoutX="35.0" layoutY="300.0" text="Output transactions" />
+                                    <Label layoutX="42.0" layoutY="208.0" text="Input transactions" wrapText="true" />
+                                    <TableView fx:id="txInputTxTable" layoutX="186.0" layoutY="169.0" prefHeight="95.0" prefWidth="200.0">
                                       <columns>
                                         <TableColumn prefWidth="100.0" text="Tx index" />
                                         <TableColumn prefWidth="100.0" text="Tx value" />
                                       </columns>
                                     </TableView>
-                                    <TableView layoutX="156.0" layoutY="504.0" prefHeight="95.0" prefWidth="200.0">
+                                    <TableView fx:id="txOutputTxTable" layoutX="186.0" layoutY="261.0" prefHeight="95.0" prefWidth="200.0">
                                        <columns>
                                           <TableColumn prefWidth="100.0" text="Tx index" />
                                           <TableColumn prefWidth="100.0" text="Tx value" />
                                        </columns>
                                     </TableView>
-                                    <Label fx:id="blockIndexLabel" layoutX="220.0" layoutY="67.0" text="BlockIndexLabel" />
-                                    <Label fx:id="blockHashLabel" layoutX="220.0" layoutY="108.0" text="BlockHashLabel" />
-                                    <Label fx:id="txCountLabel" layoutX="220.0" layoutY="148.0" text="TxCountLabel" />
-                                    <Label fx:id="prevBlockHashLabel" layoutX="220.0" layoutY="185.0" text="PrevBlockHashLabel" />
-                                    <Label fx:id="nonceLabel" layoutX="220.0" layoutY="227.0" text="NonceLabel" />
-                                    <Label fx:id="timestampLabel" layoutX="220.0" layoutY="266.0" text="TimestampLabel" />
-                                    <Label fx:id="txIndexLabel" layoutX="222.0" layoutY="361.0" text="TxIndexLabel" />
-                                    <Label fx:id="txHashLabel" layoutX="223.0" layoutY="408.0" text="TxHashLabel" />
-                                    <Label fx:id="txTypeLabel" layoutX="223.0" layoutY="455.0" text="TxTypeLabel" />
+                                    <Label fx:id="txIndexLabel" layoutX="253.0" layoutY="24.0" text="TxIndexLabel" />
+                                    <Label fx:id="txHashLabel" layoutX="253.0" layoutY="71.0" text="TxHashLabel" />
+                                    <Label fx:id="txTypeLabel" layoutX="254.0" layoutY="122.0" text="TxTypeLabel" />
                                  </children>
                               </AnchorPane>
                            </children>
