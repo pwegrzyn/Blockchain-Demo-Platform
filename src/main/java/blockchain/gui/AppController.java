@@ -25,7 +25,11 @@ public class AppController {
     private String currentTheme = "assets/css/defaulttheme.css";
     private Blockchain blockchain;
 
+    @FXML private SummaryTabPageController summaryTabPageController;
     @FXML private BlockchainTabPageController blockchainTabPageController;
+    @FXML private TransactionsTabPageController transactionsTabPageController;
+    @FXML private WalletTabPageController walletTabPageController;
+    @FXML private MinerTabPageController minerTabPageController;
 
     // Possibly can add new themes for javaFX here
     private List<String> themesList = new LinkedList<String>(){
@@ -49,7 +53,10 @@ public class AppController {
     }
 
     public void init() {
-
+//        summaryTabPageController.init();
+//        blockchainTabPageController.init();
+        walletTabPageController.init();
+        walletTabPageController.setNode(node);
     }
 
 
@@ -64,5 +71,6 @@ public class AppController {
     public void setBlockchain(Blockchain blockchain) {
         this.blockchain = blockchain;
         blockchainTabPageController.setBlockchain(blockchain);
+        walletTabPageController.setBlockchain(blockchain);
     }
 }
