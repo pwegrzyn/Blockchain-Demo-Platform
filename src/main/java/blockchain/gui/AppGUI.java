@@ -47,10 +47,6 @@ public class AppGUI {
         });
     }
 
-    public void setNode(WalletNode node) {
-        this.node = node;
-    }
-
     public void showInitScreen() {
         try{
             FXMLLoader loader = new FXMLLoader();
@@ -65,7 +61,6 @@ public class AppGUI {
             InitController initController = loader.getController();
             initController.setStage(initStage);
             initController.setPrimaryController(this.controller);
-            initController.setNode(this.node);
             initController.init();
             initStage.setResizable(false);
             initStage.show();

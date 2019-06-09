@@ -3,6 +3,7 @@ package blockchain.gui;
 import blockchain.config.Configuration;
 import blockchain.config.Mode;
 import blockchain.model.Blockchain;
+import blockchain.net.FullNode;
 import blockchain.net.WalletNode;
 import blockchain.protocol.Validator;
 import javafx.collections.FXCollections;
@@ -16,8 +17,7 @@ public class InitController {
 
     private Stage stage;
     private AppController primaryController;
-    private Blockchain blockchain;
-    private WalletNode node;
+    private static final String CLUSTER_NAME = "test_net";
 
     public void init() {
         this.ModeChoiceBox.setItems(FXCollections.observableArrayList(Mode.WALLET, Mode.FULL));
@@ -71,8 +71,21 @@ public class InitController {
         }
         config.setNodeRunningMode(this.ModeChoiceBox.getValue());
 
+        // Initialize the node and blockchain
+        Blockchain blockchain = new Blockchain();
+        WalletNode node = null;
+        switch(Configuration.getInstance().getNodeRunningMode()) {
+            case FULL:
+                node = new FullNode(CLUSTER_NAME, blockchain);
+                break;
+            case WALLET:
+                node = new WalletNode(CLUSTER_NAME, blockchain);
+                break;
+        }
+
+        // Pass the control to the main controller of the app
         this.stage.close();
-        this.primaryController.setNode(this.node);
+        this.primaryController.setNode(node);
         this.primaryController.init();
         this.primaryController.backToMainView();
     }
@@ -89,12 +102,6 @@ public class InitController {
     public void setPrimaryController(AppController primaryController) {
         this.primaryController = primaryController;
     }
-
-    public void setBlockchain(Blockchain blockchain) {
-        this.blockchain = blockchain;
-    }
-
-    public void setNode(WalletNode node) { this.node = node; }
 
     private boolean areKeysValid() {
         Validator validator = new Validator();
