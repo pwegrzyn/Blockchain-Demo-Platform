@@ -166,6 +166,8 @@ public class InitController {
 
         public ProgressForm() {
             dialogStage = new Stage();
+            dialogStage.setMinHeight(200);
+            dialogStage.setMinWidth(400);
             dialogStage.initStyle(StageStyle.UTILITY);
             dialogStage.setResizable(false);
             dialogStage.initModality(Modality.APPLICATION_MODAL);
@@ -177,7 +179,7 @@ public class InitController {
             pb.setProgress(-1F);
 
             final HBox hb = new HBox();
-            hb.setSpacing(5);
+            hb.setSpacing(15);
             hb.setAlignment(Pos.CENTER);
             hb.getChildren().addAll(label, pb);
 
