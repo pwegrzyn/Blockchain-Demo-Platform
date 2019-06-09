@@ -21,7 +21,6 @@ public class AppGUI {
     private static final Logger LOGGER = Logger.getLogger(AppGUI.class.getName());
     private Stage primaryStage;
     private AppController controller;
-    private WalletNode node;
 
     public AppGUI(Stage primaryStage) {
         this.primaryStage = primaryStage;
