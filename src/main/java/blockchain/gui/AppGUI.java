@@ -2,6 +2,7 @@ package blockchain.gui;
 
 import blockchain.net.WalletNode;
 import javafx.application.Platform;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.TabPane;
@@ -9,6 +10,7 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
+import javax.imageio.ImageIO;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.logging.Level;
@@ -32,7 +34,8 @@ public class AppGUI {
         Scene scene = new Scene(rootLayout, 1200, 750);
         this.primaryStage.setScene(scene);
         this.primaryStage.setResizable(false);
-        this.primaryStage.getIcons().add(new Image(Paths.get("src/main/resources/assets/icons/coin.png").toUri().toString()));
+        java.awt.image.BufferedImage imageIcon = ImageIO.read(getClass().getClassLoader().getResource("assets/icons/coin.png"));
+        this.primaryStage.getIcons().add(SwingFXUtils.toFXImage(imageIcon, null));
         this.controller = loader.getController();
         this.controller.setPrimaryStageElements(primaryStage, scene);
         showInitScreen();
@@ -56,7 +59,8 @@ public class AppGUI {
             Stage initStage = new Stage();
             Scene initScene = new Scene(layout,600,400);
             initStage.setScene(initScene);
-            initStage.getIcons().add(new Image(Paths.get("src/main/resources/assets/icons/coin.png").toUri().toString()));
+            java.awt.image.BufferedImage imageIcon = ImageIO.read(getClass().getClassLoader().getResource("assets/icons/coin.png"));
+            initStage.getIcons().add(SwingFXUtils.toFXImage(imageIcon, null));
             initStage.setTitle("Blockchain Demo Platform - Init");
             InitController initController = loader.getController();
             initController.setStage(initStage);
