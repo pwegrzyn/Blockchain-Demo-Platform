@@ -52,7 +52,7 @@ public class App extends Application {
             blockchain.getBlockList().add(block);
             blockchain.getBlockHashList().add(block.getCurrentHash());
         }
-        System.out.println("Add block");
+        System.out.println("ADD SAMPLE BLOCKS");
     }
 
     @Override

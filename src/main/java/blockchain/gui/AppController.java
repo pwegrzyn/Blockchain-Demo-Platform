@@ -25,26 +25,7 @@ public class AppController {
     private String currentTheme = "assets/css/defaulttheme.css";
     private Blockchain blockchain;
 
-    private ObservableList<String> hashBlockList;
-
-    @FXML private ListView<String> blockListView;
-    @FXML private ListView<Transaction> txListView;
-
-    @FXML private Label blockIndexLabel;
-    @FXML private Label blockHashLabel;
-    @FXML private Label txCountLabel;
-    @FXML private Label prevBlockHashLabel;
-    @FXML private Label nonceLabel;
-    @FXML private Label timestampLabel;
-
-    @FXML private Label txIndexLabel;
-    @FXML private Label txHashLabel;
-    @FXML private Label txTypeLabel;
-    @FXML private TableView txInputTxTable;
-    @FXML private TableView txOutputTxTable;
-
-    @FXML private AnchorPane blockPropertiesPane;
-    @FXML private AnchorPane txPropertiesPane;
+    @FXML private BlockchainTabPageController blockchainTabPageController;
 
     // Possibly can add new themes for javaFX here
     private List<String> themesList = new LinkedList<String>(){
@@ -53,94 +34,12 @@ public class AppController {
         }
     };
 
-    private void updateSelectedBlock(String newSelectedHash){
-        Block newBlock = blockchain.findBlock(newSelectedHash);
-        updateTransactionList(newBlock);
-        blockIndexLabel.setText("" + newBlock.getIndex());
-        blockHashLabel.setText(newBlock.getCurrentHash());
-        txCountLabel.setText("" + newBlock.getTransactions().size());
-        prevBlockHashLabel.setText(newBlock.getPreviousHash());
-        nonceLabel.setText("" + newBlock.getNonce());
-        timestampLabel.setText("" + newBlock.getTimestamp());
-    }
-
-    private void updateSelectedTransaction(Transaction transaction){
-        if(transaction == null){
-            return;
-        }
-        txIndexLabel.setText(transaction.getId());
-        txHashLabel.setText(transaction.getHash());
-        txTypeLabel.setText(transaction.getType().toString());
-        updateTxInputTable(transaction.getInputs());
-        updateTxOutputTable(transaction.getOutputs());
-    }
-
-    private void updateTxInputTable(List<TransactionInput> transactions){
-        ObservableList<TableColumn<TransactionInput, String>> columns = txInputTxTable.getColumns();
-        TableColumn<TransactionInput, String> txIndexColumn = columns.get(0);
-        TableColumn<TransactionInput, String> txValueColumn = columns.get(1);
-        txIndexColumn.setCellValueFactory(new PropertyValueFactory<TransactionInput, String>("previousTransactionOutputIndex"));
-        txValueColumn.setCellValueFactory(new PropertyValueFactory<TransactionInput, String>("amount"));
-        txInputTxTable.setItems(FXCollections.observableArrayList(transactions));
-    }
-
-    private void updateTxOutputTable(List<TransactionOutput> transactions){
-        ObservableList<TableColumn<TransactionOutput, String>> columns = txOutputTxTable.getColumns();
-        TableColumn<TransactionOutput, String> txIndexColumn = columns.get(0);
-        TableColumn<TransactionOutput, String> txValueColumn = columns.get(1);
-        txIndexColumn.setCellValueFactory(new PropertyValueFactory<TransactionOutput, String>("receiverAddress"));
-        txValueColumn.setCellValueFactory(new PropertyValueFactory<TransactionOutput, String>("amount"));
-        txOutputTxTable.setItems(FXCollections.observableArrayList(transactions));
-    }
-
-    private void updateTransactionList(Block block){
-        List<Transaction> transactions = block.getTransactions();
-        txListView.setItems(FXCollections.observableArrayList(transactions));
-        txListView.setVisible(true);
-    }
-
-    private void setTransactionInfoVisibility(boolean visible){
-        txPropertiesPane.setVisible(visible);
-    }
-
-    private void clearTransactionTableView(){
-        txListView.setItems(FXCollections.observableArrayList(new LinkedList<>()));
-    }
-
-    private void setBlockInfoVisibility(boolean visible){
-        blockPropertiesPane.setVisible(visible);
-    }
 
     public void setPrimaryStageElements(Stage primaryStage, Scene primaryScene) {
         this.primaryStage = primaryStage;
         this.primaryScene = primaryScene;
         this.primaryScene.getStylesheets().add(this.currentTheme);
         primaryStage.setTitle("Blockchain Demo Platform");
-        addListenerToBlockListViewSelector();
-        addListenerToTxListViewSelector();
-    }
-
-    private void addListenerToTxListViewSelector() {
-        this.txListView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Transaction>() {
-            @Override
-            public void changed(ObservableValue<? extends Transaction> observable, Transaction oldValue, Transaction newValue) {
-                updateSelectedTransaction(newValue);
-                setTransactionInfoVisibility(true);
-            }
-        });
-    }
-
-    private void addListenerToBlockListViewSelector() {
-        this.blockListView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                clearTransactionTableView();
-                setTransactionInfoVisibility(false);
-                updateSelectedBlock(newValue);
-                setBlockInfoVisibility(true);
-            }
-
-        });
     }
 
     public void backToMainView() {
@@ -150,52 +49,20 @@ public class AppController {
     }
 
     public void init() {
-        addTxListViewCellFactory();
+
     }
 
-    private void addTxListViewCellFactory() {
-        txListView.setCellFactory(lv -> new ListCell<Transaction>() {
-            @Override
-            public void updateItem(Transaction item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) {
-                    setText(null);
-                } else {
-                    setText(item.getId());
-                }
-            }});
-    }
 
     public void setNode(WalletNode node) {
         this.node = node;
     }
 
-    public void setBlockchain(Blockchain blockchain) {
-        this.blockchain = blockchain;
-        this.hashBlockList = (ObservableList<String>) blockchain.getBlockHashList();
-        blockListView.setItems(hashBlockList);
-        System.out.println("Added blockchain to AppController");
-        System.out.println(blockchain.getBlockList().size() + " " + blockchain.getBlockHashList().size());
-        this.hashBlockList.addListener(new ListChangeListener<String>() {
-            @Override
-            public void onChanged(Change<? extends String> c) {
-                if(!c.next()) return;
-                if(c.wasAdded()){
-                    for(String s : c.getAddedSubList()){
-                        Block blockToAdd = blockchain.findBlock(s);
-                        ObservableList<String> blocklist = blockListView.getItems();
-                        if(blocklist.get(blocklist.size() - 1).equals(blockToAdd.getPreviousHash())){
-                            blocklist.add(blockToAdd.getCurrentHash());
-                        }
-                    }
-                } else if(c.wasRemoved()){
-
-                }
-            }
-        });
-    }
-
     public Blockchain getBlockchain() {
         return blockchain;
+    }
+
+    public void setBlockchain(Blockchain blockchain) {
+        this.blockchain = blockchain;
+        blockchainTabPageController.setBlockchain(blockchain);
     }
 }
