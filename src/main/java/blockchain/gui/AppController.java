@@ -7,15 +7,19 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 public class AppController {
 
@@ -30,6 +34,27 @@ public class AppController {
     private List<String> themesList = new LinkedList<String>(){
         {
             add("assets/css/defaulttheme.css");
+        }
+    };
+
+    // Close-confirmation handler
+    private EventHandler<WindowEvent> confirmCloseEventHandler = event -> {
+        Alert closeConfirmation = new Alert(
+                Alert.AlertType.CONFIRMATION,
+                "Are you sure you want to exit?"
+        );
+        Button exitButton = (Button) closeConfirmation.getDialogPane().lookupButton(
+                ButtonType.OK
+        );
+        exitButton.setText("Exit");
+        closeConfirmation.setHeaderText("Confirm Exit");
+        closeConfirmation.initModality(Modality.APPLICATION_MODAL);
+        closeConfirmation.initOwner(this.primaryStage);
+        Optional<ButtonType> closeResponse = closeConfirmation.showAndWait();
+        if (!ButtonType.OK.equals(closeResponse.get())) {
+            // All pre-exit stuff the app needs to do should go here
+            event.consume();
+            this.node.disconnect();
         }
     };
 
@@ -48,7 +73,13 @@ public class AppController {
     }
 
     public void init() {
+        // Pin the close-confirmation hook
+        this.primaryStage.setOnCloseRequest(confirmCloseEventHandler);
+
+        // Get the initial blockchain if this node is the first one or get the blockchain which was taken from other
+        // existing nodes otherwise
         this.blockchainTabPageController.setBlockchain(this.node.getBlockchain());
+
         // Test the blockchain gui by adding some dummy blocks
         addSampleBlocks();
     }

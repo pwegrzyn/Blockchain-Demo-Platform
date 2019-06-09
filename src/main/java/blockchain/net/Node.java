@@ -1,7 +1,6 @@
 package blockchain.net;
 
 import blockchain.config.Configuration;
-import blockchain.model.Block;
 import blockchain.model.Blockchain;
 import org.jgroups.JChannel;
 import org.jgroups.Message;

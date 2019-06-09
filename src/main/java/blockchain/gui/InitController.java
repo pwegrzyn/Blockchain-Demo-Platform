@@ -17,6 +17,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -175,15 +176,16 @@ public class InitController {
 
             final Label label = new Label();
             label.setText("Connecting with other nodes...");
+            label.setFont(new Font(15));
 
             pb.setProgress(-1F);
 
-            final HBox hb = new HBox();
-            hb.setSpacing(15);
-            hb.setAlignment(Pos.CENTER);
-            hb.getChildren().addAll(label, pb);
+            final VBox vb = new VBox();
+            vb.setSpacing(15);
+            vb.setAlignment(Pos.CENTER);
+            vb.getChildren().addAll(label, pb);
 
-            Scene scene = new Scene(hb);
+            Scene scene = new Scene(vb);
             dialogStage.setScene(scene);
         }
 
