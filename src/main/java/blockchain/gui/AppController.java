@@ -23,7 +23,6 @@ public class AppController {
     private Scene primaryScene;
     private WalletNode node;
     private String currentTheme = "assets/css/defaulttheme.css";
-    private Blockchain blockchain;
 
     @FXML private BlockchainTabPageController blockchainTabPageController;
 
@@ -49,7 +48,9 @@ public class AppController {
     }
 
     public void init() {
-
+        this.blockchainTabPageController.setBlockchain(this.node.getBlockchain());
+        // Test the blockchain gui by adding some dummy blocks
+        addSampleBlocks();
     }
 
 
@@ -57,12 +58,23 @@ public class AppController {
         this.node = node;
     }
 
-    public Blockchain getBlockchain() {
-        return blockchain;
+    // Test method to check if the Blockchain gui is working, delete it later
+    private void addSampleBlocks(){
+        for(int i = 0; i < 40; i++){
+            TransactionInput input = new TransactionInput("prevhash", i - 1,
+                    50.0, "fromAddress", "signature");
+            TransactionOutput output = new TransactionOutput(50.0, "receiverAddress");
+            List<TransactionInput> inputList = new LinkedList<>();
+            inputList.add(input);
+            List<TransactionOutput> outputList = new LinkedList<>();
+            outputList.add(output);
+            Transaction tx = new Transaction("transactionId" + i, TransactionType.REGULAR, inputList, outputList);
+            List<Transaction> txList = new LinkedList<>();
+            txList.add(tx);
+            Block block = new Block(i, txList, "hash" + (i - 1), i, i);
+            this.node.getBlockchain().getBlockList().add(block);
+            this.node.getBlockchain().getBlockHashList().add(block.getCurrentHash());
+        }
     }
 
-    public void setBlockchain(Blockchain blockchain) {
-        this.blockchain = blockchain;
-        blockchainTabPageController.setBlockchain(blockchain);
-    }
 }
