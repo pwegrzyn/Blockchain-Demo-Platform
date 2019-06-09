@@ -1,5 +1,8 @@
 package blockchain.model;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
 import java.io.Serializable;
 import java.util.*;
 
@@ -8,11 +11,14 @@ public class Blockchain implements Serializable {
 
     // Arbitrarily sorted list of blocks in the block-dag (main branch as well as all past forks)
     private List<Block> blockList;
+    // List of block hashes added to the blockchain
+    private ObservableList<String> blockHashList;
     // Mempool of unconfirmed transactions
     private Queue<Transaction> unconfirmedTransactions;
 
     public Blockchain() {
         this.blockList = new LinkedList<>();
+        this.blockHashList = FXCollections.observableList(new LinkedList<>());
         this.unconfirmedTransactions = new PriorityQueue<>(new MaximumFeeComparator());
     }
 
@@ -25,6 +31,15 @@ public class Blockchain implements Serializable {
         for(Block block : this.blockList) {
             Transaction result = block.findTransaction(hash);
             if(result != null) return result;
+        }
+        return null;
+    }
+
+    public Block findBlock(String hash){
+        for(Block block : this.blockList){
+            if(block.getCurrentHash().equals(hash)){
+                return block;
+            }
         }
         return null;
     }
@@ -45,6 +60,10 @@ public class Blockchain implements Serializable {
 
     public void setBlockList(List<Block> blockList) {
         this.blockList = blockList;
+    }
+
+    public List<String> getBlockHashList() {
+        return blockHashList;
     }
 
     public Queue<Transaction> getUnconfirmedTransactions() {

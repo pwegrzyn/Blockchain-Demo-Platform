@@ -1,5 +1,6 @@
 package blockchain.gui;
 
+import blockchain.model.Blockchain;
 import blockchain.net.WalletNode;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;

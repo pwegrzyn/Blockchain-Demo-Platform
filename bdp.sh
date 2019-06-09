@@ -1,9 +1,8 @@
-#!/bin/sh
 
 # FIXME Need to test this script and possibly change it so it spawns a new terminal when running the client/visualization
 # module so as not to block stdin/stdout
 
-function usage () {
+function usage {
     echo "Blockchain Demo Platform (BDP) - simple cryptocurrency with visualization"
     echo "usage: bdp [--version] [--help] <command> [<args>]"
     echo "   "
@@ -14,11 +13,11 @@ function usage () {
     echo "  visualize       Run the visualization module"
 }
 
-function display_version () {
+function display_version {
     echo "BDP version 0.1.0"
 }
 
-function parse_args () {
+function parse_args {
   # positional args
   args=()
 
@@ -44,7 +43,7 @@ function parse_args () {
   # set positionals to vars
   command="${args[0]}"
 
-  case command in
+  case $command in
     run )       run; exit;;
     update )    update; exit;;
     init )      init; exit;;
@@ -53,27 +52,27 @@ function parse_args () {
   esac
 }
 
-function update () {
+function update {
     echo "Updating..."
     git pull origin master
     echo "Done."
 }
 
-function init () {
+function init {
     echo "Initializing..."
     ./gradlew build
     npm install
     echo "Done."
 }
 
-function visualize () {
+function visualize {
     echo "Starting the visualization module..."
     npm start
 }
 
-function run () {
+function run {
     echo "Starting the BDP client..."
     ./gradlew run
 }
 
-parse_args "$@";
+parse_args "$@"

@@ -72,7 +72,6 @@ public class Block implements Serializable {
         Gson gson = new Gson();
         TreeMap<String, Object> map = gson.fromJson(unorderedJson, TreeMap.class);
         return Sha256.calculateSHA256(gson.toJson(map));
-        //return "hash" + index;
     }
 
     public int getIndex() {

@@ -51,13 +51,13 @@ public class InitController {
         if(ModeChoiceBox.getValue() == null) {
             String header = "Input Error";
             String content = "You have not chosen the mode (Wallet or Full)";
-            reportGenerateDialog(header, content, Alert.AlertType.WARNING);
+            showAlert(header, content, Alert.AlertType.WARNING);
             return;
         }
         if(!AutoGenerateKeysCheckbox.isSelected() && !areKeysValid()) {
             String header = "Input Error";
             String content = "The provided keys are not valid";
-            reportGenerateDialog(header, content, Alert.AlertType.WARNING);
+            showAlert(header, content, Alert.AlertType.WARNING);
             return;
         }
 
@@ -109,7 +109,7 @@ public class InitController {
                 this.PublicKeyInput.getCharacters().toString());
     }
 
-    private void reportGenerateDialog(String header, String content, Alert.AlertType type) {
+    private void showAlert(String header, String content, Alert.AlertType type) {
         String title = "BDP Initialization";
         Alert alert = new Alert(type);
         alert.setTitle(title);
