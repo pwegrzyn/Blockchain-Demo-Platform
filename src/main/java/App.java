@@ -1,20 +1,11 @@
 import blockchain.config.Configuration;
-import blockchain.crypto.ECDSA;
-import blockchain.model.Block;
-import blockchain.model.Blockchain;
-import blockchain.model.Transaction;
-import blockchain.model.TransactionType;
+import blockchain.model.*;
 import blockchain.net.FullNode;
 import blockchain.gui.AppGUI;
 import blockchain.net.WalletNode;
-import blockchain.util.Utils;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
-import java.security.InvalidAlgorithmParameterException;
-import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
@@ -31,7 +22,6 @@ public class App extends Application {
     public static void main(String[] args) {
 
         blockchain = new Blockchain();
-        addBlocks();
 
         switch(Configuration.getInstance().getNodeRunningMode()) {
             case FULL:
@@ -42,12 +32,20 @@ public class App extends Application {
                 break;
         }
 
+        addSampleBlocks();
         launch(args);
     }
 
-    public static void addBlocks(){
+    public static void addSampleBlocks(){
+
         for(int i = 0; i < 40; i++){
-            Transaction tx = new Transaction("transactionId" + i, TransactionType.REGULAR, new LinkedList<>(), new LinkedList<>());
+            TransactionInput input = new TransactionInput("prevhash", i - 1, 50.0, "fromAddress", "signature");
+            TransactionOutput output = new TransactionOutput(50.0, "receiverAddress");
+            List<TransactionInput> inputList = new LinkedList<>();
+            inputList.add(input);
+            List<TransactionOutput> outputList = new LinkedList<>();
+            outputList.add(output);
+            Transaction tx = new Transaction("transactionId" + i, TransactionType.REGULAR, inputList, outputList);
             List<Transaction> txList = new LinkedList<>();
             txList.add(tx);
             Block block = new Block(i, txList, "hash" + (i - 1), i, i);

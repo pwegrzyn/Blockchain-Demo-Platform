@@ -60,7 +60,6 @@ public class Block implements Serializable {
 
     public static String calculateBlockHash(int index, List<Transaction> transactions, String previousHash, long timestamp,
                                      int nonce) {
-        return "hash" + index;/*
         JsonObject jsonBlock = new JsonObject();
         jsonBlock.addProperty("index", index);
         jsonBlock.addProperty("previousHash", previousHash);
@@ -72,7 +71,7 @@ public class Block implements Serializable {
         String unorderedJson = jsonBlock.toString();
         Gson gson = new Gson();
         TreeMap<String, Object> map = gson.fromJson(unorderedJson, TreeMap.class);
-        return Sha256.calculateSHA256(gson.toJson(map));*/
+        return Sha256.calculateSHA256(gson.toJson(map));
     }
 
     public int getIndex() {
