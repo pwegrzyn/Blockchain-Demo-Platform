@@ -3,11 +3,12 @@ package blockchain.net;
 import blockchain.model.Block;
 import blockchain.model.Transaction;
 
+
 public class ProtocolMessage {
 
-    final MessageType type;
-    final Block block;
-    final Transaction transaction;
+    private final MessageType type;
+    private final Block block;
+    private final Transaction transaction;
 
     public ProtocolMessage(Block block) {
         this.type = MessageType.NEW_BLOCK;
@@ -25,4 +26,17 @@ public class ProtocolMessage {
         NEW_TRANSACTION,
         NEW_BLOCK;
     }
+
+    public MessageType getType() {
+        return type;
+    }
+
+    public Block getBlock() {
+        return block;
+    }
+
+    public Transaction getTransaction() {
+        return transaction;
+    }
+
 }

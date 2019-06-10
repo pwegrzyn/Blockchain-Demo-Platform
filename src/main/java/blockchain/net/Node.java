@@ -1,6 +1,7 @@
 package blockchain.net;
 
 import blockchain.config.Configuration;
+import blockchain.config.Mode;
 import blockchain.model.Blockchain;
 import org.jgroups.JChannel;
 import org.jgroups.Message;
@@ -16,7 +17,7 @@ import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Node {
+public abstract class Node {
 
     private static final Logger LOGGER = Logger.getLogger(Node.class.getName());
     private JChannel channel;
@@ -94,7 +95,17 @@ public class Node {
 
         @Override
         public void receive(Message msg) {
-            super.receive(msg);
+            try {
+                ProtocolMessage message = (ProtocolMessage) Util.objectFromByteBuffer(msg.getBuffer());
+                if (message.getType() == ProtocolMessage.MessageType.NEW_BLOCK) {
+                    // TODO: handle new incoming block
+                } else if (message.getType() == ProtocolMessage.MessageType.NEW_TRANSACTION && Configuration.getInstance().getNodeRunningMode() == Mode.FULL) {
+                    // TODO: handle new incoming tx
+                }
+            } catch (Exception e) {
+                LOGGER.warning("Error while receiving message from neighbours!");
+                return;
+            }
         }
 
         @Override
