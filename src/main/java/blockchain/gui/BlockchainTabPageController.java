@@ -11,6 +11,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.util.LinkedList;
@@ -39,7 +40,7 @@ public class BlockchainTabPageController {
     @FXML private TableView txInputTxTable;
     @FXML private TableView txOutputTxTable;
 
-    @FXML private AnchorPane blockPropertiesPane;
+    @FXML private VBox blockPropertiesPane;
     @FXML private AnchorPane txPropertiesPane;
 
     private void updateSelectedBlock(String newSelectedHash){
