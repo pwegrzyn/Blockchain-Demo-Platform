@@ -2,6 +2,7 @@ import blockchain.gui.AppGUI;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -10,19 +11,19 @@ public class App extends Application {
 
     private static final Logger LOGGER = Logger.getLogger(App.class.getName());
 
-    public static void main(String[] args) { launch(args); }
-
-    @Override
-    public void start(Stage primaryStage) {
+    public static void main(String[] args) {
         try {
-
-            AppGUI gui = new AppGUI(primaryStage);
-            gui.initApplication();
-
+            launch(args);
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "An error occurred while initializing the GUI!", e);
+            LOGGER.log(Level.SEVERE, "A fatal error occurred during runtime!", e);
             System.exit(1);
         }
+    }
+
+    @Override
+    public void start(Stage primaryStage) throws IOException {
+        AppGUI gui = new AppGUI(primaryStage);
+        gui.initApplication();
     }
 
     @Override
