@@ -23,9 +23,10 @@ bash ./bdp.sh --help
 
 ## TODO
 * Tests
-* Network layer communication
-* Visualization
+* Network layer communication fully done
+* Visualization (especially dynamic with a graph library)
 * Improvement of the SHA256 kernel and effective parallelization
-* Communication between Java and Node
+* Communication between Java and Node (potentially)
 
 ## Known Issues
+* How to avoid serializing an observable?
