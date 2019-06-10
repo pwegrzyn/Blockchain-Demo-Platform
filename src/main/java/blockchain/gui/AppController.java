@@ -28,7 +28,11 @@ public class AppController {
     private WalletNode node;
     private String currentTheme = "assets/css/defaulttheme.css";
 
+    @FXML private SummaryTabPageController summaryTabPageController;
     @FXML private BlockchainTabPageController blockchainTabPageController;
+    @FXML private TransactionsTabPageController transactionsTabPageController;
+    @FXML private WalletTabPageController walletTabPageController;
+    @FXML private MinerTabPageController minerTabPageController;
 
     // Possibly can add new themes for javaFX here
     private List<String> themesList = new LinkedList<String>(){
@@ -79,9 +83,14 @@ public class AppController {
         // Get the initial blockchain if this node is the first one or get the blockchain which was taken from other
         // existing nodes otherwise
         this.blockchainTabPageController.setBlockchain(this.node.getBlockchain());
+        this.walletTabPageController.setBlockchain(this.node.getBlockchain());
 
         // Test the blockchain gui by adding some dummy blocks
         addSampleBlocks();
+
+        // Init the wallet tab controller
+        walletTabPageController.init();
+        walletTabPageController.setNode(node);
     }
 
 
