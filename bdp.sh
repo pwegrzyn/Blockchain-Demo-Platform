@@ -1,16 +1,16 @@
 
-# FIXME Need to test this script and possibly change it so it spawns a new terminal when running the client/visualization
+# FIXME Need to test this script and possibly change it so it spawns a new terminal when running the client/electron
 # module so as not to block stdin/stdout
 
 function usage {
-    echo "Blockchain Demo Platform (BDP) - simple cryptocurrency with visualization"
+    echo "Blockchain Demo Platform (BDP) - simple cryptocurrency with electron"
     echo "usage: bdp [--version] [--help] <command> [<args>]"
     echo "   "
     echo "Available BDP commands:"
     echo "  update          Update to the newest version"
     echo "  init            Initialize the application (downloading dependencies, building etc"
     echo "  run             Run the BDP client"
-    echo "  visualize       Run the visualization module"
+    echo "  visualize       Run the electron module"
 }
 
 function display_version {
@@ -66,7 +66,7 @@ function init {
 }
 
 function visualize {
-    echo "Starting the visualization module..."
+    echo "Starting the electron module..."
     npm start
 }
 

@@ -1,4 +1,4 @@
-package blockchain.net.visualization;
+package blockchain.net.electron;
 
 import blockchain.config.Configuration;
 
@@ -8,12 +8,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 
-public class VisualizationClient {
+public class ElectronHTTPConnector {
 
     private final int visualizationServerPort;
     private final URL url;
 
-    public VisualizationClient() throws MalformedURLException {
+    public ElectronHTTPConnector() throws MalformedURLException {
         this.visualizationServerPort = Configuration.getInstance().getVisualizationPort();
         this.url = new URL("http://localhost:" + visualizationServerPort);
         System.out.println(visualizationServerPort);
