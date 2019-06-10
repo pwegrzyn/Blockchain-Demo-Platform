@@ -90,6 +90,10 @@ public class AppController {
         walletTabPageController.init();
         walletTabPageController.setNode(node);
 
+        // Init the summary tab controller
+        summaryTabPageController.setNode(node);
+        summaryTabPageController.init();
+
         // Init the graph electron demo
         this.txVisTabPageController.setBlockchain(this.node.getBlockchain());
         this.txVisTabPageController.init();

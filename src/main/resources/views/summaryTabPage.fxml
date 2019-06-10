@@ -26,7 +26,7 @@
                                        </font>
                                     </Label>
                                     <Separator maxHeight="1.0" minHeight="1.0" prefHeight="1.0" prefWidth="1200.0" />
-                                    <TextField alignment="CENTER" editable="false" prefHeight="118.0" prefWidth="1200.0">
+                                    <TextField fx:id="publicKeyTextField" alignment="CENTER" editable="false" prefHeight="118.0" prefWidth="1200.0">
                                        <font>
                                           <Font size="36.0" />
                                        </font>
@@ -38,7 +38,7 @@
                                        </font>
                                     </Label>
                                     <Separator maxHeight="1.0" minHeight="1.0" prefHeight="1.0" prefWidth="1200.0" />
-                                    <TextField alignment="CENTER" editable="false" prefHeight="118.0" prefWidth="1200.0">
+                                    <TextField fx:id="privateKeyTextField" alignment="CENTER" editable="false" prefHeight="118.0" prefWidth="1200.0">
                                        <font>
                                           <Font size="24.0" />
                                        </font>
@@ -83,10 +83,10 @@
                                           <Separator layoutY="147.0" maxHeight="1.0" minHeight="1.0" prefHeight="1.0" prefWidth="600.0" />
                                           <Label alignment="CENTER" contentDisplay="CENTER" layoutY="148.0" prefHeight="50.0" prefWidth="600.0" style="-fx-background-color: #C0C0C0;" text="Users" textAlignment="CENTER">
                                              <font>
-                                                <Font size="18.0" />
+                                                <Font size="24.0" />
                                              </font>
                                           </Label>
-                                          <ListView layoutY="198.0" prefHeight="120.0" prefWidth="600.0" />
+                                          <ListView fx:id="usersListView" layoutY="198.0" prefHeight="120.0" prefWidth="600.0" />
                                           <Separator layoutX="1.0" layoutY="73.0" maxHeight="1.0" minHeight="1.0" prefHeight="1.0" prefWidth="600.0" />
                                        </children>
                                     </AnchorPane>

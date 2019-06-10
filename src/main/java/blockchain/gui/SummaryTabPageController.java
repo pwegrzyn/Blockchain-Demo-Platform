@@ -48,7 +48,7 @@ public class SummaryTabPageController {
         Integer users = 0;
         Set<String> userSet = new HashSet<>();
 
-        for(Block block : node.getBlockchain().getBlockList()){
+        for(Block block : node.getBlockchain().getMainBranch()){
             for(Transaction transaction : block.getTransactions()){
                 for(TransactionOutput transactionOutput : transaction.getOutputs()){
                     String newUser = transactionOutput.getReceiverAddress();
@@ -64,13 +64,13 @@ public class SummaryTabPageController {
     }
 
     private Integer calculateBlockCount(){
-        return node.getBlockchain().getBlockList().size();
+        return node.getBlockchain().getBlockDB().values().size();
     }
 
     private Integer calculateTransactionCount(){
         Integer transactions = 0;
 
-        for(Block block : node.getBlockchain().getBlockList()){
+        for(Block block : node.getBlockchain().getMainBranch()){
             transactions += block.getTransactions().size();
         }
 
@@ -78,21 +78,42 @@ public class SummaryTabPageController {
     }
 
     private Double calculateCurrencyAmount(){
-        Map<String, TransactionOutput> unusedTransactions = new HashMap<>();
-        List<String> usedTxHashes = new LinkedList<>();
+        Map<Transaction, List<Integer>> unusedTransactions = new HashMap<>();
+        Map<String, Transaction> hashTransactionMap = new HashMap<>();
 
-        for(Block block : node.getBlockchain().getBlockList()){
+        for(Block block : node.getBlockchain().getMainBranch()){
             for(Transaction transaction : block.getTransactions()){
+                hashTransactionMap.put(transaction.getHash(), transaction);
 
-                for(TransactionOutput transactionOutput : transaction.getOutputs()){
-                    String newUser = transactionOutput.getReceiverAddress();
+                List<Integer> indexes = new LinkedList<>();
 
+                for(int i = 0; i < transaction.getOutputs().size(); i++){
+                    indexes.add(i);
+                }
 
+                unusedTransactions.put(transaction, indexes);
+
+                for(TransactionInput transactionInput : transaction.getInputs()){
+                    String referencedHash = transactionInput.getPreviousTransactionHash();
+                    Transaction referencedTransaction = hashTransactionMap.get(referencedHash);
+
+                    if(unusedTransactions.containsKey(referencedTransaction)){
+                        Integer indexToBeRemoved = transactionInput.getPreviousTransactionOutputIndex();
+                        unusedTransactions.get(referencedTransaction).remove(indexToBeRemoved);
+                    }
                 }
             }
         }
 
-        return unusedTransactions.values().stream().mapToDouble(TransactionOutput::getAmount).sum();
+        Double sum = 0.0;
+
+        for(Map.Entry<Transaction, List<Integer>> entry : unusedTransactions.entrySet()){
+            for(Integer i : entry.getValue()){
+                sum += entry.getKey().getOutputs().get(i).getAmount();
+            }
+        }
+
+        return sum;
     }
 
 }
