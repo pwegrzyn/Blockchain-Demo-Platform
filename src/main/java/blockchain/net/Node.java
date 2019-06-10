@@ -54,6 +54,7 @@ public class Node {
             channel.disconnect();
         else
             channel.close();
+        LOGGER.info("Disconnected successfully.");
     }
 
     public Blockchain getBlockchain() {
