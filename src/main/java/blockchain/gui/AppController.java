@@ -27,6 +27,7 @@ public class AppController {
     @FXML private WalletTabPageController walletTabPageController;
     @FXML private MinerTabPageController minerTabPageController;
     @FXML private TxVisTabPageController txVisTabPageController;
+    @FXML private BlockchainVisTabPageController bcVisTabPageController;
 
     // Possibly can add new themes for javaFX here
     private List<String> themesList = new LinkedList<String>(){
@@ -89,6 +90,10 @@ public class AppController {
         // Init the graph visualization demo
         this.txVisTabPageController.setBlockchain(this.node.getBlockchain());
         this.txVisTabPageController.init();
+
+        // Init the blockchain graph visualization
+        this.bcVisTabPageController.setBlockchain(this.node.getBlockchain());
+        this.bcVisTabPageController.init();
     }
 
 

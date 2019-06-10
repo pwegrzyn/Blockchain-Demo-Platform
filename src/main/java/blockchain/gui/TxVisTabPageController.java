@@ -2,8 +2,6 @@ package blockchain.gui;
 
 import blockchain.model.Blockchain;
 import javafx.fxml.FXML;
-import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import org.graphstream.algorithm.generator.DorogovtsevMendesGenerator;
 import org.graphstream.graph.implementations.MultiGraph;
