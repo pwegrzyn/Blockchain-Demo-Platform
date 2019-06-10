@@ -36,7 +36,7 @@ public class TxVisTabPageController {
             v.enableAutoLayout();
             FxViewPanel panel = (FxViewPanel)v.addDefaultView(false, new FxGraphRenderer());
             panel.setPrefHeight(750);
-            panel.setPrefWidth(1200);
+            panel.setPrefWidth(1250);
 
             gen.addSink(g);
             gen.begin();

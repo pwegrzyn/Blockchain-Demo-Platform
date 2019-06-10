@@ -20,8 +20,8 @@ public class Miner {
     // TODO fetch mining difficulty from the properties file
     private static final int MINING_DIFFICULTY = 4;
 
-    public Miner(Blockchain blockchain, FullNode node) {
-        this.blockchain = blockchain;
+    public Miner(FullNode node) {
+        this.blockchain = node.getBlockchain();
         this.validator = new Validator();
         this.isMining = false;
         this.fullNode = node;
