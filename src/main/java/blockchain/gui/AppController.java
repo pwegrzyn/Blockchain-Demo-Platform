@@ -2,17 +2,10 @@ package blockchain.gui;
 
 import blockchain.model.*;
 import blockchain.net.WalletNode;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -33,6 +26,7 @@ public class AppController {
     @FXML private TransactionsTabPageController transactionsTabPageController;
     @FXML private WalletTabPageController walletTabPageController;
     @FXML private MinerTabPageController minerTabPageController;
+    @FXML private TxVisTabPageController txVisTabPageController;
 
     // Possibly can add new themes for javaFX here
     private List<String> themesList = new LinkedList<String>(){
@@ -91,6 +85,10 @@ public class AppController {
         // Init the wallet tab controller
         walletTabPageController.init();
         walletTabPageController.setNode(node);
+
+        // Init the graph visualization demo
+        this.txVisTabPageController.setBlockchain(this.node.getBlockchain());
+        this.txVisTabPageController.init();
     }
 
 

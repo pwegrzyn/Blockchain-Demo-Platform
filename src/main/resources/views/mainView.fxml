@@ -24,6 +24,9 @@
       <Tab fx:id="transactionsTab" closable="false" text="Transactions">
         <fx:include fx:id="transactionsTabPage" source="transactionsTabPage.fxml"/>
      </Tab>
+      <Tab fx:id="txVisualizationTab" closable="false" text="Transactions Visualization">
+          <fx:include fx:id="txVisTabPage" source="txVisTabPage.fxml"/>
+      </Tab>
       <Tab fx:id="walletTab" closable="false" text="Wallet">
         <fx:include fx:id="walletTabPage" source="walletTabPage.fxml"/>
       </Tab>
