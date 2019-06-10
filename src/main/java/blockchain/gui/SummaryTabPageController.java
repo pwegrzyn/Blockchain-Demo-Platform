@@ -13,7 +13,6 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 
 import java.util.*;
-import java.util.function.Function;
 
 public class SummaryTabPageController {
 

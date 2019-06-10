@@ -67,8 +67,10 @@ public class BlockchainTabPageController {
 
     private void updateTxInputTable(List<TransactionInput> transactions){
         ObservableList<TableColumn<TransactionInput, String>> columns = txInputTxTable.getColumns();
-        TableColumn<TransactionInput, String> txIndexColumn = columns.get(0);
-        TableColumn<TransactionInput, String> txValueColumn = columns.get(1);
+        TableColumn<TransactionInput, String> txIdColumn = columns.get(0);
+        TableColumn<TransactionInput, String> txIndexColumn = columns.get(1);
+        TableColumn<TransactionInput, String> txValueColumn = columns.get(2);
+        txIdColumn.setCellValueFactory(new PropertyValueFactory<TransactionInput, String>("previousTransactionHash"));
         txIndexColumn.setCellValueFactory(new PropertyValueFactory<TransactionInput, String>("previousTransactionOutputIndex"));
         txValueColumn.setCellValueFactory(new PropertyValueFactory<TransactionInput, String>("amount"));
         txInputTxTable.setItems(FXCollections.observableArrayList(transactions));
