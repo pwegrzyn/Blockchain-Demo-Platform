@@ -26,27 +26,31 @@ public class TxVisTabPageController {
     }
 
     private void demo() {
-        MultiGraph g = new MultiGraph("mg");
-        FxViewer v = new FxViewer(g, FxViewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
-        DorogovtsevMendesGenerator gen = new DorogovtsevMendesGenerator();
+        try {
+            MultiGraph g = new MultiGraph("mg");
+            FxViewer v = new FxViewer(g, FxViewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
+            DorogovtsevMendesGenerator gen = new DorogovtsevMendesGenerator();
 
-        g.setAttribute("ui.antialias");
-        g.setAttribute("ui.quality");
-        g.setAttribute("ui.stylesheet", "graph {padding: 60px;}");
+            g.setAttribute("ui.antialias");
+            g.setAttribute("ui.quality");
+            g.setAttribute("ui.stylesheet", "graph {padding: 60px;}");
 
-        v.enableAutoLayout();
-        FxViewPanel panel = (FxViewPanel)v.addDefaultView(false, new FxGraphRenderer());
-        panel.setPrefHeight(750);
-        panel.setPrefWidth(1200);
+            v.enableAutoLayout();
+            FxViewPanel panel = (FxViewPanel)v.addDefaultView(false, new FxGraphRenderer());
+            panel.setPrefHeight(750);
+            panel.setPrefWidth(1200);
 
-        gen.addSink(g);
-        gen.begin();
-        for(int i = 0 ; i < 100 ; i++)
-            gen.nextEvents();
-        gen.end();
-        gen.removeSink(g);
+            gen.addSink(g);
+            gen.begin();
+            for(int i = 0 ; i < 100 ; i++)
+                gen.nextEvents();
+            gen.end();
+            gen.removeSink(g);
 
-        this.MainVBox.getChildren().add(panel);
+            this.MainVBox.getChildren().add(panel);
+        } catch (Exception e) {
+            // only a demo
+        }
     }
 
 }
