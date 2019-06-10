@@ -84,7 +84,7 @@ public class WalletTabPageController {
 
         // Add transactions addressed to me
 
-        for(Block block : blockchain.getBlockList()){
+        for(Block block : blockchain.getMainBranch()){
             for(Transaction transaction : block.getTransactions()){
                 if(transaction.getOutputs().stream().anyMatch(transactionOutput -> transactionOutput.getReceiverAddress().equals(userPublicKey))){
                     allTransactionsToMe.add(transaction);

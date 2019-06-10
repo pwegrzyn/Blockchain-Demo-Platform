@@ -3,8 +3,6 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -12,7 +10,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="200.0" prefWidth="200.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="blockchain.gui.BlockchainTabPageController">
+<AnchorPane prefHeight="200.0" prefWidth="200.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="blockchain.gui.BlockchainTabPageController">
    <children>
       <HBox prefHeight="721.0" prefWidth="1200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -55,7 +53,7 @@
                         <Label fx:id="blockIndexLabel" layoutX="250.0" layoutY="20.0" text="BlockIndexLabel" />
                         <Label fx:id="blockHashLabel" alignment="CENTER" layoutX="250.0" layoutY="42.0" prefHeight="54.0" prefWidth="140.0" text="BlockHashLabel" wrapText="true" />
                         <Label fx:id="txCountLabel" layoutX="250.0" layoutY="100.0" text="TxCountLabel" />
-                        <Label fx:id="prevBlockHashLabel" layoutX="250.0" layoutY="140.0" text="PrevBlockHashLabel" />
+                        <Label fx:id="prevBlockHashLabel" layoutX="250.0" layoutY="128.0" prefHeight="64.0" prefWidth="140.0" text="PrevBlockHashLabel" wrapText="true" />
                         <Label fx:id="nonceLabel" layoutX="250.0" layoutY="180.0" text="NonceLabel" />
                         <Label fx:id="timestampLabel" layoutX="250.0" layoutY="220.0" text="TimestampLabel" />
                      </children>

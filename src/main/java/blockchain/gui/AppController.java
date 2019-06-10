@@ -90,11 +90,11 @@ public class AppController {
         walletTabPageController.init();
         walletTabPageController.setNode(node);
 
-        // Init the graph visualization demo
+        // Init the graph electron demo
         this.txVisTabPageController.setBlockchain(this.node.getBlockchain());
         this.txVisTabPageController.init();
 
-        // Init the blockchain graph visualization
+        // Init the blockchain graph electron
         this.bcVisTabPageController.setBlockchain(this.node.getBlockchain());
         this.bcVisTabPageController.init();
 
@@ -111,6 +111,10 @@ public class AppController {
 
     // Test method to check if the Blockchain gui is working, delete it later
     private void addSampleBlocks(){
+        Block genesisBlock = Block.getGenesisBlock();
+        String previousHash = genesisBlock.getCurrentHash();
+        this.node.getBlockchain().addBlock(genesisBlock);
+        this.node.getBlockchain().getBlockHashList().add(genesisBlock.getCurrentHash());
         for(int i = 0; i < 40; i++){
             TransactionInput input = new TransactionInput("prevhash", i - 1,
                     50.0, "fromAddress", "signature");
@@ -122,8 +126,9 @@ public class AppController {
             Transaction tx = new Transaction("transactionId" + i, TransactionType.REGULAR, inputList, outputList);
             List<Transaction> txList = new LinkedList<>();
             txList.add(tx);
-            Block block = new Block(i, txList, "hash" + (i - 1), i, i);
-            this.node.getBlockchain().getBlockList().add(block);
+            Block block = new Block(i, txList, previousHash, i, i);
+            previousHash = block.getCurrentHash();
+            this.node.getBlockchain().addBlock(block);
             this.node.getBlockchain().getBlockHashList().add(block.getCurrentHash());
         }
     }
