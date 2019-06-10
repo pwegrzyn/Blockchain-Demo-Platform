@@ -1,5 +1,7 @@
 package blockchain.gui;
 
+import blockchain.config.Configuration;
+import blockchain.config.Mode;
 import blockchain.model.*;
 import blockchain.net.WalletNode;
 import javafx.event.EventHandler;
@@ -28,6 +30,7 @@ public class AppController {
     @FXML private MinerTabPageController minerTabPageController;
     @FXML private TxVisTabPageController txVisTabPageController;
     @FXML private BlockchainVisTabPageController bcVisTabPageController;
+    @FXML private Tab minerTab;
 
     // Possibly can add new themes for javaFX here
     private List<String> themesList = new LinkedList<String>(){
@@ -94,6 +97,11 @@ public class AppController {
         // Init the blockchain graph visualization
         this.bcVisTabPageController.setBlockchain(this.node.getBlockchain());
         this.bcVisTabPageController.init();
+
+        // Disable the miner tab if Running Mode is WALLET
+        if (Configuration.getInstance().getNodeRunningMode() != Mode.FULL) {
+            this.minerTab.setDisable(true);
+        }
     }
 
 
