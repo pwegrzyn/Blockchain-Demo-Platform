@@ -1,47 +1,58 @@
 package blockchain.model;
 
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 
 public class Blockchain implements Serializable {
 
-    // Arbitrarily sorted list of blocks in the block-dag (main branch as well as all past forks)
-    private List<Block> blockList;
+    private SimpleObjectProperty<Block> latestBlock;
+    private ConcurrentMap<String, Block> blockDB;
     // List of block hashes added to the blockchain
     private ObservableList<String> blockHashList;
     // Mempool of unconfirmed transactions
     private Queue<Transaction> unconfirmedTransactions;
 
     public Blockchain() {
-        this.blockList = new LinkedList<>();
+        this.blockDB = new ConcurrentHashMap<>();
         this.blockHashList = FXCollections.observableList(new LinkedList<>());
         this.unconfirmedTransactions = new PriorityQueue<>(new MaximumFeeComparator());
     }
 
     public Block getLatestBlock() {
-        //TODO fetching the last block in the blockchain
-        return null;
+        if (this.latestBlock == null) return null;
+        return this.latestBlock.get();
     }
 
     public Transaction findTransaction(String hash) {
-        for(Block block : this.blockList) {
+        for(Block block : this.blockDB.values()) {
             Transaction result = block.findTransaction(hash);
             if(result != null) return result;
         }
         return null;
     }
 
-    public Block findBlock(String hash){
-        for(Block block : this.blockList){
-            if(block.getCurrentHash().equals(hash)){
-                return block;
-            }
+    public List<Block> getMainBranch() {
+        if (this.latestBlock == null) return Collections.emptyList();
+        List<Block> result = new LinkedList<>();
+        String hashPtr = this.latestBlock.get().getCurrentHash();
+        // Genesis Block has the string "0" as its previous hash field
+        while (!hashPtr.equals("0")) {
+            Block blockToAdd = this.blockDB.get(hashPtr);
+            result.add(blockToAdd);
+            hashPtr = blockToAdd.getPreviousHash();
         }
-        return null;
+        return result;
+    }
+
+    public Block findBlock(String hash){
+        return this.blockDB.get(hash);
     }
 
     public void recycleInvalidBlock(Block newMinedBlock) {
@@ -51,15 +62,23 @@ public class Blockchain implements Serializable {
     }
 
     public void addBlock(Block newMinedBlock) {
-        // TODO adding new block to the blockchain (need to handle chain branching)
+        this.blockDB.put(newMinedBlock.getCurrentHash(), newMinedBlock);
+        if (this.latestBlock == null) {
+            this.latestBlock = new SimpleObjectProperty<>(newMinedBlock);
+            return;
+        }
+        if (this.latestBlock.get().getCurrentHash().equals(newMinedBlock.getPreviousHash())) {
+            this.latestBlock.set(newMinedBlock);
+        }
+        return;
     }
 
-    public List<Block> getBlockList() {
-        return blockList;
+    public ConcurrentMap<String, Block> getBlockDB() {
+        return this.blockDB;
     }
 
-    public void setBlockList(List<Block> blockList) {
-        this.blockList = blockList;
+    public void setBlockDB(ConcurrentMap<String, Block> blockDB) {
+        this.blockDB = blockDB;
     }
 
     public List<String> getBlockHashList() {
