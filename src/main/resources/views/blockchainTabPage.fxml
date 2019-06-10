@@ -91,14 +91,14 @@
                               <Separator minHeight="1.0" prefHeight="1.0" prefWidth="400.0" />
                               <AnchorPane fx:id="txPropertiesPane" prefHeight="390.0" prefWidth="200.0" visible="false">
                                  <children>
-                                    <Label layoutX="73.0" layoutY="20.0" text="Index" />
+                                    <Label layoutX="82.0" layoutY="20.0" text="Id" />
                                     <Label layoutX="74.0" layoutY="75.0" text="Hash" />
                                     <Label layoutX="44.0" layoutY="130.0" text="Transaction type" />
                                     <Label layoutX="35.0" layoutY="320.0" text="Output transactions" />
                                     <Label layoutX="42.0" layoutY="210.0" text="Input transactions" wrapText="true" />
                                     <TableView fx:id="txInputTxTable" layoutX="166.0" layoutY="169.0" prefHeight="95.0" prefWidth="222.0">
                                       <columns>
-                                        <TableColumn prefWidth="74.0" text="Id" />
+                                        <TableColumn prefWidth="74.0" text="Hash" />
                                         <TableColumn prefWidth="73.0" text="Index" />
                                           <TableColumn prefWidth="73.0" text="Value" />
                                       </columns>

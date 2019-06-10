@@ -22,6 +22,7 @@ import javafx.util.Duration;
 import java.util.*;
 import java.util.logging.Logger;
 
+
 public class SummaryTabPageController {
 
     @FXML private ListView usersListView;
