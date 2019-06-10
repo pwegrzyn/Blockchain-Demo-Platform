@@ -60,7 +60,7 @@
                                     <Separator prefWidth="200.0" />
                                     <AnchorPane prefHeight="319.0" prefWidth="600.0">
                                        <children>
-                                          <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="73.0" prefWidth="300.0" text="Nodetype" textAlignment="CENTER">
+                                          <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="73.0" prefWidth="300.0" text="Node Type" textAlignment="CENTER">
                                              <font>
                                                 <Font size="18.0" />
                                              </font>
@@ -70,7 +70,7 @@
                                                 <Font size="18.0" />
                                              </font>
                                           </Label>
-                                          <Label alignment="CENTER" contentDisplay="CENTER" layoutY="73.0" prefHeight="73.0" prefWidth="300.0" text="Users in the system" textAlignment="CENTER">
+                                          <Label alignment="CENTER" contentDisplay="CENTER" layoutY="73.0" prefHeight="73.0" prefWidth="300.0" text="Connected Nodes" textAlignment="CENTER">
                                              <font>
                                                 <Font size="18.0" />
                                              </font>
@@ -81,7 +81,7 @@
                                              </font>
                                           </Label>
                                           <Separator layoutY="147.0" maxHeight="1.0" minHeight="1.0" prefHeight="1.0" prefWidth="600.0" />
-                                          <Label alignment="CENTER" contentDisplay="CENTER" layoutY="148.0" prefHeight="50.0" prefWidth="600.0" style="-fx-background-color: #C0C0C0;" text="Users" textAlignment="CENTER">
+                                          <Label alignment="CENTER" contentDisplay="CENTER" layoutY="148.0" prefHeight="50.0" prefWidth="600.0" style="-fx-background-color: #C0C0C0;" text="Active Users" textAlignment="CENTER">
                                              <font>
                                                 <Font size="24.0" />
                                              </font>

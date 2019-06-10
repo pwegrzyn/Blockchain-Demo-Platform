@@ -14,8 +14,10 @@ import org.jgroups.util.Util;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public abstract class Node {
 
@@ -61,6 +63,10 @@ public abstract class Node {
 
     public int countNodes() {
         return this.channel.getView().getMembers().size();
+    }
+
+    public List<String> getConnectedNodes() {
+        return this.channel.getView().getMembers().stream().map(m -> m.toString()).collect(Collectors.toList());
     }
 
     public Blockchain getBlockchain() {

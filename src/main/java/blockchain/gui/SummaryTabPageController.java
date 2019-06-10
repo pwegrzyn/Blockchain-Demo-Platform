@@ -10,6 +10,8 @@ import blockchain.net.Node;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -25,7 +27,7 @@ import java.util.logging.Logger;
 
 public class SummaryTabPageController {
 
-    @FXML private ListView usersListView;
+    @FXML private ListView<String> usersListView;
     @FXML private Label nodeTypeLabel;
     @FXML private Label userCountLabel;
     @FXML private Label blockCountLabel;
@@ -66,6 +68,7 @@ public class SummaryTabPageController {
         this.blockCountLabel.setText(calculateBlockCount().toString());
         this.transactionCountLabel.setText(calculateTransactionCount().toString());
         this.currencyAmountLabel.setText(calculateCurrencyAmount().toString());
+        this.usersListView.setItems(FXCollections.observableArrayList(this.node.getConnectedNodes()));
     }
 
     private Integer calculateUserCountByActions() {
