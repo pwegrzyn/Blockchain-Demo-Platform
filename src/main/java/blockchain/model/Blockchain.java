@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentMap;
 
 public class Blockchain implements Serializable {
 
+    // FIXME: get rid of Observables for serialization in JGroups State Transfer
     private SimpleObjectProperty<Block> latestBlock;
     private ConcurrentMap<String, Block> blockDB;
     // List of block hashes added to the blockchain

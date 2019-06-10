@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 public abstract class Node {
 
     private static final Logger LOGGER = Logger.getLogger(Node.class.getName());
+    private static final int STATE_TRANSFER_BUFFER_SIZE = 1048576;
     private JChannel channel;
     private String clusterName;
     protected Blockchain blockchain;
@@ -56,6 +57,10 @@ public abstract class Node {
         else
             channel.close();
         LOGGER.info("Disconnected successfully.");
+    }
+
+    public int countNodes() {
+        return this.channel.getView().getMembers().size();
     }
 
     public Blockchain getBlockchain() {
@@ -95,11 +100,13 @@ public abstract class Node {
 
         @Override
         public void receive(Message msg) {
+            super.receive(msg);
             try {
                 ProtocolMessage message = (ProtocolMessage) Util.objectFromByteBuffer(msg.getBuffer());
                 if (message.getType() == ProtocolMessage.MessageType.NEW_BLOCK) {
                     // TODO: handle new incoming block
-                } else if (message.getType() == ProtocolMessage.MessageType.NEW_TRANSACTION && Configuration.getInstance().getNodeRunningMode() == Mode.FULL) {
+                } else if (message.getType() == ProtocolMessage.MessageType.NEW_TRANSACTION &&
+                        Configuration.getInstance().getNodeRunningMode() == Mode.FULL) {
                     // TODO: handle new incoming tx
                 }
             } catch (Exception e) {
@@ -112,7 +119,8 @@ public abstract class Node {
         public void getState(OutputStream outputStream) throws Exception {
             LOGGER.info("Providing state to newly connected node.");
             synchronized (Node.this.blockchain) {
-                try(ObjectOutputStream objectStream = new ObjectOutputStream(new BufferedOutputStream(outputStream, 32768))) {
+                try(ObjectOutputStream objectStream = new ObjectOutputStream(new BufferedOutputStream(outputStream,
+                        STATE_TRANSFER_BUFFER_SIZE))) {
                     objectStream.writeObject(Node.this.blockchain);
                 }
             }
@@ -121,11 +129,13 @@ public abstract class Node {
         @Override
         public void setState(InputStream inputStream) throws Exception {
             LOGGER.info("Receiving state from existing nodes.");
-            Blockchain receivedState;
-            try(ObjectInputStream objectStream = new ObjectInputStream(inputStream)) {
-                receivedState = (Blockchain) objectStream.readObject();
+            synchronized (Node.this.blockchain) {
+                Blockchain receivedState;
+                try(ObjectInputStream objectStream = new ObjectInputStream(inputStream)) {
+                    receivedState = (Blockchain) objectStream.readObject();
+                }
+                Node.this.blockchain = receivedState;
             }
-            Node.this.blockchain = receivedState;
         }
 
     }
