@@ -78,13 +78,13 @@ public class AppController {
         // Pin the close-confirmation hook
         this.primaryStage.setOnCloseRequest(confirmCloseEventHandler);
 
+        // Test the blockchain gui by adding some dummy blocks
+        addSampleBlocks();
+
         // Get the initial blockchain if this node is the first one or get the blockchain which was taken from other
         // existing nodes otherwise
         this.blockchainTabPageController.setBlockchain(this.node.getBlockchain());
         this.walletTabPageController.setBlockchain(this.node.getBlockchain());
-
-        // Test the blockchain gui by adding some dummy blocks
-        addSampleBlocks();
 
         // Init the wallet tab controller
         walletTabPageController.init();
@@ -118,7 +118,6 @@ public class AppController {
         Block genesisBlock = Block.getGenesisBlock();
         String previousHash = genesisBlock.getCurrentHash();
         this.node.getBlockchain().addBlock(genesisBlock);
-        this.node.getBlockchain().getBlockHashList().add(genesisBlock.getCurrentHash());
         for(int i = 0; i < 40; i++){
             TransactionInput input = new TransactionInput("prevhash", i - 1,
                     50.0, "fromAddress", "signature");
@@ -133,7 +132,6 @@ public class AppController {
             Block block = new Block(i, txList, previousHash, i, i);
             previousHash = block.getCurrentHash();
             this.node.getBlockchain().addBlock(block);
-            this.node.getBlockchain().getBlockHashList().add(block.getCurrentHash());
         }
     }
 

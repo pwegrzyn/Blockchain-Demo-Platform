@@ -16,6 +16,7 @@ import javafx.stage.Stage;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class BlockchainTabPageController {
 
@@ -144,9 +145,9 @@ public class BlockchainTabPageController {
         addListenerToBlockListViewSelector();
         addListenerToTxListViewSelector();
         this.blockchain = blockchain;
-        this.hashBlockList = (ObservableList<String>) blockchain.getBlockHashList();
+        this.hashBlockList = FXCollections.observableArrayList(blockchain.getMainBranch().stream()
+                .map(block -> block.getCurrentHash()).collect(Collectors.toList()));
         blockListView.setItems(hashBlockList);
-
         this.hashBlockList.addListener(new ListChangeListener<String>() {
             @Override
             public void onChanged(Change<? extends String> c) {
