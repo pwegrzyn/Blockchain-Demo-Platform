@@ -8,7 +8,7 @@ import java.io.IOException;
 
 import static org.jocl.CL.*;
 
-public class Sha256WithNonce {
+public class Sha256NonceSearching {
 
     private static final int SHA256_PLAINTEXT_LENGTH = 64; // 64 Bytes = 512 bits per block
     private static final int SHA256_BINARY_SIZE = 32;
@@ -25,7 +25,7 @@ public class Sha256WithNonce {
     private cl_command_queue commandQueue;
     private static cl_context context;
     private char[] dataArray;
-    private cl_mem dataMem, dataInfo, messageDigest, nonce;
+    private cl_mem dataMem, dataInfo, messageDigest, nounceOffset, targetHash;
     private cl_program program;
     private cl_kernel kernel;
     private long[] global_work_size;
@@ -33,12 +33,12 @@ public class Sha256WithNonce {
     private int[] datai = new int[3];
     private int[] result;
     private int[] targetHashInts = new int[8];
-    private int[] nonceInt = new int[1];
+    private int[] offset = new int[1];
 
-    private static Sha256WithNonce sha256;
+    private static Sha256NonceSearching sha256;
 
     static {
-        sha256 = new Sha256WithNonce();
+        sha256 = new Sha256NonceSearching();
         try {
             sha256.init();
         } catch (IOException e) {
@@ -49,19 +49,22 @@ public class Sha256WithNonce {
     private char[] target;
 
     public static void main(String[] args) {
-        System.out.println(Sha256WithNonce.calculateSHA256("abc",136));
+        System.out.println(Sha256NonceSearching.calculateSHA256("abc"));
     }
 
-    public static String calculateSHA256(String in, int nonce) {
-        sha256.setData(in, nonce);
+    public static String calculateSHA256(String in) {
+        sha256.setData(in);
         String result = sha256.crypt();
         return result;
     }
 
-    private void setData(String input, int nonce) {
+    private void setData(String input) {
         dataArray = input.toCharArray();
         lth = dataArray.length;
-        nonceInt[0] = nonce;
+        offset[0]=987654321;
+//        for (int i=0,j=0;i<SHA256_PLAINTEXT_LENGTH;i+=8,j++){
+//            targetHashInts[j]=getDecimalFromHex(targetHash.substring(i,i+8));
+//        }
     }
 
     private void init() throws IOException {
@@ -133,9 +136,11 @@ public class Sha256WithNonce {
                 null, null);
         dataInfo = clCreateBuffer(context, CL_MEM_READ_ONLY, UINT_SIZE * 3, null, null);
         messageDigest = clCreateBuffer(context, CL_MEM_WRITE_ONLY, Sizeof.cl_uint * SHA256_RESULT_SIZE * global_work_size[0], null, null);
-        nonce = clCreateBuffer(context, CL_MEM_READ_ONLY, Sizeof.cl_uint, null, null);
+        nounceOffset = clCreateBuffer(context, CL_MEM_READ_ONLY, Sizeof.cl_uint, null, null);
+        targetHash = clCreateBuffer(context, CL_MEM_READ_ONLY, Sizeof.cl_uint * SHA256_RESULT_SIZE, null, null);
 
-        if (dataMem == null || dataInfo == null || messageDigest == null || nonce == null) {
+
+        if (dataMem == null || dataInfo == null || messageDigest == null || nounceOffset == null || targetHash == null) {
             throw new RuntimeException("System couldn't create non-zero buffer objects");
         }
 
@@ -143,7 +148,8 @@ public class Sha256WithNonce {
         clSetKernelArg(kernel, 0, Sizeof.cl_mem, Pointer.to(dataInfo));
         clSetKernelArg(kernel, 1, Sizeof.cl_mem, Pointer.to(dataMem));
         clSetKernelArg(kernel, 2, Sizeof.cl_mem, Pointer.to(messageDigest));
-        clSetKernelArg(kernel, 3, Sizeof.cl_mem, Pointer.to(nonce));
+        clSetKernelArg(kernel, 3, Sizeof.cl_mem, Pointer.to(nounceOffset));
+        clSetKernelArg(kernel, 4, Sizeof.cl_mem, Pointer.to(targetHash));
 
         datai[0] = SHA256_PLAINTEXT_LENGTH;
         datai[1] = (int) global_work_size[0];
@@ -155,8 +161,11 @@ public class Sha256WithNonce {
         clEnqueueWriteBuffer(commandQueue, dataMem, CL_TRUE, 0,
                 UINT_SIZE * dataArray.length, Pointer.to(dataArray), 0, null, null);
 
-        clEnqueueWriteBuffer(commandQueue, nonce, CL_TRUE, 0,
-                UINT_SIZE, Pointer.to(nonceInt), 0, null, null);
+        clEnqueueWriteBuffer(commandQueue, nounceOffset, CL_TRUE, 0,
+                UINT_SIZE, Pointer.to(offset), 0, null, null);
+
+        clEnqueueWriteBuffer(commandQueue, targetHash, CL_TRUE, 0,
+                UINT_SIZE * SHA256_RESULT_SIZE, Pointer.to(targetHashInts), 0, null, null);
 
         // Execute the kernel
         clEnqueueNDRangeKernel(commandQueue, kernel, 1, null,
@@ -170,7 +179,6 @@ public class Sha256WithNonce {
         clReleaseMemObject(dataInfo);
         clReleaseMemObject(dataMem);
         clReleaseMemObject(messageDigest);
-        clReleaseMemObject(nonce);
 
         return resultToString();
     }

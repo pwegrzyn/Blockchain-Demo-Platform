@@ -46,11 +46,10 @@ uint sig1 (uint x) {
 }
 
 char getData(global char* data, char* noun, uint length, int index){
-    printf("index: %d, length: %d\n", index, length);
-    //return data[index];
-    if(index < length)
+    //printf("index: %d, length: %d, value: %c, noun: %c\n", index, length, data[index]);
+    if(index < 2 * length)
         return data[index];
-    return noun[index - length];
+    return noun[(index/2) - length];
 }
 
 kernel void sha256Kernel (global uint *data_info, global char *data, global uint *Hash, global uint *nounOffset, global uint *targetHash) { // H for 8 hash word values
@@ -92,8 +91,8 @@ kernel void sha256Kernel (global uint *data_info, global char *data, global uint
         0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
         0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
     }; // 64 32-bit constants
-    
-    len = data_info[2]; // Data string length + noun char[] length
+
+    len = data_info[2]+10; // Data string length + noun char[] length
     N = len%64>=56?2:1 + len/64; // (l+1+k)%512=448, add one 1 and k 0 after l and extra 64 for l
     // Setting H0(0)-H7(0)
     Hash[0 + origin] = H0;
@@ -104,7 +103,7 @@ kernel void sha256Kernel (global uint *data_info, global char *data, global uint
     Hash[5 + origin] = H5;
     Hash[6 + origin] = H6;
     Hash[7 + origin] = H7;
-    
+
     // Do for N message blocks
     for (i = 0; i < N; i++) {
         // Initialize working variables
@@ -116,7 +115,7 @@ kernel void sha256Kernel (global uint *data_info, global char *data, global uint
         F = Hash[5 + origin];
         G = Hash[6 + origin];
         H = Hash[7 + origin];
-        
+
         // --------------Preprocessing-----------------
         #pragma unroll
         for (t = 0; t < 64; t++){
