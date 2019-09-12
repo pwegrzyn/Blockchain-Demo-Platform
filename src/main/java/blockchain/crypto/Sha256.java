@@ -43,6 +43,10 @@ public class Sha256 {
         }
     }
 
+    public static void main(String[] args) {
+        System.out.println(Sha256.calculateSHA256("abc00"+32402715));
+    }
+
     public static String calculateSHA256(String in) {
         sha256.setData(in);
         String result = sha256.crypt();

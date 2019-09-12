@@ -52,7 +52,7 @@ char getData(global char* data, char* noun, uint length, int index){
     return noun[(index/2) - length];
 }
 
-kernel void sha256Kernel (global uint *data_info, global char *data, global uint *Hash, global uint *nounOffset, global uint *targetHash) { // H for 8 hash word values
+kernel void sha256Kernel (global uint *data_info, global char *data, global uint *Hash, global uint *nounOffset, global uint *targetHash, global uint *flags) { // H for 8 hash word values
     uint i, t, len, N; // i is iteration for N blocks, t is 64 iterations, len is data string length, N is total number of blocks
     uint W[64], temp, A,B,C,D,E,F,G,H,T1,T2; // W is message schedule, A-H 8 working variables, T1&T2 2 value used
     int block, used; // Current block of message, used length of message
@@ -60,26 +60,11 @@ kernel void sha256Kernel (global uint *data_info, global char *data, global uint
     int origin = gid * 8;
     char noun[10];
 
-    uint nounValue=nounOffset[0];
+    uint nounValue= nounOffset[0]+gid;
     for(int i=9;i>=0;i--){
         noun[i]=(int)'0'+nounValue%10;
         nounValue/=10;
     }
-
-    printf("origin: %d, offset: %d, target: ", origin, nounOffset[0]);
-    int licz=0;
-    while(licz < 8){
-        printf("%u ", targetHash[licz]);
-        licz++;
-    }
-
-    printf("\noffset: ");
-    licz=0;
-    while(licz < 10){
-        printf("%c", noun[licz]);
-        licz++;
-    }
-    printf("\n");
 
     uint K[64]={
         0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
@@ -194,11 +179,13 @@ kernel void sha256Kernel (global uint *data_info, global char *data, global uint
 
 
     }
-    printf("result: ");
-    licz=0;
-    while(licz < 8){
-        printf("%u ", Hash[licz+origin]);
-        licz++;
+
+    for(int i=0;i<8;i++){
+        if(Hash[i+origin]<targetHash[i]){
+            flags[gid]=nounOffset[0]+gid;
+            break;
+        } else if(Hash[i+origin]>targetHash[i]){
+            break;
+        }
     }
-    printf("\n");
 }

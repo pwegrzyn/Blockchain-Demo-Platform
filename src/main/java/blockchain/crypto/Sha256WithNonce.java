@@ -32,7 +32,6 @@ public class Sha256WithNonce {
     private long[] local_work_size;
     private int[] datai = new int[3];
     private int[] result;
-    private int[] targetHashInts = new int[8];
     private int[] nonceInt = new int[1];
 
     private static Sha256WithNonce sha256;
@@ -46,10 +45,8 @@ public class Sha256WithNonce {
         }
     }
 
-    private char[] target;
-
     public static void main(String[] args) {
-        System.out.println(Sha256WithNonce.calculateSHA256("abc",136));
+        System.out.println(Sha256WithNonce.calculateSHA256("abc",32402715));
     }
 
     public static String calculateSHA256(String in, int nonce) {

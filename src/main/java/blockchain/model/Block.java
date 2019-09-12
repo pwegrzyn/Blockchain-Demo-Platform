@@ -1,6 +1,7 @@
 package blockchain.model;
 
 import blockchain.crypto.Sha256;
+import blockchain.crypto.Sha256WithNonce;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -33,7 +34,7 @@ public class Block implements Serializable {
 
     public Transaction findTransaction(String hashToFind) {
         for (Transaction tx : this.transactions) {
-            if(tx.getHash().equals(hashToFind)) {
+            if (tx.getHash().equals(hashToFind)) {
                 return tx;
             }
         }
@@ -59,19 +60,23 @@ public class Block implements Serializable {
     }
 
     public static String calculateBlockHash(int index, List<Transaction> transactions, String previousHash, long timestamp,
-                                     int nonce) {
+                                            int nonce) {
+        return Sha256WithNonce.calculateSHA256(Block.getStringToHash(index, transactions, previousHash, timestamp), nonce);
+    }
+
+    public static String getStringToHash(int index, List<Transaction> transactions, String previousHash, long timestamp) {
         JsonObject jsonBlock = new JsonObject();
         jsonBlock.addProperty("index", index);
         jsonBlock.addProperty("previousHash", previousHash);
         jsonBlock.addProperty("timestamp", timestamp);
-        jsonBlock.addProperty("nonce", nonce);
-        JsonArray transactionsArray = (JsonArray) new Gson().toJsonTree(transactions, new TypeToken<List<Transaction>>(){}.getType());
+        JsonArray transactionsArray = (JsonArray) new Gson().toJsonTree(transactions, new TypeToken<List<Transaction>>() {
+        }.getType());
         jsonBlock.add("transactions", transactionsArray);
         // Need to make sure keys are always in the right order in the JSON
         String unorderedJson = jsonBlock.toString();
         Gson gson = new Gson();
         TreeMap<String, Object> map = gson.fromJson(unorderedJson, TreeMap.class);
-        return Sha256.calculateSHA256(gson.toJson(map));
+        return gson.toJson(map);
     }
 
     public int getIndex() {
