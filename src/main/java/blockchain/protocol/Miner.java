@@ -1,6 +1,5 @@
 package blockchain.protocol;
 
-import blockchain.crypto.Sha256NonceSearching;
 import blockchain.crypto.Sha256Proxy;
 import blockchain.model.*;
 import blockchain.net.BlockBroadcastResult;

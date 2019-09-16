@@ -1,7 +1,5 @@
-package blockchain.crypto;
+package blockchain.crypto.sha;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 
 import static org.jocl.CL.*;

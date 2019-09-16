@@ -1,5 +1,9 @@
 package blockchain.crypto;
 
+import blockchain.crypto.sha.Sha256;
+import blockchain.crypto.sha.Sha256NonceSearching;
+import blockchain.crypto.sha.Sha256WithNonce;
+
 public class Sha256Proxy {
     private static Sha256 sha256 = new Sha256();
     private static Sha256WithNonce sha256WithNounce = new Sha256WithNonce();

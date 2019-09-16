@@ -1,4 +1,4 @@
-package blockchain.crypto;
+package blockchain.crypto.sha;
 
 import org.jocl.*;
 
