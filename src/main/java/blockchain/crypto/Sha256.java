@@ -66,11 +66,6 @@ public class Sha256 extends Sha256Abstract {
         clReleaseMemObject(dataMem);
         clReleaseMemObject(messageDigest);
 
-        System.out.println("Result is");
-        for(int i=0;i<SHA256_RESULT_SIZE;i++){
-            System.out.printf("%d ",result[i]);
-        }
-        System.out.println("");
         return resultToString(result);
     }
 }
