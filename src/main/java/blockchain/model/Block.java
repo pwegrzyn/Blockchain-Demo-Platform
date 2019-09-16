@@ -1,7 +1,6 @@
 package blockchain.model;
 
-import blockchain.crypto.Sha256;
-import blockchain.crypto.Sha256WithNonce;
+import blockchain.crypto.Sha256Proxy;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -61,7 +60,7 @@ public class Block implements Serializable {
 
     public static String calculateBlockHash(int index, List<Transaction> transactions, String previousHash, long timestamp,
                                             int nonce) {
-        return Sha256WithNonce.calculateSHA256(Block.getStringToHash(index, transactions, previousHash, timestamp), nonce);
+        return Sha256Proxy.calculateShaHashWithNonce(Block.getStringToHash(index, transactions, previousHash, timestamp), nonce);
     }
 
     public static String getStringToHash(int index, List<Transaction> transactions, String previousHash, long timestamp) {

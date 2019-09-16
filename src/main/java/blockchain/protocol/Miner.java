@@ -1,6 +1,7 @@
 package blockchain.protocol;
 
 import blockchain.crypto.Sha256NonceSearching;
+import blockchain.crypto.Sha256Proxy;
 import blockchain.model.*;
 import blockchain.net.BlockBroadcastResult;
 import blockchain.net.FullNode;
@@ -107,7 +108,7 @@ public class Miner {
         System.out.println("Starting to hash ");
         do {
             currentTimestamp = System.currentTimeMillis();
-            nonce = Sha256NonceSearching.calculateSHA256(Block.getStringToHash(newBlockIndex, transactionsToAdd,
+            nonce = Sha256Proxy.searchForNonce(Block.getStringToHash(newBlockIndex, transactionsToAdd,
                     previousHash, currentTimestamp), "0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
             if (nonce < 0) {
             /*A new block may have been added to the chain while we were hashing, if so then we need to put back

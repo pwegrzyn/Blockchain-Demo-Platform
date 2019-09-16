@@ -1,6 +1,6 @@
 package blockchain.model;
 
-import blockchain.crypto.Sha256;
+import blockchain.crypto.Sha256Proxy;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -41,7 +41,7 @@ public class Transaction implements Serializable {
         String unorderedJson = jsonBlock.toString();
         Gson gson = new Gson();
         TreeMap<String, Object> map = gson.fromJson(unorderedJson, TreeMap.class);
-        return Sha256.calculateSHA256(gson.toJson(map));
+        return Sha256Proxy.calculateShaHash(gson.toJson(map));
     }
 
     public String getId() {
