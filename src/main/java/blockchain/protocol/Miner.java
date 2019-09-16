@@ -1,5 +1,6 @@
 package blockchain.protocol;
 
+import blockchain.crypto.Sha256Proxy;
 import blockchain.model.*;
 import blockchain.net.BlockBroadcastResult;
 import blockchain.net.FullNode;
@@ -75,24 +76,24 @@ public class Miner {
             List<TransactionInput> inputs = unconfirmedTransaction.getInputs();
             List<TransactionOutput> outputs = unconfirmedTransaction.getOutputs();
             String id = unconfirmedTransaction.getId();
-            if(!unconfirmedTransaction.getHash().equals(Transaction.calculateTransactionHash(id, inputs, outputs))) {
+            if (!unconfirmedTransaction.getHash().equals(Transaction.calculateTransactionHash(id, inputs, outputs))) {
                 continue;
             }
 
             boolean txAlreadyIncluded = false;
             for (Transaction tx : transactionsToAdd) {
-                if(unconfirmedTransaction.getHash().equals(tx.getHash())) {
+                if (unconfirmedTransaction.getHash().equals(tx.getHash())) {
                     txAlreadyIncluded = true;
                     break;
                 }
             }
-            if(txAlreadyIncluded) continue;
+            if (txAlreadyIncluded) continue;
 
-            if(this.blockchain.findTransaction(unconfirmedTransaction.getHash()) != null) continue;
+            if (this.blockchain.findTransaction(unconfirmedTransaction.getHash()) != null) continue;
 
-            if(!this.validator.verifySignature(unconfirmedTransaction)) continue;
+            if (!this.validator.verifySignature(unconfirmedTransaction)) continue;
         }
-        if(transactionsToAdd.size() < 1) {
+        if (transactionsToAdd.size() < 1) {
             LOGGER.info("Not enough transactions to begin mining a new block!");
             return null;
         }
@@ -100,27 +101,31 @@ public class Miner {
         assignLeftoverValueAsFee(transactionsToAdd);
 
         addRewardTransaction(transactionsToAdd);
-
-        int nonce = 0;
-        long currentTimestamp = System.currentTimeMillis();
+        int nonce;
+        long currentTimestamp;
         // Upgrade to use GPUHashSolver if ready
-        while(!Block.calculateBlockHash(newBlockIndex, transactionsToAdd, previousHash, currentTimestamp, nonce)
-                .substring(0, 4).equals("0000")) {
+        System.out.println("Starting to hash ");
+        do {
+            currentTimestamp = System.currentTimeMillis();
+            nonce = Sha256Proxy.searchForNonce(Block.getStringToHash(newBlockIndex, transactionsToAdd,
+                    previousHash, currentTimestamp), "0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+            if (nonce < 0) {
             /*A new block may have been added to the chain while we were hashing, if so then we need to put back
             all the non-included txs back to the queue of unconfirmed transactions  */
-            Block potentialNewLatestBlock = this.blockchain.getLatestBlock();
-            if(potentialNewLatestBlock.getIndex() >= newBlockIndex || !potentialNewLatestBlock.getCurrentHash().equals(previousHash)) {
-                for (Transaction tx : transactionsToAdd) {
-                    if (potentialNewLatestBlock.findTransaction(tx.getHash()) == null) {
+                Block potentialNewLatestBlock = this.blockchain.getLatestBlock();
+                if (potentialNewLatestBlock.getIndex() >= newBlockIndex || !potentialNewLatestBlock.getCurrentHash().equals(previousHash)) {
+                    for (Transaction tx : transactionsToAdd) {
+                        if (potentialNewLatestBlock.findTransaction(tx.getHash()) == null) {
                             this.blockchain.getUnconfirmedTransactions().add(tx);
+                        }
                     }
+                    return null;
                 }
-                return null;
             }
-            nonce++;
-        }
+        } while (nonce != -1);
 
         Block newBlock = new Block(newBlockIndex, transactionsToAdd, previousHash, nonce, currentTimestamp);
+        System.out.println("new block: "+newBlock.toString()+" nonce: "+nonce);
         return newBlock;
     }
 
