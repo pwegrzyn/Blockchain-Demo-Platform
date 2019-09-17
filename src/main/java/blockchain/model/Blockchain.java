@@ -4,6 +4,9 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,14 +18,11 @@ public class Blockchain implements Serializable {
     // FIXME: get rid of Observables for serialization in JGroups State Transfer
     private SimpleObjectProperty<Block> latestBlock;
     private ConcurrentMap<String, Block> blockDB;
-    // List of block hashes added to the blockchain
-    private ObservableList<String> blockHashList;
     // Mempool of unconfirmed transactions
     private Queue<Transaction> unconfirmedTransactions;
 
     public Blockchain() {
         this.blockDB = new ConcurrentHashMap<>();
-        this.blockHashList = FXCollections.observableList(new LinkedList<>());
         this.unconfirmedTransactions = new PriorityQueue<>(new MaximumFeeComparator());
     }
 
@@ -32,9 +32,9 @@ public class Blockchain implements Serializable {
     }
 
     public Transaction findTransaction(String hash) {
-        for(Block block : this.blockDB.values()) {
+        for (Block block : this.blockDB.values()) {
             Transaction result = block.findTransaction(hash);
-            if(result != null) return result;
+            if (result != null) return result;
         }
         return null;
     }
@@ -52,7 +52,7 @@ public class Blockchain implements Serializable {
         return result;
     }
 
-    public Block findBlock(String hash){
+    public Block findBlock(String hash) {
         return this.blockDB.get(hash);
     }
 
@@ -71,6 +71,10 @@ public class Blockchain implements Serializable {
         if (this.latestBlock.get().getCurrentHash().equals(newMinedBlock.getPreviousHash())) {
             this.latestBlock.set(newMinedBlock);
         }
+        //TODO verify this
+        if (this.latestBlock.get().getIndex() < newMinedBlock.getIndex()) {
+            this.latestBlock.set(newMinedBlock);
+        }
         return;
     }
 
@@ -80,10 +84,6 @@ public class Blockchain implements Serializable {
 
     public void setBlockDB(ConcurrentMap<String, Block> blockDB) {
         this.blockDB = blockDB;
-    }
-
-    public List<String> getBlockHashList() {
-        return blockHashList;
     }
 
     public Queue<Transaction> getUnconfirmedTransactions() {
@@ -101,6 +101,25 @@ public class Blockchain implements Serializable {
             // TODO compare transactions to find which one gives a bigger fee to the miner
             return 0;
         }
+    }
+
+    private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+        latestBlock = new SimpleObjectProperty<>((Block)stream.readObject());
+        System.out.println("readObject " + latestBlock);
+        blockDB = (ConcurrentMap<String, Block>) stream.readObject();
+        unconfirmedTransactions = (Queue<Transaction>) stream.readObject();
+        System.out.println("readObject " + latestBlock);
+        System.out.println("blockDB  " + blockDB);
+        System.out.println("unconfirmedTransactions " + unconfirmedTransactions);
+    }
+
+    private void writeObject(ObjectOutputStream stream) throws IOException {
+        stream.writeObject(latestBlock.get());
+        stream.writeObject(blockDB);
+        stream.writeObject(unconfirmedTransactions);
+        System.out.println("writeObject " + latestBlock.get());
+        System.out.println("blockDB  " + blockDB);
+        System.out.println("unconfirmedTransactions " + unconfirmedTransactions);
     }
 
 }

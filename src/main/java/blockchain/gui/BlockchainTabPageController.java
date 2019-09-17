@@ -144,26 +144,26 @@ public class BlockchainTabPageController {
         addListenerToBlockListViewSelector();
         addListenerToTxListViewSelector();
         this.blockchain = blockchain;
-        this.hashBlockList = (ObservableList<String>) blockchain.getBlockHashList();
-        blockListView.setItems(hashBlockList);
-
-        this.hashBlockList.addListener(new ListChangeListener<String>() {
-            @Override
-            public void onChanged(Change<? extends String> c) {
-                if(!c.next()) return;
-                if(c.wasAdded()){
-                    for(String s : c.getAddedSubList()){
-                        Block blockToAdd = blockchain.findBlock(s);
-                        ObservableList<String> blocklist = blockListView.getItems();
-                        if(blocklist.get(blocklist.size() - 1).equals(blockToAdd.getPreviousHash())){
-                            blocklist.add(blockToAdd.getCurrentHash());
-                        }
-                    }
-                } else if(c.wasRemoved()){
-
-                }
-            }
-        });
+//        this.hashBlockList = (ObservableList<String>) blockchain.getBlockHashList();
+//        blockListView.setItems(hashBlockList);
+//
+//        this.hashBlockList.addListener(new ListChangeListener<String>() {
+//            @Override
+//            public void onChanged(Change<? extends String> c) {
+//                if(!c.next()) return;
+//                if(c.wasAdded()){
+//                    for(String s : c.getAddedSubList()){
+//                        Block blockToAdd = blockchain.findBlock(s);
+//                        ObservableList<String> blocklist = blockListView.getItems();
+//                        if(blocklist.get(blocklist.size() - 1).equals(blockToAdd.getPreviousHash())){
+//                            blocklist.add(blockToAdd.getCurrentHash());
+//                        }
+//                    }
+//                } else if(c.wasRemoved()){
+//
+//                }
+//            }
+//        });
     }
 
 }

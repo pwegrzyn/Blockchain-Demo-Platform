@@ -130,6 +130,7 @@ public abstract class Node {
                     objectStream.writeObject(Node.this.blockchain);
                 }
             }
+            LOGGER.info("Provided state.");
         }
 
         @Override
@@ -142,6 +143,7 @@ public abstract class Node {
                 }
                 Node.this.blockchain = receivedState;
             }
+            LOGGER.info("Received state.");
         }
 
     }

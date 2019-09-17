@@ -118,7 +118,6 @@ public class AppController {
         Block genesisBlock = Block.getGenesisBlock();
         String previousHash = genesisBlock.getCurrentHash();
         this.node.getBlockchain().addBlock(genesisBlock);
-        this.node.getBlockchain().getBlockHashList().add(genesisBlock.getCurrentHash());
         for(int i = 0; i < 40; i++){
             TransactionInput input = new TransactionInput("prevhash", i - 1,
                     50.0, "fromAddress", "signature");
@@ -133,8 +132,8 @@ public class AppController {
             Block block = new Block(i, txList, previousHash, i, i);
             previousHash = block.getCurrentHash();
             this.node.getBlockchain().addBlock(block);
-            this.node.getBlockchain().getBlockHashList().add(block.getCurrentHash());
         }
+        System.out.println("Blockchain initialized");
     }
 
 }
