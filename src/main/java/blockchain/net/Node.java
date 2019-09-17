@@ -15,7 +15,6 @@ import org.jgroups.util.Util;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -66,10 +65,11 @@ public abstract class Node {
     }
 
     public void disconnect() {
-        if (channel.getView().getMembers().size() > 1)
-            channel.disconnect();
-        else
-            channel.close();
+//        if (channel.getView().getMembers().size() > 1)
+//            channel.disconnect();
+//        else
+//            channel.close();
+        Util.close(this.channel);
         LOGGER.info("Disconnected successfully.");
     }
 
@@ -106,9 +106,7 @@ public abstract class Node {
                     new UFC(),
                     new MFC(),
                     new FRAG2(),
-                    new STATE_TRANSFER(),
-                    new SEQUENCER(),
-                    new FLUSH()};
+                    new STATE_TRANSFER()};
         } catch (UnknownHostException e) {
             LOGGER.log(Level.SEVERE, "Error occurred while creating the protocol stack", e);
             System.exit(1);
