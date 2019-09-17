@@ -7,7 +7,7 @@ import java.io.IOException;
 import static org.jocl.CL.*;
 
 public class Sha256WithNonce extends Sha256Abstract {
-    private cl_mem nonce;
+    private cl_mem nonce, messageDigest;
     private int[] nonceInt = new int[1];
     private int[] result = new int[8];
     ;

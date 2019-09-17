@@ -25,7 +25,7 @@ public abstract class Sha256Abstract {
     protected cl_command_queue commandQueue;
     protected cl_context context;
     protected char[] dataArray;
-    protected cl_mem dataMem, dataInfo, messageDigest;
+    protected cl_mem dataMem, dataInfo;
     protected cl_program program;
     protected cl_kernel kernel;
     protected long[] global_work_size;

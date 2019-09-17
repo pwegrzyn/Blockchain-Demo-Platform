@@ -52,13 +52,13 @@ char getData(global char* data, char* noun, uint length, int index){
     return noun[(index/2) - length];
 }
 
-kernel void sha256Kernel (global uint *data_info, global char *data, global uint *Hash, global uint *nounOffset, global uint *targetHash, global uint *flags) { // H for 8 hash word values
+kernel void sha256Kernel (global uint *data_info, global char *data, global uint *nounOffset, global uint *targetHash, global uint *flags) { // H for 8 hash word values
     uint i, t, len, N; // i is iteration for N blocks, t is 64 iterations, len is data string length, N is total number of blocks
     uint W[64], temp, A,B,C,D,E,F,G,H,T1,T2; // W is message schedule, A-H 8 working variables, T1&T2 2 value used
     int block, used; // Current block of message, used length of message
     int gid = get_global_id(0); // global id
-    int origin = gid * 8;
     char noun[10];
+    uint Hash[8];
 
     uint nounValue= nounOffset[0]+gid;
     for(int i=9;i>=0;i--){
@@ -80,26 +80,26 @@ kernel void sha256Kernel (global uint *data_info, global char *data, global uint
     len = data_info[2]+10; // Data string length + noun char[] length
     N = len%64>=56?2:1 + len/64; // (l+1+k)%512=448, add one 1 and k 0 after l and extra 64 for l
     // Setting H0(0)-H7(0)
-    Hash[0 + origin] = H0;
-    Hash[1 + origin] = H1;
-    Hash[2 + origin] = H2;
-    Hash[3 + origin] = H3;
-    Hash[4 + origin] = H4;
-    Hash[5 + origin] = H5;
-    Hash[6 + origin] = H6;
-    Hash[7 + origin] = H7;
+    Hash[0] = H0;
+    Hash[1] = H1;
+    Hash[2] = H2;
+    Hash[3] = H3;
+    Hash[4] = H4;
+    Hash[5] = H5;
+    Hash[6] = H6;
+    Hash[7] = H7;
 
     // Do for N message blocks
     for (i = 0; i < N; i++) {
         // Initialize working variables
-        A = Hash[0 + origin];
-        B = Hash[1 + origin];
-        C = Hash[2 + origin];
-        D = Hash[3 + origin];
-        E = Hash[4 + origin];
-        F = Hash[5 + origin];
-        G = Hash[6 + origin];
-        H = Hash[7 + origin];
+        A = Hash[0];
+        B = Hash[1];
+        C = Hash[2];
+        D = Hash[3];
+        E = Hash[4];
+        F = Hash[5];
+        G = Hash[6];
+        H = Hash[7];
 
         // --------------Preprocessing-----------------
         #pragma unroll
@@ -168,23 +168,23 @@ kernel void sha256Kernel (global uint *data_info, global char *data, global uint
             B = A;
             A = T1 + T2;
         }
-        Hash[0 + origin] += A;
-        Hash[1 + origin] += B;
-        Hash[2 + origin] += C;
-        Hash[3 + origin] += D;
-        Hash[4 + origin] += E;
-        Hash[5 + origin] += F;
-        Hash[6 + origin] += G;
-        Hash[7 + origin] += H;
+        Hash[0] += A;
+        Hash[1] += B;
+        Hash[2] += C;
+        Hash[3] += D;
+        Hash[4] += E;
+        Hash[5] += F;
+        Hash[6] += G;
+        Hash[7] += H;
 
 
     }
 
     for(int i=0;i<8;i++){
-        if(Hash[i+origin]<targetHash[i]){
+        if(Hash[i]<targetHash[i]){
             flags[gid]=nounOffset[0]+gid;
             break;
-        } else if(Hash[i+origin]>targetHash[i]){
+        } else if(Hash[i]>targetHash[i]){
             break;
         }
     }
