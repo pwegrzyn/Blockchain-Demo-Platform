@@ -38,22 +38,20 @@ public class Sha256NonceSearching extends Sha256Abstract {
         dataMem = clCreateBuffer(context, CL_MEM_READ_ONLY, lth * SHA256_PLAINTEXT_LENGTH,
                 null, null);
         dataInfo = clCreateBuffer(context, CL_MEM_READ_ONLY, UINT_SIZE * 3, null, null);
-        messageDigest = clCreateBuffer(context, CL_MEM_WRITE_ONLY, Sizeof.cl_uint * SHA256_RESULT_SIZE * global_work_size[0], null, null);
         nounceOffset = clCreateBuffer(context, CL_MEM_READ_ONLY, Sizeof.cl_uint, null, null);
         targetHash = clCreateBuffer(context, CL_MEM_READ_ONLY, Sizeof.cl_uint * SHA256_RESULT_SIZE, null, null);
         foundFlags = clCreateBuffer(context, CL_MEM_WRITE_ONLY, Sizeof.cl_uint * global_work_size[0], null, null);
 
-        if (dataMem == null || dataInfo == null || messageDigest == null || nounceOffset == null || targetHash == null || foundFlags == null) {
+        if (dataMem == null || dataInfo == null || nounceOffset == null || targetHash == null || foundFlags == null) {
             throw new RuntimeException("System couldn't create non-zero buffer objects");
         }
 
         // Set the arguments for the kernel
         clSetKernelArg(kernel, 0, Sizeof.cl_mem, Pointer.to(dataInfo));
         clSetKernelArg(kernel, 1, Sizeof.cl_mem, Pointer.to(dataMem));
-        clSetKernelArg(kernel, 2, Sizeof.cl_mem, Pointer.to(messageDigest));
-        clSetKernelArg(kernel, 3, Sizeof.cl_mem, Pointer.to(nounceOffset));
-        clSetKernelArg(kernel, 4, Sizeof.cl_mem, Pointer.to(targetHash));
-        clSetKernelArg(kernel, 5, Sizeof.cl_mem, Pointer.to(foundFlags));
+        clSetKernelArg(kernel, 2, Sizeof.cl_mem, Pointer.to(nounceOffset));
+        clSetKernelArg(kernel, 3, Sizeof.cl_mem, Pointer.to(targetHash));
+        clSetKernelArg(kernel, 4, Sizeof.cl_mem, Pointer.to(foundFlags));
 
         datai[0] = SHA256_PLAINTEXT_LENGTH;
         datai[1] = (int) global_work_size[0];
@@ -85,6 +83,7 @@ public class Sha256NonceSearching extends Sha256Abstract {
             clEnqueueNDRangeKernel(commandQueue, kernel, 1, null,
                     global_work_size, local_work_size, 0, null, null);
 
+            // Read the output nonce
             clEnqueueReadBuffer(commandQueue, foundFlags, CL_TRUE, 0,
                     Sizeof.cl_uint * global_work_size[0], Pointer.to(foundFlagsInts), 0, null, null);
 
@@ -104,7 +103,6 @@ public class Sha256NonceSearching extends Sha256Abstract {
         // Release memory objects
         clReleaseMemObject(dataInfo);
         clReleaseMemObject(dataMem);
-        clReleaseMemObject(messageDigest);
         clReleaseMemObject(nounceOffset);
         clReleaseMemObject(targetHash);
         clReleaseMemObject(foundFlags);

@@ -7,6 +7,7 @@ import static org.jocl.CL.*;
 import org.jocl.*;
 
 public class Sha256 extends Sha256Abstract {
+    protected cl_mem messageDigest;
     protected int[] result = new int[8];
 
     public Sha256() {
