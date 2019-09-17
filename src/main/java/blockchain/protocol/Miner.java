@@ -101,14 +101,21 @@ public class Miner {
         assignLeftoverValueAsFee(transactionsToAdd);
 
         addRewardTransaction(transactionsToAdd);
+
         int nonce;
         long currentTimestamp;
-        // Upgrade to use GPUHashSolver if ready
-        System.out.println("Starting to hash ");
+        StringBuilder target = new StringBuilder("");
+        for (int i = 0; i < MINING_DIFFICULTY; i++) {
+            target.append('0');
+        }
+        while(target.length() != 36) {
+            target.append('F');
+        }
+        String targetStr = target.toString();
         do {
             currentTimestamp = System.currentTimeMillis();
             nonce = Sha256Proxy.searchForNonce(Block.getStringToHash(newBlockIndex, transactionsToAdd,
-                    previousHash, currentTimestamp), "0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+                    previousHash, currentTimestamp), targetStr);
             if (nonce < 0) {
             /*A new block may have been added to the chain while we were hashing, if so then we need to put back
             all the non-included txs back to the queue of unconfirmed transactions  */
@@ -125,7 +132,6 @@ public class Miner {
         } while (nonce != -1);
 
         Block newBlock = new Block(newBlockIndex, transactionsToAdd, previousHash, nonce, currentTimestamp);
-        System.out.println("new block: "+newBlock.toString()+" nonce: "+nonce);
         return newBlock;
     }
 

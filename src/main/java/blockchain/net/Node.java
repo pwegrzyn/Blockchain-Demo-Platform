@@ -9,11 +9,13 @@ import org.jgroups.ReceiverAdapter;
 import org.jgroups.protocols.*;
 import org.jgroups.protocols.pbcast.*;
 import org.jgroups.stack.Protocol;
+import org.jgroups.stack.ProtocolStack;
 import org.jgroups.util.Util;
 
 import java.io.*;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,7 +34,17 @@ public abstract class Node {
         System.setProperty("java.net.preferIPv4Stack", "true");
         this.clusterName = clusterName;
         try {
-            this.channel = new JChannel(getProtocolStack()).name(this.clusterName);
+            this.channel = new JChannel(false);
+            this.channel.name(Configuration.getInstance().getPublicKey());
+
+            ProtocolStack protocolStack = new ProtocolStack();
+            this.channel.setProtocolStack(protocolStack);
+            Protocol[] protocols = getProtocolStack();
+            for (Protocol protocol : protocols) {
+                protocolStack.addProtocol(protocol);
+            }
+            protocolStack.init();
+
             this.channel.setDiscardOwnMessages(true);
             this.channel.setReceiver(new MessageReceiver());
             this.channel.connect(clusterName);
@@ -82,7 +94,9 @@ public abstract class Node {
                     new PING(),
                     new MERGE3(),
                     new FD_SOCK(),
-                    new FD_ALL(),
+                    new FD_ALL()
+                            .setValue("timeout", 12000)
+                            .setValue("interval", 3000),
                     new VERIFY_SUSPECT(),
                     new BARRIER(),
                     new NAKACK2(),
@@ -92,7 +106,7 @@ public abstract class Node {
                     new UFC(),
                     new MFC(),
                     new FRAG2(),
-                    new STATE(),
+                    new STATE_TRANSFER(),
                     new SEQUENCER(),
                     new FLUSH()};
         } catch (UnknownHostException e) {
@@ -109,11 +123,18 @@ public abstract class Node {
             super.receive(msg);
             try {
                 ProtocolMessage message = (ProtocolMessage) Util.objectFromByteBuffer(msg.getBuffer());
-                if (message.getType() == ProtocolMessage.MessageType.NEW_BLOCK) {
-                    // TODO: handle new incoming block
+                if (message.getType() == ProtocolMessage.MessageType.NEW_BLOCK &&
+                        Configuration.getInstance().getNodeRunningMode() == Mode.WALLET) {
+
                 } else if (message.getType() == ProtocolMessage.MessageType.NEW_TRANSACTION &&
                         Configuration.getInstance().getNodeRunningMode() == Mode.FULL) {
-                    // TODO: handle new incoming tx
+
+                } else if (message.getType() == ProtocolMessage.MessageType.NEW_BLOCK &&
+                        Configuration.getInstance().getNodeRunningMode() == Mode.FULL) {
+
+                } else if (message.getType() == ProtocolMessage.MessageType.NEW_TRANSACTION &&
+                        Configuration.getInstance().getNodeRunningMode() == Mode.WALLET) {
+
                 }
             } catch (Exception e) {
                 LOGGER.warning("Error while receiving message from neighbours!");

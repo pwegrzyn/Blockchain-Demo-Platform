@@ -2,10 +2,12 @@ package blockchain.gui;
 
 import blockchain.config.Configuration;
 import blockchain.config.Mode;
+import blockchain.crypto.ECDSA;
 import blockchain.model.Blockchain;
 import blockchain.net.FullNode;
 import blockchain.net.WalletNode;
 import blockchain.protocol.Validator;
+import blockchain.util.Utils;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -21,6 +23,10 @@ import javafx.scene.text.Font;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+
+import java.io.UnsupportedEncodingException;
+import java.security.*;
+import java.security.spec.InvalidKeySpecException;
 
 
 public class InitController {
@@ -57,7 +63,7 @@ public class InitController {
     private TextField PublicKeyInput;
 
     @FXML
-    private void handleOkButton(ActionEvent event) {
+    private void handleOkButton(ActionEvent event) throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException, InvalidKeySpecException, UnsupportedEncodingException, SignatureException, InvalidKeyException {
         if(ModeChoiceBox.getValue() == null) {
             String header = "Input Error";
             String content = "You have not chosen the mode (Wallet or Full)";
@@ -80,6 +86,14 @@ public class InitController {
             config.setPrivateKey(PrivateKeyInput.getCharacters().toString());
         }
         config.setNodeRunningMode(this.ModeChoiceBox.getValue());
+
+        // Generate keys if necessary
+        if (config.isShouldAutoGenerateKeys()) {
+            ECDSA ecdsa = new ECDSA();
+            KeyPair keyPair = ecdsa.generateKeyPair();
+            config.setPublicKey(Utils.bytesToHexStr(keyPair.getPublic().getEncoded()));
+            config.setPrivateKey(Utils.bytesToHexStr(keyPair.getPrivate().getEncoded()));
+        }
 
         // Initialize the node and blockchain (do it in a separate thread so as to not stall the main JavaFX thread)
         ProgressForm pForm = new ProgressForm();
@@ -157,7 +171,6 @@ public class InitController {
         alert.setContentText(content);
         alert.showAndWait();
     }
-
 
     // Initialization Progress Stage
     private static class ProgressForm {

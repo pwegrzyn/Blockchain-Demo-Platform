@@ -3,6 +3,7 @@ package blockchain.gui;
 import blockchain.config.Configuration;
 import blockchain.model.*;
 import blockchain.net.WalletNode;
+import blockchain.util.Utils;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.value.ObservableStringValue;
 import javafx.beans.value.ObservableValue;
@@ -40,7 +41,7 @@ public class WalletTabPageController {
     public void init(){
         newTransactionButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
-                String transactionId = "transaction";
+                String transactionId = Utils.generateRandomString(32);
                 TransactionType type = TransactionType.REGULAR;
                 List<TransactionInput> inputList = selectInputTransactions();
                 List<TransactionOutput> outputList = generateOutputTransactions();

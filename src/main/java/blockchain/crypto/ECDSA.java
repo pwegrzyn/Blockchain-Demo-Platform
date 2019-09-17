@@ -6,6 +6,7 @@ import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 
 import java.io.UnsupportedEncodingException;
 import java.security.*;
+import java.security.spec.EncodedKeySpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
@@ -45,15 +46,19 @@ public class ECDSA {
     public KeyPair generateKeyPair() throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException{
         ECNamedCurveParameterSpec ecSpec = ECNamedCurveTable.getParameterSpec("secp256k1");
         KeyPairGenerator generator = KeyPairGenerator.getInstance("ECDSA", "BC");
-        generator.initialize(ecSpec, new SecureRandom());
+
+        byte seed[] = new SecureRandom().generateSeed(20);
+        SecureRandom random = new SecureRandom();
+        random.setSeed(seed);
+        generator.initialize(ecSpec, random);
         return generator.generateKeyPair();
     }
 
-    // pkcs8 format required, otherwise method returns false
-    // FIXME: definitely need to properly test this method
+    // BASE64 string required as input
+    // FIXME: test this more
     public boolean verifyKeys(String privateKey, String publicKey) throws NoSuchProviderException, NoSuchAlgorithmException {
 
-        KeyFactory keyFactory = KeyFactory.getInstance("SHA256withECDSA", "BC");
+        KeyFactory keyFactory = KeyFactory.getInstance("ECDSA", "BC");
 
         try {
             // Decode private key
@@ -80,6 +85,22 @@ public class ECDSA {
 
     public boolean verifyPrivateKeySize(String privateKey) {
         return privateKey.length() == PRIV_KEY_ENCODED_LEN;
+    }
+
+    public PublicKey strToPublicKey(String publicKey) throws NoSuchProviderException, NoSuchAlgorithmException, InvalidKeySpecException {
+        KeyFactory keyFactory = KeyFactory.getInstance("ECDSA", "BC");
+        byte[] bytes = Utils.hexStringToByteArray(publicKey);
+        EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(bytes);
+        PublicKey publicKeyRes = keyFactory.generatePublic(publicKeySpec);
+        return  publicKeyRes;
+    }
+
+    public PrivateKey strToPrivateKey(String privateKey) throws NoSuchProviderException, NoSuchAlgorithmException, InvalidKeySpecException {
+        KeyFactory keyFactory = KeyFactory.getInstance("ECDSA", "BC");
+        byte[] bytes = Utils.hexStringToByteArray(privateKey);
+        EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(bytes);
+        PrivateKey privateKeyRes = keyFactory.generatePrivate(privateKeySpec);
+        return privateKeyRes;
     }
 
 }

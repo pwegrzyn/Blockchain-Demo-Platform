@@ -9,24 +9,8 @@ Blockchain demo platform for educational purposes
 * Node.js 10.15.x
 
 ## Starting
-Use the provided `bdp.sh` bash script to run the platform:
-```bash
-bash ./bdp.sh --help
-```
+Run the main Gradle task
 
-## Current progress
-* First version of the SHA256 kernel done
-* Stub of the network layer done
-* GUI initial views
-* Protocol mostly implemented
-* Electron visualization module stub done
-
-## TODO
-* Tests
-* Network layer communication fully done
-* Visualization (especially dynamic with a graph library)
-* Improvement of the SHA256 kernel and effective parallelization
-* Communication between Java and Node (potentially)
-
-## Known Issues
-* How to avoid serializing an observable?
+## Notes
+The application has the ability to connect to an external client to pass the data for visualization
+(for example by using the provided Electron client)

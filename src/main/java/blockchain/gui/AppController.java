@@ -79,7 +79,7 @@ public class AppController {
         this.primaryStage.setOnCloseRequest(confirmCloseEventHandler);
 
         // Test the blockchain gui by adding some dummy blocks
-        addSampleBlocks();
+        //addSampleBlocks();
 
         // Get the initial blockchain if this node is the first one or get the blockchain which was taken from other
         // existing nodes otherwise
@@ -113,7 +113,7 @@ public class AppController {
         this.node = node;
     }
 
-    // Test method to check if the Blockchain gui is working, delete it later
+    // Test method to check if the Blockchain gui is working
     private void addSampleBlocks(){
         Block genesisBlock = Block.getGenesisBlock();
         String previousHash = genesisBlock.getCurrentHash();

@@ -4,9 +4,12 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.logging.Logger;
 
 
 public class Blockchain implements Serializable {
+
+    private static final Logger LOGGER = Logger.getLogger(Blockchain.class.getName());
 
     // last block of the main (longest) branch
     private String latestBlock;
@@ -63,6 +66,7 @@ public class Blockchain implements Serializable {
     }
 
     public void addBlock(Block newMinedBlock) {
+        LOGGER.info("Adding new block to the blockchain");
         this.blockDB.put(newMinedBlock.getCurrentHash(), newMinedBlock);
         if (this.latestBlock == null) {
             this.latestBlock = newMinedBlock.getCurrentHash();
