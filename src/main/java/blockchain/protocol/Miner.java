@@ -5,6 +5,12 @@ import blockchain.model.*;
 import blockchain.net.BlockBroadcastResult;
 import blockchain.net.FullNode;
 
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.SignatureException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -28,13 +34,19 @@ public class Miner extends Thread {
         this.fullNode = node;
     }
 
-
     public void run() {
-        startMining();
+        try {
+            startMining();
+        } catch (InterruptedException | NoSuchAlgorithmException | InvalidKeyException | SignatureException |
+                UnsupportedEncodingException | NoSuchProviderException | InvalidKeySpecException e) {
+           e.printStackTrace();
+           LOGGER.severe("Miner encountered a fatal error and has stopped running");
+        }
     }
 
     // Probably should run in its own thread
-    public void startMining() {
+    public void startMining() throws InterruptedException, NoSuchAlgorithmException, UnsupportedEncodingException, SignatureException,
+            NoSuchProviderException, InvalidKeyException, InvalidKeySpecException {
         this.isMining = true;
         while (isMining) {
             Block latestBlock = this.blockchain.getLatestBlock();
@@ -62,7 +74,8 @@ public class Miner extends Thread {
         this.isMining = false;
     }
 
-    private Block mineBlock() {
+    private Block mineBlock() throws InterruptedException, NoSuchAlgorithmException, UnsupportedEncodingException, SignatureException,
+            NoSuchProviderException, InvalidKeyException, InvalidKeySpecException {
         Block latestBlock = this.blockchain.getLatestBlock();
         int newBlockIndex = latestBlock.getIndex() + 1;
         String previousHash = latestBlock.getCurrentHash();
@@ -96,10 +109,11 @@ public class Miner extends Thread {
 
             if (this.blockchain.findTransaction(unconfirmedTransaction.getHash()) != null) continue;
 
-            if (!this.validator.verifySignature(unconfirmedTransaction)) continue;
+            if (!this.validator.verifySignature(this.blockchain, unconfirmedTransaction)) continue;
         }
         if (transactionsToAdd.size() < 1) {
             LOGGER.info("Not enough transactions to begin mining a new block!");
+            Thread.sleep(2000);
             return null;
         }
 
