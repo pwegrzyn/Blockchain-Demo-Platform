@@ -175,7 +175,7 @@ public class BlockchainTabPageController {
                 this.hashBlockList.add(latest.getCurrentHash());
                 if (latest.getIndex() == 0) break;
                 latest = latestDB.get(latest.getPreviousHash());
-            } while (latest.getIndex() > 0);
+            } while (latest != null && latest.getIndex() >= 0);
         }
 
         this.latestBlock.addListener((obs, ov, nv) -> {
@@ -188,7 +188,7 @@ public class BlockchainTabPageController {
                 this.hashBlockList.add(block.getCurrentHash());
                 if (block.getIndex() == 0) break;
                 block = blocksDB.get(block.getPreviousHash());
-            } while (block.getIndex() > 0);
+            } while (block != null && block.getIndex() >= 0);
         });
 
         this.hashBlockList.addListener(new ListChangeListener<String>() {

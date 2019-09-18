@@ -122,7 +122,7 @@ public class AppController {
         Block genesisBlock = Block.getGenesisBlock();
         String previousHash = genesisBlock.getCurrentHash();
         this.node.getBlockchain().addBlock(genesisBlock);
-        for(int i = 0; i < 40; i++){
+        for(int i = 1; i < 40; i++){
             TransactionInput input = new TransactionInput("prevhash", i - 1,
                     50.0, "fromAddress", "signature");
             TransactionOutput output = new TransactionOutput(50.0, "receiverAddress");
