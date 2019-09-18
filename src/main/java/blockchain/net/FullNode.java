@@ -12,7 +12,7 @@ public class FullNode extends WalletNode {
 
     public BlockBroadcastResult broadcastNewBlock(Block newBlock) {
         // TODO broadcast the block to the network
-        return null;
+        return new BlockBroadcastResult();
     }
 
     public void synchronizeWithOthers() {
