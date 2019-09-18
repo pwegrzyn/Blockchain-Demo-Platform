@@ -25,7 +25,7 @@ public class Miner extends Thread {
     private boolean isMining;
     private static final int MAX_TRANSACTIONS_PER_BLOCK = 5;
     // TODO fetch mining difficulty from the properties file
-    private static final int MINING_DIFFICULTY = 6;
+    private static final int MINING_DIFFICULTY = 5;
 
     public Miner(FullNode node) {
         this.blockchain = node.getBlockchain();
@@ -110,6 +110,8 @@ public class Miner extends Thread {
             if (this.blockchain.findTransaction(unconfirmedTransaction.getHash()) != null) continue;
 
             if (!this.validator.verifySignature(this.blockchain, unconfirmedTransaction)) continue;
+
+            transactionsToAdd.add(unconfirmedTransaction);
         }
         if (transactionsToAdd.size() < 1) {
             LOGGER.info("Not enough transactions to begin mining a new block!");
@@ -149,6 +151,7 @@ public class Miner extends Thread {
                 }
             }
         } while (nonce < 0);
+        System.out.println("Block mined [nonce: " + nonce+"]");
 
         Block newBlock = new Block(newBlockIndex, transactionsToAdd, previousHash, nonce, currentTimestamp);
         return newBlock;
