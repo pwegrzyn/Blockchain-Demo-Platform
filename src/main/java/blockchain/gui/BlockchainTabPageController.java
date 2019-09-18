@@ -160,7 +160,6 @@ public class BlockchainTabPageController {
     }
 
     public void setBlockchain(Blockchain blockchain) {
-        System.out.println("blockchain in setBlockchain() has " + blockchain.getBlockDB().values().size() + " blocks");
         addTxListViewCellFactory();
         addListenerToBlockListViewSelector();
         addListenerToTxListViewSelector();
@@ -180,7 +179,6 @@ public class BlockchainTabPageController {
         }
 
         this.latestBlock.addListener((obs, ov, nv) -> {
-            System.out.println("this.latestBlock.addListener");
             if (ov != null && nv.getCurrentHash().equals(ov.getCurrentHash()))
                 return;
             ConcurrentMap<String, Block> blocksDB = this.blockchain.getBlockDB();
@@ -191,7 +189,6 @@ public class BlockchainTabPageController {
                 if (block.getIndex() == 0) break;
                 block = blocksDB.get(block.getPreviousHash());
             } while (block.getIndex() > 0);
-            System.out.println("end this.latestBlock.addListener");
         });
 
         this.hashBlockList.addListener(new ListChangeListener<String>() {
