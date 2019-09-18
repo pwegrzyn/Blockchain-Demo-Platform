@@ -1,19 +1,15 @@
 package blockchain.gui;
 
-import blockchain.model.Blockchain;
-import blockchain.net.WalletNode;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.TabPane;
-import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 import javax.imageio.ImageIO;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

@@ -48,6 +48,8 @@ public class InitController {
                 InitController.this.PrivateKeyInput.setDisable(false);
             }
         });
+        this.AutoGenerateKeysCheckbox.setSelected(true);
+        this.ModeChoiceBox.setValue(Mode.FULL);
     }
 
     @FXML

@@ -1,5 +1,10 @@
 package blockchain.model;
 
+import javafx.beans.property.SimpleObjectProperty;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -12,10 +17,7 @@ public class Blockchain implements Serializable {
     private static final Logger LOGGER = Logger.getLogger(Blockchain.class.getName());
 
     // last block of the main (longest) branch
-    private String latestBlock;
-
-    // list of the latest blocks of ALL the branches
-    private List<String> branchesLatestBlocks;
+    private SimpleObjectProperty<Block> latestBlock;
 
     //All the blocks currently in the system
     private ConcurrentMap<String, Block> blockDB;
@@ -24,28 +26,32 @@ public class Blockchain implements Serializable {
     private Queue<Transaction> unconfirmedTransactions;
 
     public Blockchain() {
+        this.latestBlock = new SimpleObjectProperty<>();
         this.blockDB = new ConcurrentHashMap<>();
-        this.branchesLatestBlocks = new LinkedList<>();
         this.unconfirmedTransactions = new PriorityQueue<>(new MaximumFeeComparator());
     }
 
     public Block getLatestBlock() {
-        if (this.latestBlock == null || this.blockDB.get(this.latestBlock) == null) return null;
-        return this.blockDB.get(this.latestBlock);
+        if (this.latestBlock == null) return null;
+        return this.latestBlock.get();
+    }
+
+    public SimpleObjectProperty<Block> getLatestBlockObservable() {
+        return this.latestBlock;
     }
 
     public Transaction findTransaction(String hash) {
-        for(Block block : this.blockDB.values()) {
+        for (Block block : this.blockDB.values()) {
             Transaction result = block.findTransaction(hash);
-            if(result != null) return result;
+            if (result != null) return result;
         }
         return null;
     }
 
     public List<Block> getMainBranch() {
-        if (this.latestBlock == null) return Collections.emptyList();
+        if (this.latestBlock.get() == null) return Collections.emptyList();
         List<Block> result = new LinkedList<>();
-        String hashPtr = this.blockDB.get(this.latestBlock).getCurrentHash();
+        String hashPtr = this.latestBlock.get().getCurrentHash();
         // Genesis Block has the string "0" as its previous hash field
         while (!hashPtr.equals("0")) {
             Block blockToAdd = this.blockDB.get(hashPtr);
@@ -55,7 +61,7 @@ public class Blockchain implements Serializable {
         return result;
     }
 
-    public Block findBlock(String hash){
+    public Block findBlock(String hash) {
         return this.blockDB.get(hash);
     }
 
@@ -68,14 +74,18 @@ public class Blockchain implements Serializable {
     public void addBlock(Block newMinedBlock) {
         LOGGER.info("Adding new block to the blockchain");
         this.blockDB.put(newMinedBlock.getCurrentHash(), newMinedBlock);
-        if (this.latestBlock == null) {
-            this.latestBlock = newMinedBlock.getCurrentHash();
+        if (this.latestBlock.get() == null) {
+            this.latestBlock.set(newMinedBlock);
             return;
         }
-        if (this.blockDB.get(this.latestBlock).getCurrentHash().equals(newMinedBlock.getPreviousHash())) {
-            this.latestBlock = newMinedBlock.getCurrentHash();
+        if (this.latestBlock.get().getCurrentHash().equals(newMinedBlock.getPreviousHash())) {
+            this.latestBlock.set(newMinedBlock);
+            return;
         }
-        return;
+        //TODO verify this
+        if (this.latestBlock.get().getIndex() < newMinedBlock.getIndex()) {
+            this.latestBlock.set(newMinedBlock);
+        }
     }
 
     public ConcurrentMap<String, Block> getBlockDB() {
@@ -101,6 +111,18 @@ public class Blockchain implements Serializable {
             // TODO compare transactions to find which one gives a bigger fee to the miner
             return 0;
         }
+    }
+
+    private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+        latestBlock = new SimpleObjectProperty<>((Block) stream.readObject());
+        blockDB = (ConcurrentMap<String, Block>) stream.readObject();
+        unconfirmedTransactions = (Queue<Transaction>) stream.readObject();
+    }
+
+    private void writeObject(ObjectOutputStream stream) throws IOException {
+        stream.writeObject(latestBlock.get());
+        stream.writeObject(blockDB);
+        stream.writeObject(unconfirmedTransactions);
     }
 
 }
