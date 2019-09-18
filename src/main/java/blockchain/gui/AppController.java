@@ -83,8 +83,9 @@ public class AppController {
         this.blockchainTabPageController.setBlockchain(this.node.getBlockchain());
         this.walletTabPageController.setBlockchain(this.node.getBlockchain());
 
-        // Test the blockchain gui by adding some dummy blocks
-        addSampleBlocks();
+        // Test the blockchain gui by adding some dummy blocks if blockchain is empty
+        if (this.node.getBlockchain().getBlockDB().values().size() == 0)
+            addSampleBlocks();
 
         // Init the wallet tab controller
         walletTabPageController.init();
@@ -133,7 +134,6 @@ public class AppController {
             previousHash = block.getCurrentHash();
             this.node.getBlockchain().addBlock(block);
         }
-        System.out.println("Blockchain initialized");
     }
 
 }
