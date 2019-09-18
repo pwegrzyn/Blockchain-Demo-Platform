@@ -3,7 +3,9 @@ package blockchain.gui;
 import blockchain.config.Configuration;
 import blockchain.config.Mode;
 import blockchain.model.*;
+import blockchain.net.FullNode;
 import blockchain.net.WalletNode;
+import blockchain.protocol.Miner;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
@@ -22,18 +24,27 @@ public class AppController {
     private Scene primaryScene;
     private WalletNode node;
     private String currentTheme = "assets/css/defaulttheme.css";
+    private Miner miner;
 
-    @FXML private SummaryTabPageController summaryTabPageController;
-    @FXML private BlockchainTabPageController blockchainTabPageController;
-    @FXML private TransactionsTabPageController transactionsTabPageController;
-    @FXML private WalletTabPageController walletTabPageController;
-    @FXML private MinerTabPageController minerTabPageController;
-    @FXML private TxVisTabPageController txVisTabPageController;
-    @FXML private BlockchainVisTabPageController bcVisTabPageController;
-    @FXML private Tab minerTab;
+    @FXML
+    private SummaryTabPageController summaryTabPageController;
+    @FXML
+    private BlockchainTabPageController blockchainTabPageController;
+    @FXML
+    private TransactionsTabPageController transactionsTabPageController;
+    @FXML
+    private WalletTabPageController walletTabPageController;
+    @FXML
+    private MinerTabPageController minerTabPageController;
+    @FXML
+    private TxVisTabPageController txVisTabPageController;
+    @FXML
+    private BlockchainVisTabPageController bcVisTabPageController;
+    @FXML
+    private Tab minerTab;
 
     // Possibly can add new themes for javaFX here
-    private List<String> themesList = new LinkedList<String>(){
+    private List<String> themesList = new LinkedList<String>() {
         {
             add("assets/css/defaulttheme.css");
         }
@@ -87,8 +98,6 @@ public class AppController {
         this.walletTabPageController.setBlockchain(this.node.getBlockchain());
 
         // Test the blockchain gui by adding some dummy blocks if blockchain is empty
-        if (this.node.getBlockchain().getBlockDB().values().size() == 0)
-            addSampleBlocks();
 
         // Init the wallet tab controller
         walletTabPageController.init();
@@ -109,7 +118,11 @@ public class AppController {
         // Disable the miner tab if Running Mode is WALLET
         if (Configuration.getInstance().getNodeRunningMode() != Mode.FULL) {
             this.minerTab.setDisable(true);
+        } else {
+            this.miner = new Miner((FullNode) this.node);
+            this.miner.start();
         }
+
     }
 
 
@@ -118,11 +131,9 @@ public class AppController {
     }
 
     // Test method to check if the Blockchain gui is working
-    private void addSampleBlocks(){
-        Block genesisBlock = Block.getGenesisBlock();
-        String previousHash = genesisBlock.getCurrentHash();
-        this.node.getBlockchain().addBlock(genesisBlock);
-        for(int i = 1; i < 40; i++){
+    private void addSampleBlocks() {
+        String previousHash = this.node.getBlockchain().getLatestBlock().getCurrentHash();
+        for (int i = 1; i < 40; i++) {
             TransactionInput input = new TransactionInput("prevhash", i - 1,
                     50.0, "fromAddress", "signature");
             TransactionOutput output = new TransactionOutput(50.0, "receiverAddress");

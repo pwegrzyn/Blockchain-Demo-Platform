@@ -29,6 +29,7 @@ public class Blockchain implements Serializable {
         this.latestBlock = new SimpleObjectProperty<>();
         this.blockDB = new ConcurrentHashMap<>();
         this.unconfirmedTransactions = new PriorityQueue<>(new MaximumFeeComparator());
+        this.addBlock(Block.getGenesisBlock());
     }
 
     public Block getLatestBlock() {

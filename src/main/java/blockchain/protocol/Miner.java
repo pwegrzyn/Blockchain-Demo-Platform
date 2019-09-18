@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.logging.Logger;
 
-public class Miner {
+public class Miner extends Thread {
 
     private static final Logger LOGGER = Logger.getLogger(Miner.class.getName());
     private Blockchain blockchain;
@@ -19,13 +19,18 @@ public class Miner {
     private boolean isMining;
     private static final int MAX_TRANSACTIONS_PER_BLOCK = 5;
     // TODO fetch mining difficulty from the properties file
-    private static final int MINING_DIFFICULTY = 4;
+    private static final int MINING_DIFFICULTY = 6;
 
     public Miner(FullNode node) {
         this.blockchain = node.getBlockchain();
         this.validator = new Validator();
         this.isMining = false;
         this.fullNode = node;
+    }
+
+
+    public void run() {
+        startMining();
     }
 
     // Probably should run in its own thread
@@ -102,13 +107,13 @@ public class Miner {
 
         addRewardTransaction(transactionsToAdd);
 
-        int nonce;
+        int nonce = -1;
         long currentTimestamp;
         StringBuilder target = new StringBuilder("");
         for (int i = 0; i < MINING_DIFFICULTY; i++) {
             target.append('0');
         }
-        while(target.length() != 36) {
+        while (target.length() != 64) {
             target.append('F');
         }
         String targetStr = target.toString();
@@ -129,7 +134,7 @@ public class Miner {
                     return null;
                 }
             }
-        } while (nonce != -1);
+        } while (nonce < 0);
 
         Block newBlock = new Block(newBlockIndex, transactionsToAdd, previousHash, nonce, currentTimestamp);
         return newBlock;
