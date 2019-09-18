@@ -6,6 +6,7 @@ import blockchain.model.*;
 import blockchain.net.FullNode;
 import blockchain.net.WalletNode;
 import blockchain.protocol.Miner;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
@@ -125,15 +126,10 @@ public class AppController {
             this.miner.start();
         }
 
-        Thread thread = new Thread() {
-            public void run() {
-                addSampleTransactions();
-            }
-        };
+        //add new transaction every 500ms (TODO remove)
+        Thread thread = new Thread(() -> addSampleTransactions());
         thread.start();
-
     }
-
 
     public void setNode(WalletNode node) {
         this.node = node;
