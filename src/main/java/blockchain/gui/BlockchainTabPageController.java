@@ -1,8 +1,7 @@
 package blockchain.gui;
 
 import blockchain.model.*;
-import javafx.beans.Observable;
-import javafx.beans.binding.ObjectBinding;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -10,12 +9,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -63,6 +60,8 @@ public class BlockchainTabPageController {
     private AnchorPane txPropertiesPane;
 
     private void updateSelectedBlock(String newSelectedHash) {
+        if (newSelectedHash == null) return;
+
         Block newBlock = blockchain.findBlock(newSelectedHash);
         updateTransactionList(newBlock);
         blockIndexLabel.setText("" + newBlock.getIndex());
@@ -74,9 +73,7 @@ public class BlockchainTabPageController {
     }
 
     private void updateSelectedTransaction(Transaction transaction) {
-        if (transaction == null) {
-            return;
-        }
+        if (transaction == null) return;
         txIndexLabel.setText(transaction.getId());
         txHashLabel.setText(transaction.getHash());
         txTypeLabel.setText(transaction.getType().toString());
@@ -179,18 +176,22 @@ public class BlockchainTabPageController {
         }
 
         this.latestBlock.addListener((obs, ov, nv) -> {
-            String prevSel=this.blockListView.selectionModelProperty().getValue().getSelectedItem();
+            String prevSel = this.blockListView.selectionModelProperty().getValue().getSelectedItem();
             if (ov != null && nv.getCurrentHash().equals(ov.getCurrentHash()))
                 return;
             ConcurrentMap<String, Block> blocksDB = this.blockchain.getBlockDB();
             Block block = nv;
-            this.hashBlockList.clear();
+            Platform.runLater(() -> hashBlockList.clear());
             do {
-                this.hashBlockList.add(block.getCurrentHash());
+                Block finalBlock = block;
+                Platform.runLater(() -> hashBlockList.add(finalBlock.getCurrentHash()));
                 if (block.getIndex() == 0) break;
                 block = blocksDB.get(block.getPreviousHash());
             } while (block != null && block.getIndex() >= 0);
-            this.blockListView.selectionModelProperty().get().select(prevSel);
+            Platform.runLater(() -> {
+                if (hashBlockList.contains(prevSel))
+                    this.blockListView.selectionModelProperty().getValue().select(prevSel);
+            });
         });
 
         this.hashBlockList.addListener(new ListChangeListener<String>() {

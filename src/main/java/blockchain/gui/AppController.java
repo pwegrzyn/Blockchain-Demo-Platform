@@ -89,15 +89,15 @@ public class AppController {
         // Pin the close-confirmation hook
         this.primaryStage.setOnCloseRequest(confirmCloseEventHandler);
 
-        // Test the blockchain gui by adding some dummy blocks
-        //addSampleBlocks();
-
         // Get the initial blockchain if this node is the first one or get the blockchain which was taken from other
         // existing nodes otherwise
         this.blockchainTabPageController.setBlockchain(this.node.getBlockchain());
         this.walletTabPageController.setBlockchain(this.node.getBlockchain());
 
+        // TODO remove
         // Test the blockchain gui by adding some dummy blocks if blockchain is empty
+//        if (this.node.getBlockchain().getBlockDB().values().size() == 0)
+//            addSampleBlocks();
 
         // Init the wallet tab controller
         walletTabPageController.init();
@@ -123,8 +123,10 @@ public class AppController {
             this.miner.start();
         }
 
+        //add new transaction every 500ms TODO remove
+        Thread thread = new Thread(() -> addSampleTransactions());
+        thread.start();
     }
-
 
     public void setNode(WalletNode node) {
         this.node = node;
@@ -147,6 +149,25 @@ public class AppController {
             Block block = new Block(i, txList, previousHash, i, i);
             previousHash = block.getCurrentHash();
             this.node.getBlockchain().addBlock(block);
+        }
+    }
+
+    private void addSampleTransactions() {
+        for (int i = 0; true; i++) {
+            TransactionInput input = new TransactionInput("prevhash", i - 1,
+                    50.0, "fromAddress", "signature");
+            TransactionOutput output = new TransactionOutput(50.0, "receiverAddress");
+            List<TransactionInput> inputList = new LinkedList<>();
+            inputList.add(input);
+            List<TransactionOutput> outputList = new LinkedList<>();
+            outputList.add(output);
+            Transaction tx = new Transaction("transactionId" + i, TransactionType.REGULAR, inputList, outputList);
+
+            this.node.getBlockchain().getUnconfirmedTransactions().add(tx);
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+            }
         }
     }
 
