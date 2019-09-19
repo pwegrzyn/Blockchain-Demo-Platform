@@ -177,7 +177,6 @@ public class BlockchainTabPageController {
 
         this.latestBlock.addListener((obs, ov, nv) -> {
             String prevSel = this.blockListView.selectionModelProperty().getValue().getSelectedItem();
-            System.out.println("previously selected " + prevSel);
             if (ov != null && nv.getCurrentHash().equals(ov.getCurrentHash()))
                 return;
             ConcurrentMap<String, Block> blocksDB = this.blockchain.getBlockDB();

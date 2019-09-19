@@ -152,7 +152,6 @@ public class Miner extends Thread {
                 }
             }
         } while (nonce < 0);
-        System.out.println("Block mined [nonce: " + nonce+"]");
 
         Block newBlock = new Block(newBlockIndex, transactionsToAdd, previousHash, nonce, currentTimestamp);
         return newBlock;
