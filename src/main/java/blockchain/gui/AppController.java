@@ -90,9 +90,7 @@ public class AppController {
         // Pin the close-confirmation hook
         this.primaryStage.setOnCloseRequest(confirmCloseEventHandler);
 
-        // Test the blockchain gui by adding some dummy blocks
-        //addSampleBlocks();
-
+        // TODO remove
         // Get the initial blockchain if this node is the first one or get the blockchain which was taken from other
         // existing nodes otherwise
         this.blockchainTabPageController.setBlockchain(this.node.getBlockchain());
