@@ -6,7 +6,6 @@ import blockchain.model.*;
 import blockchain.net.FullNode;
 import blockchain.net.WalletNode;
 import blockchain.protocol.Miner;
-import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
@@ -90,12 +89,12 @@ public class AppController {
         // Pin the close-confirmation hook
         this.primaryStage.setOnCloseRequest(confirmCloseEventHandler);
 
-        // TODO remove
         // Get the initial blockchain if this node is the first one or get the blockchain which was taken from other
         // existing nodes otherwise
         this.blockchainTabPageController.setBlockchain(this.node.getBlockchain());
         this.walletTabPageController.setBlockchain(this.node.getBlockchain());
 
+        // TODO remove
         // Test the blockchain gui by adding some dummy blocks if blockchain is empty
 //        if (this.node.getBlockchain().getBlockDB().values().size() == 0)
 //            addSampleBlocks();
@@ -124,7 +123,7 @@ public class AppController {
             this.miner.start();
         }
 
-        //add new transaction every 500ms (TODO remove)
+        //add new transaction every 500ms TODO remove
         Thread thread = new Thread(() -> addSampleTransactions());
         thread.start();
     }
