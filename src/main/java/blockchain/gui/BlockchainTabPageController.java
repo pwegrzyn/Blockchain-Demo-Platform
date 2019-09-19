@@ -179,6 +179,7 @@ public class BlockchainTabPageController {
         }
 
         this.latestBlock.addListener((obs, ov, nv) -> {
+            String prevSel=this.blockListView.selectionModelProperty().getValue().getSelectedItem();
             if (ov != null && nv.getCurrentHash().equals(ov.getCurrentHash()))
                 return;
             ConcurrentMap<String, Block> blocksDB = this.blockchain.getBlockDB();
@@ -189,6 +190,7 @@ public class BlockchainTabPageController {
                 if (block.getIndex() == 0) break;
                 block = blocksDB.get(block.getPreviousHash());
             } while (block != null && block.getIndex() >= 0);
+            this.blockListView.selectionModelProperty().get().select(prevSel);
         });
 
         this.hashBlockList.addListener(new ListChangeListener<String>() {
