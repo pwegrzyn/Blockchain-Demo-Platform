@@ -5,7 +5,7 @@
 Blockchain demo platform for educational purposes
 
 ## Prerequisites
-* JDK8+ or JDK12 and OpenJFX (check out `gradle.build` for more info)
+* JDK8+ or JDK12 and OpenJFX (check out `pom.xml` for more info)
 * Node.js 10.15.x
 
 ## Starting
