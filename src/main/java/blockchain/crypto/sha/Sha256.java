@@ -1,7 +1,5 @@
 package blockchain.crypto.sha;
 
-import java.io.IOException;
-
 import static org.jocl.CL.*;
 
 import org.jocl.*;
@@ -11,10 +9,10 @@ public class Sha256 extends Sha256Abstract {
     protected int[] result = new int[8];
 
     public Sha256() {
-        this.kernelPath = "src/main/java/blockchain/kernel/Sha256.cl";
+        kernelPath = "kernel/Sha256.cl";
         try {
             init();
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.err.println("Error while initializing Sha256 instance");
             e.printStackTrace();
         }

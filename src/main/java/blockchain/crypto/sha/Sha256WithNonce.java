@@ -2,8 +2,6 @@ package blockchain.crypto.sha;
 
 import org.jocl.*;
 
-import java.io.IOException;
-
 import static org.jocl.CL.*;
 
 public class Sha256WithNonce extends Sha256Abstract {
@@ -13,10 +11,10 @@ public class Sha256WithNonce extends Sha256Abstract {
     ;
 
     public Sha256WithNonce() {
-        kernelPath = "src/main/java/blockchain/kernel/Sha256WithNonce.cl";
+        kernelPath = "kernel/Sha256WithNonce.cl";
         try {
             init();
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.err.println("Error while initializing Sha256WithNonce instance");
             e.printStackTrace();
         }

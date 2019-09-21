@@ -5,9 +5,9 @@ import blockchain.crypto.sha.Sha256NonceSearching;
 import blockchain.crypto.sha.Sha256WithNonce;
 
 public class Sha256Proxy {
-    private static Sha256 sha256 = new Sha256();
-    private static Sha256WithNonce sha256WithNonce = new Sha256WithNonce();
-    private static Sha256NonceSearching sha256NonceSearching = new Sha256NonceSearching(1000);
+    private static final Sha256 sha256 = new Sha256();
+    private static final Sha256WithNonce sha256WithNonce = new Sha256WithNonce();
+    private static final Sha256NonceSearching sha256NonceSearching = new Sha256NonceSearching(1000);
 
     public static String calculateShaHash(String input) {
         synchronized (sha256) {

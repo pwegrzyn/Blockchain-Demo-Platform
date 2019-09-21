@@ -1,3 +1,5 @@
+package main;
+
 import blockchain.gui.AppGUI;
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -8,8 +10,12 @@ import java.util.logging.Logger;
 
 
 public class App extends Application {
+    private static final Logger LOGGER;
 
-    private static final Logger LOGGER = Logger.getLogger(App.class.getName());
+    static {
+        System.setProperty("java.util.logging.SimpleFormatter.format", "[%1$tF %1$tT] [%4$s] %5$s %n");
+        LOGGER = Logger.getLogger(App.class.getName());
+    }
 
     public static void main(String[] args) {
         try {

@@ -5,6 +5,8 @@ import org.jocl.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.stream.Collectors;
 
 import static org.jocl.CL.*;
 import static org.jocl.CL.clReleaseContext;
@@ -92,19 +94,10 @@ public abstract class Sha256Abstract {
         local_work_size = new long[]{1};
     }
 
-    protected void load() throws IOException {
+    protected void load() {
         // Read kernel
-        BufferedReader br = new BufferedReader(new FileReader(kernelPath));
-        StringBuilder sb = new StringBuilder();
-        String line = null;
-        while (true) {
-            line = br.readLine();
-            if (line == null) {
-                break;
-            }
-            sb.append(line + "\n");
-        }
-        kernelCode = sb.toString();
+        BufferedReader br = new BufferedReader(new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream(kernelPath)));
+        kernelCode = br.lines().collect(Collectors.joining("\n"));
     }
 
     protected void destroy() {

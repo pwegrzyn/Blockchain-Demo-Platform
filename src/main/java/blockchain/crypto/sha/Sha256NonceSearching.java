@@ -2,7 +2,6 @@ package blockchain.crypto.sha;
 
 import org.jocl.*;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import static org.jocl.CL.*;
@@ -15,10 +14,10 @@ public class Sha256NonceSearching extends Sha256Abstract {
     private long result;
 
     public Sha256NonceSearching(int workSize) {
-        kernelPath = "src/main/java/blockchain/kernel/Sha256NonceSearching.cl";
+        kernelPath = "kernel/Sha256NonceSearching.cl";
         try {
             init(workSize);
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.err.println("Error while initializing Sha256NonceSearching instance");
             e.printStackTrace();
         }
