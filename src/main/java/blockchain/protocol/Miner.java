@@ -130,7 +130,7 @@ public class Miner extends Thread {
         for (int i = 0; i < MINING_DIFFICULTY; i++) {
             target.append('0');
         }
-        while (target.length() != 64) {
+        while (target.length() < 64) {
             target.append('F');
         }
         String targetStr = target.toString();

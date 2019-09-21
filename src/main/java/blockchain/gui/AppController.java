@@ -94,11 +94,6 @@ public class AppController {
         this.blockchainTabPageController.setBlockchain(this.node.getBlockchain());
         this.walletTabPageController.setBlockchain(this.node.getBlockchain());
 
-        // TODO remove
-        // Test the blockchain gui by adding some dummy blocks if blockchain is empty
-//        if (this.node.getBlockchain().getBlockDB().values().size() == 0)
-//            addSampleBlocks();
-
         // Init the wallet tab controller
         walletTabPageController.init();
         walletTabPageController.setNode(node);
@@ -119,13 +114,10 @@ public class AppController {
         if (Configuration.getInstance().getNodeRunningMode() != Mode.FULL) {
             this.minerTab.setDisable(true);
         } else {
-            this.miner = new Miner((FullNode) this.node);
-            this.miner.start();
+            minerTabPageController.init();
+            minerTabPageController.setNode((FullNode) this.node);
         }
 
-        //add new transaction every 500ms TODO remove
-        Thread thread = new Thread(() -> addSampleTransactions());
-        thread.start();
     }
 
     public void setNode(WalletNode node) {
