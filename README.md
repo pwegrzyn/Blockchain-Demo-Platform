@@ -9,7 +9,10 @@ Blockchain demo platform for educational purposes
 * Node.js 10.15.x
 
 ## Starting
-Run the main Gradle task
+```bash
+mvn packge
+java -jar <generated.jar>
+```
 
 ## Notes
 The application has the ability to connect to an external client to pass the data for visualization
