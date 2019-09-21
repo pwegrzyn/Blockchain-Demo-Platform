@@ -59,9 +59,11 @@ public class BlockchainTabPageController {
     @FXML
     private AnchorPane txPropertiesPane;
 
+    private String selectedBlockHash = "";
+
     private void updateSelectedBlock(String newSelectedHash) {
         if (newSelectedHash == null) return;
-
+        selectedBlockHash = newSelectedHash;
         Block newBlock = blockchain.findBlock(newSelectedHash);
         updateTransactionList(newBlock);
         blockIndexLabel.setText("" + newBlock.getIndex());
@@ -133,6 +135,7 @@ public class BlockchainTabPageController {
         this.blockListView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                if(newValue == null || newValue.equals(selectedBlockHash)) return;
                 clearTransactionTableView();
                 setTransactionInfoVisibility(false);
                 updateSelectedBlock(newValue);
