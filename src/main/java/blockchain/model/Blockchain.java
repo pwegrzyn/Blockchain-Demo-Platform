@@ -49,6 +49,15 @@ public class Blockchain implements Serializable {
         return null;
     }
 
+    public Transaction findTransactionInMainChain(String hash) {
+        List<Block> mainBranch = getMainBranch();
+        for (Block block : mainBranch) {
+            Transaction result = block.findTransaction(hash);
+            if (result != null) return result;
+        }
+        return null;
+    }
+
     public List<Block> getMainBranch() {
         if (this.latestBlock.get() == null) return Collections.emptyList();
         List<Block> result = new LinkedList<>();
@@ -64,6 +73,16 @@ public class Blockchain implements Serializable {
 
     public Block findBlock(String hash) {
         return this.blockDB.get(hash);
+    }
+
+    public Block findBlockInMainChain(String hash) {
+        List<Block> mainBranch = getMainBranch();
+        for (Block block : mainBranch) {
+            if (block.getCurrentHash().equals(hash)) {
+                return block;
+            }
+        }
+        return null;
     }
 
     public void recycleInvalidBlock(Block newMinedBlock) {

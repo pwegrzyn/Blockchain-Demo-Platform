@@ -3,10 +3,13 @@ package blockchain.protocol;
 import blockchain.crypto.ECDSA;
 import blockchain.model.*;
 import blockchain.util.Utils;
+import org.bouncycastle.crypto.BlockCipher;
 
 import java.io.UnsupportedEncodingException;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
+import java.util.List;
+import java.util.Queue;
 import java.util.logging.Logger;
 
 
@@ -19,7 +22,9 @@ public class Validator {
         this.ecdsa = new ECDSA();
     }
 
-    // check if all inputs in the transaction have a valid signature
+    /*
+     Check if all inputs in a given transaction have a valid signature
+     */
     public boolean verifySignature(Blockchain blockchain, Transaction tx) throws NoSuchAlgorithmException, NoSuchProviderException,
             InvalidKeySpecException, UnsupportedEncodingException, SignatureException, InvalidKeyException {
         for (TransactionInput txInput : tx.getInputs()) {
@@ -39,14 +44,23 @@ public class Validator {
         return true;
     }
 
+    /*
+     Validate a ECDSA public key
+     */
     public boolean validatePublicKey(String publicKey) {
         return this.ecdsa.verifyPublicKeySize(publicKey);
     }
 
+    /*
+     Validate a ECDSA private key
+     */
     public boolean validatePrivateKey(String privateKey) {
         return this.ecdsa.verifyPrivateKeySize(privateKey);
     }
 
+    /*
+     Validate a given ECDSA key pair
+     */
     public boolean validateKeyPair(String privateKey, String publicKey) {
         if (!validatePrivateKey(privateKey) || !validatePublicKey(publicKey)) {
             return false;
@@ -59,6 +73,9 @@ public class Validator {
         }
     }
 
+    /*
+     Validate a new incoming block (including all the transaction within it)
+     */
     public boolean validateNewIncomingBlock(Blockchain blockchain, Block block) throws NoSuchAlgorithmException, UnsupportedEncodingException,
             SignatureException, NoSuchProviderException, InvalidKeyException, InvalidKeySpecException {
         // Check if block is the last one (previous index + 1)
@@ -89,20 +106,46 @@ public class Validator {
             return false;
         }
 
-        // The sum of output transactions are equal the sum of input transactions + reward for miner
-
-        // Check if no double spending is present
-
-        // Only one FEE tx and one REWARD tx
+        // Only one reward TX;
+        int rewardTx = 0;
+        for (Transaction tx : block.getTransactions()) {
+            if (tx.getType() == TransactionType.REWARD) {
+                rewardTx++;
+            }
+        }
+        if (rewardTx > 1) {
+            LOGGER.warning("Incoming block validation failed: more than one REWARD tx");
+            return false;
+        }
 
         return true;
     }
 
-    public boolean validateNewIncomingTX(Blockchain blockchain, Transaction transaction) {
-        // TODO
+    /*
+     Validate a new incoming transaction
+     */
+    public boolean validateNewIncomingTX(Blockchain blockchain, Transaction transaction) throws NoSuchAlgorithmException,
+            UnsupportedEncodingException, SignatureException, NoSuchProviderException, InvalidKeyException, InvalidKeySpecException {
+        // The tx is not already present in the pool
+        for (Transaction tx : blockchain.getUnconfirmedTransactions()) {
+            if (tx.getHash().equals(transaction.getHash())) {
+                LOGGER.warning("Incoming tx validation failed: tx already present in pool");
+                return false;
+            }
+        }
+
+        // All the rest of the standard TX validation checks
+        if (!validateTX(blockchain, transaction)) {
+            LOGGER.warning("Incoming tx validation failed: rest of checks");
+            return false;
+        }
+
         return true;
     }
 
+    /*
+     Validate all transactions coming in a new block
+     */
     private boolean validateTXsInBlock(Blockchain blockchain, Block block) throws NoSuchAlgorithmException, UnsupportedEncodingException,
             SignatureException, NoSuchProviderException, InvalidKeyException, InvalidKeySpecException {
         for (Transaction tx: block.getTransactions()) {
@@ -113,6 +156,9 @@ public class Validator {
         return true;
     }
 
+    /*
+     Validate a transaction coming in a new block
+     */
     private boolean validateTX(Blockchain blockchain, Transaction tx) throws NoSuchAlgorithmException, UnsupportedEncodingException,
             SignatureException, NoSuchProviderException, InvalidKeyException, InvalidKeySpecException {
         // The transaction hash must be correct (calculated transaction hash == transaction.hash)
@@ -128,8 +174,50 @@ public class Validator {
         }
 
         // The sum of input transactions must be greater than or equal to output transactions (greater if fee is present)
-        // TODO
+        double inputsSum = 0.0;
+        for (TransactionInput txInput : tx.getInputs()) {
+            inputsSum += txInput.getAmount();
+        }
+        double outputsSum = 0.0;
+        for (TransactionOutput txOutput : tx.getOutputs()) {
+            outputsSum += txOutput.getAmount();
+        }
+        if (inputsSum < outputsSum) {
+            LOGGER.warning("TX validation failed: inputs less than outputs");
+            return false;
+        }
 
+        // The transaction isn't already in the blockchain (in the main branch)
+        if (blockchain.findTransactionInMainChain(tx.getHash()) != null) {
+            LOGGER.warning("TX validation failed: tx already in blockchain");
+        }
+
+        // All input transactions must be unspent in the blockchain
+        if (!checkIfAllInputsAreUnspent(blockchain, tx)) {
+            LOGGER.warning("TX validation failed: contains spent inputs");
+            return false;
+        }
+
+        return true;
+    }
+
+    /*
+     Check if all inputs in a given transaction are unspent
+     */
+    private boolean checkIfAllInputsAreUnspent(Blockchain blockchain, Transaction txToCheck) {
+        List<Block> mainBranch = blockchain.getMainBranch();
+        for (TransactionInput txToCheckInput : txToCheck.getInputs()) {
+            for (Block block : mainBranch) {
+                for (Transaction tx : block.getTransactions()) {
+                    for (TransactionInput txInput : tx.getInputs()) {
+                        if (txInput.getPreviousTransactionHash().equals(txToCheckInput.getPreviousTransactionHash()) &&
+                            txInput.getPreviousTransactionOutputIndex() == txToCheckInput.getPreviousTransactionOutputIndex()) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
         return true;
     }
 
