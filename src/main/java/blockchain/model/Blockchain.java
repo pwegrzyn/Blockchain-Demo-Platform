@@ -160,6 +160,9 @@ public class Blockchain implements Serializable {
             }
         }
         if (longestChainStarter != this.latestBlock.get()) {
+            // the last main branch now becomes a fork
+            this.latestBlocksInOtherBranches.add(this.latestBlock.get());
+            // we got a new main branch
             this.latestBlock.set(longestChainStarter);
             this.latestBlocksInOtherBranches.remove(longestChainStarter);
         }
