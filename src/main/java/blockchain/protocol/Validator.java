@@ -32,7 +32,7 @@ public class Validator {
             String txInputDataHash = TransactionInput.calculateHash(txInput.getPreviousTransactionHash(),
                     txInput.getPreviousTransactionOutputIndex(), txInput.getAmount(), txInput.getFromAddress());
 
-            Transaction referencedTx = blockchain.findTransaction(txInput.getPreviousTransactionHash());
+            Transaction referencedTx = blockchain.findTransactionInMainChain(txInput.getPreviousTransactionHash());
             TransactionOutput referencedTxOutput = referencedTx.getOutputs().get(txInput.getPreviousTransactionOutputIndex());
             PublicKey creatorPublicKey = ecdsa.strToPublicKey(referencedTxOutput.getReceiverAddress());
 
