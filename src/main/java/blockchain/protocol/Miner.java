@@ -38,7 +38,9 @@ public class Miner extends Thread {
     public void run() {
         try {
             startMining();
-        } catch (InterruptedException | NoSuchAlgorithmException | InvalidKeyException | SignatureException |
+        } catch (InterruptedException e) {
+            LOGGER.info("Miner process has stopped.");
+        } catch ( NoSuchAlgorithmException | InvalidKeyException | SignatureException |
                 UnsupportedEncodingException | NoSuchProviderException | InvalidKeySpecException e) {
            e.printStackTrace();
            LOGGER.severe("Miner encountered a fatal error and has stopped running");
@@ -46,7 +48,7 @@ public class Miner extends Thread {
     }
 
     // Probably should run in its own thread
-    public void startMining() throws InterruptedException, NoSuchAlgorithmException, UnsupportedEncodingException, SignatureException,
+    private void startMining() throws InterruptedException, NoSuchAlgorithmException, UnsupportedEncodingException, SignatureException,
             NoSuchProviderException, InvalidKeyException, InvalidKeySpecException {
         this.isMining = true;
         while (isMining) {

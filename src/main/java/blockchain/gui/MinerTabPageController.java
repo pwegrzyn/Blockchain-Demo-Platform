@@ -1,6 +1,7 @@
 package blockchain.gui;
 
 import blockchain.net.FullNode;
+import blockchain.protocol.Miner;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
@@ -12,13 +13,18 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public class MinerTabPageController {
 
     @FXML
     private Label minerToggleLabel;
 
     @FXML
-    private ToggleButton minerToggleButton; // Off by default!
+    private ToggleButton isMinerOnToggle;
+    // Toggle is false by default
+    // Toggle has "TURN ON" message by default
 
     @FXML
     private Label lastCalculatedHashLabel;
@@ -26,8 +32,11 @@ public class MinerTabPageController {
     private FullNode node;
     private long refreshTimeInSeconds = 1;
 
+    private ExecutorService minerThread;
+
     @FXML
     public void initialize() {
+        minerThread = Executors.newSingleThreadExecutor();
         addListenerToMinerToggleButton();
         Timeline updateControlsTimeline = new Timeline(new KeyFrame(Duration.seconds(refreshTimeInSeconds), new EventHandler<ActionEvent>() {
             @Override
@@ -44,14 +53,19 @@ public class MinerTabPageController {
     }
 
     private void addListenerToMinerToggleButton(){
-        this.minerToggleButton.selectedProperty().addListener((observable, oldValue, newValue) -> {
+        this.isMinerOnToggle.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if(oldValue == newValue || newValue == null) return;
-            if(newValue){
-                setLabelToOFF(minerToggleButton);
+            if(!newValue){
+                System.out.println("Shutting down miner process");
+                minerThread.shutdownNow();
+                minerThread = Executors.newSingleThreadExecutor();
+                setLabelToOFF(isMinerOnToggle);
                 setLabelToON(minerToggleLabel);
             } else {
-                setLabelToON(minerToggleButton);
+                setLabelToON(isMinerOnToggle);
                 setLabelToOFF(minerToggleLabel);
+                minerThread.submit(new Miner(node));
+                System.out.println("Starting miner process");   // todo change to log messages
             }
         });
     }
