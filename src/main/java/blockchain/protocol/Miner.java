@@ -39,10 +39,10 @@ public class Miner extends Thread {
             startMining();
         } catch (InterruptedException e) {
             LOGGER.info("Miner process has stopped.");
-        } catch ( NoSuchAlgorithmException | InvalidKeyException | SignatureException |
+        } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException |
                 UnsupportedEncodingException | NoSuchProviderException | InvalidKeySpecException e) {
-           e.printStackTrace();
-           LOGGER.severe("Miner encountered a fatal error and has stopped running");
+            e.printStackTrace();
+            LOGGER.severe("Miner encountered a fatal error and has stopped running");
         }
     }
 
@@ -138,18 +138,16 @@ public class Miner extends Thread {
             currentTimestamp = System.currentTimeMillis();
             nonce = Sha256Proxy.searchForNonce(Block.getStringToHash(newBlockIndex, transactionsToAdd,
                     previousHash, currentTimestamp), targetStr);
-            if (nonce < 0) {
-            /*A new block may have been added to the chain while we were hashing, if so then we need to put back
-            all the non-included txs back to the queue of unconfirmed transactions  */
-                Block potentialNewLatestBlock = this.blockchain.getLatestBlock();
-                if (potentialNewLatestBlock.getIndex() >= newBlockIndex || !potentialNewLatestBlock.getCurrentHash().equals(previousHash)) {
-                    for (Transaction tx : transactionsToAdd) {
-                        if (potentialNewLatestBlock.findTransaction(tx.getHash()) == null) {
-                            this.blockchain.getUnconfirmedTransactions().add(tx);
-                        }
+
+            /* Check if a new block has appeared in blockchain during mining */
+            Block potentialNewLatestBlock = this.blockchain.getLatestBlock();
+            if (previousHash != potentialNewLatestBlock.getCurrentHash()) {
+                for (Transaction tx : transactionsToAdd) {
+                    if (potentialNewLatestBlock.findTransaction(tx.getHash()) == null) {
+                        this.blockchain.getUnconfirmedTransactions().add(tx);
                     }
-                    return null;
                 }
+                return null;
             }
         } while (nonce < 0);
 
