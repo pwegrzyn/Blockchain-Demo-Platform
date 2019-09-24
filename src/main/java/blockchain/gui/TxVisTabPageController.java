@@ -1,6 +1,5 @@
 package blockchain.gui;
 
-import blockchain.model.Blockchain;
 import javafx.fxml.FXML;
 import javafx.scene.layout.VBox;
 import org.graphstream.algorithm.generator.DorogovtsevMendesGenerator;
@@ -12,12 +11,7 @@ import org.graphstream.ui.javafx.FxGraphRenderer;
 
 public class TxVisTabPageController {
 
-    private Blockchain blockchain;
     @FXML private VBox MainVBox;
-
-    public void setBlockchain(Blockchain blockchain) {
-        this.blockchain = blockchain;
-    }
 
     public void init() {
         demo();

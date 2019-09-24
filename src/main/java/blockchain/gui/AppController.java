@@ -5,7 +5,6 @@ import blockchain.config.Mode;
 import blockchain.model.*;
 import blockchain.net.FullNode;
 import blockchain.net.WalletNode;
-import blockchain.protocol.Miner;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
@@ -24,7 +23,6 @@ public class AppController {
     private Scene primaryScene;
     private WalletNode node;
     private String currentTheme = "assets/css/defaulttheme.css";
-    private Miner miner;
 
     @FXML
     private SummaryTabPageController summaryTabPageController;
@@ -91,8 +89,6 @@ public class AppController {
 
         // Get the initial blockchain if this node is the first one or get the blockchain which was taken from other
         // existing nodes otherwise
-        this.blockchainTabPageController.setBlockchain(this.node.getBlockchain());
-        this.walletTabPageController.setBlockchain(this.node.getBlockchain());
 
         // Init the wallet tab controller
         walletTabPageController.init();
@@ -103,11 +99,9 @@ public class AppController {
         summaryTabPageController.init();
 
         // Init the graph electron demo
-        this.txVisTabPageController.setBlockchain(this.node.getBlockchain());
         this.txVisTabPageController.init();
 
         // Init the blockchain graph electron
-        this.bcVisTabPageController.setBlockchain(this.node.getBlockchain());
         this.bcVisTabPageController.init();
 
         // Disable the miner tab if Running Mode is WALLET
@@ -125,7 +119,7 @@ public class AppController {
 
     // Test method to check if the Blockchain gui is working
     private void addSampleBlocks() {
-        String previousHash = this.node.getBlockchain().getLatestBlock().getCurrentHash();
+        String previousHash = SynchronizedBlockchainWrapper.useBlockchain(b -> b.getLatestBlock().getCurrentHash());
         for (int i = 1; i < 40; i++) {
             TransactionInput input = new TransactionInput("prevhash", i - 1,
                     50.0, "fromAddress", "signature");
@@ -139,7 +133,7 @@ public class AppController {
             txList.add(tx);
             Block block = new Block(i, txList, previousHash, i, i);
             previousHash = block.getCurrentHash();
-            this.node.getBlockchain().addBlock(block);
+            SynchronizedBlockchainWrapper.useBlockchain(b -> {b.addBlock(block); return null;});
         }
     }
 
@@ -154,7 +148,7 @@ public class AppController {
             outputList.add(output);
             Transaction tx = new Transaction("transactionId" + i, TransactionType.REGULAR, inputList, outputList);
 
-            this.node.getBlockchain().getUnconfirmedTransactions().add(tx);
+            SynchronizedBlockchainWrapper.useBlockchain(b -> b.getUnconfirmedTransactions().add(tx));
             try {
                 Thread.sleep(500);
             } catch (InterruptedException e) {

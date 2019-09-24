@@ -5,8 +5,6 @@ import blockchain.model.*;
 import blockchain.net.WalletNode;
 import blockchain.util.Utils;
 import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.value.ObservableStringValue;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -17,7 +15,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 public class WalletTabPageController {
@@ -33,8 +30,6 @@ public class WalletTabPageController {
     private Double balance;
 
     private WalletNode node;
-
-    private Blockchain blockchain;
 
     private Configuration configuration = Configuration.getInstance();
 
@@ -85,7 +80,7 @@ public class WalletTabPageController {
 
         // Add transactions addressed to me
 
-        for(Block block : blockchain.getMainBranch()){
+        for(Block block : SynchronizedBlockchainWrapper.javaFxReadOnlyBlockchain().getMainBranch()){
             for(Transaction transaction : block.getTransactions()){
                 if(transaction.getOutputs().stream().anyMatch(transactionOutput -> transactionOutput.getReceiverAddress().equals(userPublicKey))){
                     allTransactionsToMe.add(transaction);
@@ -139,10 +134,6 @@ public class WalletTabPageController {
 
         inputsTableView.setItems(FXCollections.observableArrayList(myRemainingTransactions));
 
-    }
-
-    public void setBlockchain(Blockchain blockchain) {
-        this.blockchain = blockchain;
     }
 
     public void setNode(WalletNode node) {

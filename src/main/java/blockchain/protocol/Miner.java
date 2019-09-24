@@ -19,7 +19,6 @@ import java.util.logging.Logger;
 public class Miner extends Thread {
 
     private static final Logger LOGGER = Logger.getLogger(Miner.class.getName());
-    private Blockchain blockchain;
     private Validator validator;
     private FullNode fullNode;
     private boolean isMining;
@@ -28,7 +27,6 @@ public class Miner extends Thread {
     private static final int MINING_DIFFICULTY = 4;
 
     public Miner(FullNode node) {
-        this.blockchain = node.getBlockchain();
         this.validator = new Validator();
         this.isMining = false;
         this.fullNode = node;
@@ -52,7 +50,8 @@ public class Miner extends Thread {
             NoSuchProviderException, InvalidKeyException, InvalidKeySpecException {
         this.isMining = true;
         while (isMining) {
-            Block latestBlock = this.blockchain.getLatestBlock();
+            Block latestBlock = SynchronizedBlockchainWrapper.useBlockchain(Blockchain::getLatestBlock);
+
             String latestHash = latestBlock.getCurrentHash();
             int latestIndex = latestBlock.getIndex();
 
@@ -62,12 +61,12 @@ public class Miner extends Thread {
             BlockBroadcastResult result = this.fullNode.broadcastNewBlock(newMinedBlock);
             if (result.isConfirmed()) {
                 /*All is cool, other nodes confirm the validity of the block, add it to your local blockchain*/
-                this.blockchain.addBlock(newMinedBlock);
+                SynchronizedBlockchainWrapper.useBlockchain(b -> {b.addBlock(newMinedBlock); return null;});
             } else {
                 /*Synchronize your blockchain state with other nodes, if a new block was added after the sync, then
                 stop working on your current block and recycle its transactions to the unconfirmed transaction pool*/
                 this.fullNode.synchronizeWithOthers();
-                this.blockchain.recycleInvalidBlock(newMinedBlock);
+                SynchronizedBlockchainWrapper.useBlockchain(b -> {b.recycleInvalidBlock(newMinedBlock); return null;});
             }
 
         }
@@ -79,7 +78,8 @@ public class Miner extends Thread {
 
     private Block mineBlock() throws InterruptedException, NoSuchAlgorithmException, UnsupportedEncodingException, SignatureException,
             NoSuchProviderException, InvalidKeyException, InvalidKeySpecException {
-        Block latestBlock = this.blockchain.getLatestBlock();
+        Block latestBlock = SynchronizedBlockchainWrapper.useBlockchain(Blockchain::getLatestBlock);
+
         int newBlockIndex = latestBlock.getIndex() + 1;
         String previousHash = latestBlock.getCurrentHash();
 
@@ -89,7 +89,9 @@ public class Miner extends Thread {
         for (int i = 0; i < MAX_TRANSACTIONS_PER_BLOCK; i++) {
             Transaction unconfirmedTransaction;
             try {
-                unconfirmedTransaction = this.blockchain.getUnconfirmedTransactions().remove();
+                unconfirmedTransaction = SynchronizedBlockchainWrapper
+                        .useBlockchain(b -> b.getUnconfirmedTransactions().remove());
+
             } catch (NoSuchElementException e) {
                 break;
             }
@@ -110,7 +112,10 @@ public class Miner extends Thread {
             }
             if (txAlreadyIncluded) continue;
 
-            if (this.blockchain.findTransaction(unconfirmedTransaction.getHash()) != null) continue;
+            if (SynchronizedBlockchainWrapper
+                    .useBlockchain(b -> b.findTransaction(unconfirmedTransaction.getHash()) != null)){
+                continue;
+            }
 
 //            if (!this.validator.verifySignature(this.blockchain, unconfirmedTransaction)) continue;
 
@@ -143,11 +148,12 @@ public class Miner extends Thread {
             if (nonce < 0) {
             /*A new block may have been added to the chain while we were hashing, if so then we need to put back
             all the non-included txs back to the queue of unconfirmed transactions  */
-                Block potentialNewLatestBlock = this.blockchain.getLatestBlock();
+                Block potentialNewLatestBlock = SynchronizedBlockchainWrapper.useBlockchain(Blockchain::getLatestBlock);
                 if (potentialNewLatestBlock.getIndex() >= newBlockIndex || !potentialNewLatestBlock.getCurrentHash().equals(previousHash)) {
                     for (Transaction tx : transactionsToAdd) {
                         if (potentialNewLatestBlock.findTransaction(tx.getHash()) == null) {
-                            this.blockchain.getUnconfirmedTransactions().add(tx);
+                            SynchronizedBlockchainWrapper
+                                    .useBlockchain(b -> {b.getUnconfirmedTransactions().add(tx); return null;});
                         }
                     }
                     return null;

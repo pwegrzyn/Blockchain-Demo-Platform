@@ -4,12 +4,11 @@ import blockchain.config.Configuration;
 import blockchain.config.Mode;
 import blockchain.crypto.ECDSA;
 import blockchain.model.Blockchain;
+import blockchain.model.SynchronizedBlockchainWrapper;
 import blockchain.net.FullNode;
 import blockchain.net.WalletNode;
 import blockchain.protocol.Validator;
 import blockchain.util.Utils;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -17,7 +16,6 @@ import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Modality;
@@ -106,7 +104,7 @@ public class InitController {
                 // Step 1
                 Thread.sleep(200);
                 // Actually create the blockchain object
-                Blockchain blockchain = new Blockchain();
+                SynchronizedBlockchainWrapper.setBlockchain(new Blockchain());
                 updateProgress(1,4);
 
                 // Step 2
@@ -114,10 +112,10 @@ public class InitController {
                 WalletNode node = null;
                 switch(Configuration.getInstance().getNodeRunningMode()) {
                     case FULL:
-                        node = new FullNode(CLUSTER_NAME, blockchain);
+                        node = new FullNode(CLUSTER_NAME);
                         break;
                     case WALLET:
-                        node = new WalletNode(CLUSTER_NAME, blockchain);
+                        node = new WalletNode(CLUSTER_NAME);
                         break;
                 }
                 updateProgress(2, 4);

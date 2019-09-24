@@ -20,8 +20,6 @@ import java.util.concurrent.ConcurrentMap;
 
 public class BlockchainTabPageController {
 
-    private Blockchain blockchain;
-
     private ObservableList<String> hashBlockList;
     private SimpleObjectProperty<Block> latestBlock;
 
@@ -61,10 +59,26 @@ public class BlockchainTabPageController {
 
     private String selectedBlockHash = "";
 
+    @FXML
+    private void initialize(){
+
+        new Thread(() -> {
+            while(SynchronizedBlockchainWrapper.javaFxReadOnlyBlockchain() == null){
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            setBlockchain(SynchronizedBlockchainWrapper.javaFxReadOnlyBlockchain());
+        }).start();
+    }
+
     private void updateSelectedBlock(String newSelectedHash) {
         if (newSelectedHash == null) return;
         selectedBlockHash = newSelectedHash;
-        Block newBlock = blockchain.findBlock(newSelectedHash);
+        Block newBlock = getBlockchain().findBlock(newSelectedHash);
         updateTransactionList(newBlock);
         blockIndexLabel.setText("" + newBlock.getIndex());
         blockHashLabel.setText(newBlock.getCurrentHash());
@@ -163,12 +177,11 @@ public class BlockchainTabPageController {
         addTxListViewCellFactory();
         addListenerToBlockListViewSelector();
         addListenerToTxListViewSelector();
-        this.blockchain = blockchain;
         this.hashBlockList = FXCollections.observableList(new LinkedList<>());
         this.latestBlock = blockchain.getLatestBlockObservable();
         this.blockListView.setItems(hashBlockList);
 
-        ConcurrentMap<String, Block> latestDB = this.blockchain.getBlockDB();
+        ConcurrentMap<String, Block> latestDB = getBlockchain().getBlockDB();
         Block latest = this.latestBlock.get();
         if (latest != null) {
             do {
@@ -182,7 +195,7 @@ public class BlockchainTabPageController {
             String prevSel = this.blockListView.selectionModelProperty().getValue().getSelectedItem();
             if (ov != null && nv.getCurrentHash().equals(ov.getCurrentHash()))
                 return;
-            ConcurrentMap<String, Block> blocksDB = this.blockchain.getBlockDB();
+            ConcurrentMap<String, Block> blocksDB = getBlockchain().getBlockDB();
             Block block = nv;
             Platform.runLater(() -> hashBlockList.clear());
             do {
@@ -214,6 +227,10 @@ public class BlockchainTabPageController {
                 }
             }
         });
+    }
+
+    private Blockchain getBlockchain(){
+        return SynchronizedBlockchainWrapper.javaFxReadOnlyBlockchain();
     }
 
 }

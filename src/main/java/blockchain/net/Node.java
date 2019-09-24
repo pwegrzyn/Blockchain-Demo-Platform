@@ -3,6 +3,7 @@ package blockchain.net;
 import blockchain.config.Configuration;
 import blockchain.config.Mode;
 import blockchain.model.Blockchain;
+import blockchain.model.SynchronizedBlockchainWrapper;
 import org.jgroups.JChannel;
 import org.jgroups.Message;
 import org.jgroups.ReceiverAdapter;
@@ -26,10 +27,8 @@ public abstract class Node {
     private static final int STATE_TRANSFER_BUFFER_SIZE = 1048576;
     private JChannel channel;
     private String clusterName;
-    protected Blockchain blockchain;
 
-    public Node(String clusterName, Blockchain blockchain) {
-        this.blockchain = blockchain;
+    public Node(String clusterName) {
         System.setProperty("java.net.preferIPv4Stack", "true");
         this.clusterName = clusterName;
         try {
@@ -79,10 +78,6 @@ public abstract class Node {
 
     public List<String> getConnectedNodes() {
         return this.channel.getView().getMembers().stream().map(m -> m.toString()).collect(Collectors.toList());
-    }
-
-    public Blockchain getBlockchain() {
-        return this.blockchain;
     }
 
     private Protocol[] getProtocolStack() {
@@ -143,11 +138,17 @@ public abstract class Node {
         @Override
         public void getState(OutputStream outputStream) throws Exception {
             LOGGER.info("Providing state to newly connected node.");
-            synchronized (Node.this.blockchain) {
-                try(ObjectOutputStream objectStream = new ObjectOutputStream(new BufferedOutputStream(outputStream,
-                        STATE_TRANSFER_BUFFER_SIZE))) {
-                    objectStream.writeObject(Node.this.blockchain);
-                }
+            synchronized(this){
+                SynchronizedBlockchainWrapper.useBlockchain(b -> {
+                    try(ObjectOutputStream objectStream = new ObjectOutputStream(new BufferedOutputStream(outputStream,
+                            STATE_TRANSFER_BUFFER_SIZE))) {
+                        objectStream.writeObject(b);
+                        return null;
+                    } catch (Exception e){
+                        throw new IllegalStateException("Could not write blockchain for some reason");
+                    }
+                });
+
             }
             LOGGER.info("Provided state.");
         }
@@ -155,12 +156,12 @@ public abstract class Node {
         @Override
         public void setState(InputStream inputStream) throws Exception {
             LOGGER.info("Receiving state from existing nodes.");
-            synchronized (Node.this.blockchain) {
+            synchronized(this){
                 Blockchain receivedState;
                 try(ObjectInputStream objectStream = new ObjectInputStream(inputStream)) {
                     receivedState = (Blockchain) objectStream.readObject();
                 }
-                Node.this.blockchain = receivedState;
+                SynchronizedBlockchainWrapper.setBlockchain(receivedState);
             }
             LOGGER.info("Received state.");
         }

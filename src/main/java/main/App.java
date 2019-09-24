@@ -27,7 +27,7 @@ public class App extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) throws IOException {
+    public void start(Stage primaryStage) throws Exception {
         AppGUI gui = new AppGUI(primaryStage);
         gui.initApplication();
     }
