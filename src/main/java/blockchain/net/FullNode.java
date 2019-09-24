@@ -11,7 +11,8 @@ public class FullNode extends WalletNode {
     }
 
     public BlockBroadcastResult broadcastNewBlock(Block newBlock) {
-        // TODO broadcast the block to the network
+        ProtocolMessage message=new ProtocolMessage(newBlock);
+        this.broadcast(message);
         return new BlockBroadcastResult();
     }
 

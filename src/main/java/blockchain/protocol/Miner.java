@@ -51,24 +51,23 @@ public class Miner extends Thread {
             NoSuchProviderException, InvalidKeyException, InvalidKeySpecException {
         this.isMining = true;
         while (isMining) {
-            Block latestBlock = this.blockchain.getLatestBlock();
-            String latestHash = latestBlock.getCurrentHash();
-            int latestIndex = latestBlock.getIndex();
-
             Block newMinedBlock = this.mineBlock();
             if (newMinedBlock == null)
                 continue;
-            BlockBroadcastResult result = this.fullNode.broadcastNewBlock(newMinedBlock);
-            if (result.isConfirmed()) {
-                /*All is cool, other nodes confirm the validity of the block, add it to your local blockchain*/
-                this.blockchain.addBlock(newMinedBlock);
-            } else {
+
+            /* Check if mined block is valid and broadcast to other nodes */
+            if (validator.validateNewIncomingBlock(blockchain, newMinedBlock)) {
+                BlockBroadcastResult result = this.fullNode.broadcastNewBlock(newMinedBlock);
+                if (result.isConfirmed()) {
+                    /*All is cool, other nodes confirm the validity of the block, add it to your local blockchain*/
+                    this.blockchain.addBlock(newMinedBlock);
+                } else {
                 /*Synchronize your blockchain state with other nodes, if a new block was added after the sync, then
                 stop working on your current block and recycle its transactions to the unconfirmed transaction pool*/
-                this.fullNode.synchronizeWithOthers();
-                this.blockchain.recycleInvalidBlock(newMinedBlock);
+                    this.fullNode.synchronizeWithOthers();
+                    this.blockchain.recycleInvalidBlock(newMinedBlock);
+                }
             }
-
         }
     }
 

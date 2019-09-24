@@ -3,8 +3,10 @@ package blockchain.net;
 import blockchain.model.Block;
 import blockchain.model.Transaction;
 
+import java.io.Serializable;
 
-public class ProtocolMessage {
+
+public class ProtocolMessage implements Serializable {
 
     private final MessageType type;
     private final Block block;
