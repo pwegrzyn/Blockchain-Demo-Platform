@@ -3,6 +3,7 @@ package blockchain.net;
 import blockchain.config.Configuration;
 import blockchain.config.Mode;
 import blockchain.model.Blockchain;
+import blockchain.protocol.Validator;
 import org.jgroups.JChannel;
 import org.jgroups.Message;
 import org.jgroups.ReceiverAdapter;
@@ -26,12 +27,14 @@ public abstract class Node {
     private static final int STATE_TRANSFER_BUFFER_SIZE = 1048576;
     private JChannel channel;
     private String clusterName;
+    private Validator validator;
     protected Blockchain blockchain;
 
     public Node(String clusterName, Blockchain blockchain) {
         this.blockchain = blockchain;
         System.setProperty("java.net.preferIPv4Stack", "true");
         this.clusterName = clusterName;
+        this.validator = new Validator();
         try {
             this.channel = new JChannel(false);
             this.channel.name(Configuration.getInstance().getPublicKey());
@@ -65,10 +68,6 @@ public abstract class Node {
     }
 
     public void disconnect() {
-//        if (channel.getView().getMembers().size() > 1)
-//            channel.disconnect();
-//        else
-//            channel.close();
         Util.close(this.channel);
         LOGGER.info("Disconnected successfully.");
     }
@@ -78,7 +77,7 @@ public abstract class Node {
     }
 
     public List<String> getConnectedNodes() {
-        return this.channel.getView().getMembers().stream().map(m -> m.toString()).collect(Collectors.toList());
+        return this.channel.getView().getMembers().stream().map(Object::toString).collect(Collectors.toList());
     }
 
     public Blockchain getBlockchain() {
@@ -121,22 +120,22 @@ public abstract class Node {
             super.receive(msg);
             try {
                 ProtocolMessage message = (ProtocolMessage) Util.objectFromByteBuffer(msg.getBuffer());
-                if (message.getType() == ProtocolMessage.MessageType.NEW_BLOCK &&
-                        Configuration.getInstance().getNodeRunningMode() == Mode.WALLET) {
-
-                } else if (message.getType() == ProtocolMessage.MessageType.NEW_TRANSACTION &&
-                        Configuration.getInstance().getNodeRunningMode() == Mode.FULL) {
-
-                } else if (message.getType() == ProtocolMessage.MessageType.NEW_BLOCK &&
-                        Configuration.getInstance().getNodeRunningMode() == Mode.FULL) {
-
-                } else if (message.getType() == ProtocolMessage.MessageType.NEW_TRANSACTION &&
-                        Configuration.getInstance().getNodeRunningMode() == Mode.WALLET) {
-
+                if (message.getType() == ProtocolMessage.MessageType.NEW_BLOCK) {
+                    if (Node.this.validator.validateNewIncomingBlock(Node.this.blockchain, message.getBlock())) {
+                        Node.this.blockchain.addBlock(message.getBlock());
+                    }
+                } else if (message.getType() == ProtocolMessage.MessageType.NEW_TRANSACTION) {
+                    if (Node.this.validator.validateNewIncomingTX(Node.this.blockchain, message.getTransaction())) {
+                        // tbh we only need to listen for transactions when we are mining we maybe in the future
+                        // we will make it so that wallets update their balances based on the blockchain AND incoming
+                        // not yet confirmed transactions
+                        Node.this.blockchain.getUnconfirmedTransactions().add(message.getTransaction());
+                    }
+                } else {
+                    LOGGER.warning("Unknown message type received: " + message.getType());
                 }
             } catch (Exception e) {
                 LOGGER.warning("Error while receiving message from neighbours!");
-                return;
             }
         }
 

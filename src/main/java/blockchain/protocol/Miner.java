@@ -34,7 +34,6 @@ public class Miner extends Thread {
         this.fullNode = node;
     }
 
-
     public void run() {
         try {
             startMining();

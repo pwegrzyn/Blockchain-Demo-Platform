@@ -15,28 +15,24 @@ public class TransactionInput implements Serializable {
 
     private final String previousTransactionHash;
     private final int previousTransactionOutputIndex;
-    private final double amount;
     private final String fromAddress;
     // the signature is made be taking the hash of the fields above and signing it with a my private key -
     // this way other nodes can verify than this transaction was made indeed by the owner of the public key
     private final String signature;
 
-    public TransactionInput(String previousTransactionHash, int previousTransactionOutputIndex, double amount,
+    public TransactionInput(String previousTransactionHash, int previousTransactionOutputIndex,
                             String fromAddress, String signature) {
         this.previousTransactionHash = previousTransactionHash;
         this.previousTransactionOutputIndex = previousTransactionOutputIndex;
-        this.amount = amount;
         this.fromAddress = fromAddress;
         this.signature = signature;
     }
 
     // Hash of the TxInput data, later signed with private key of the person creating this input
-    public static String calculateHash(String previousTransactionHash, int previousTransactionOutputIndex,
-                                       double amount, String fromAddress) {
+    public static String calculateHash(String previousTransactionHash, int previousTransactionOutputIndex, String fromAddress) {
         JsonObject jsonBlock = new JsonObject();
         jsonBlock.addProperty("prevTxHash", previousTransactionHash);
         jsonBlock.addProperty("prevTxOutputIndex", previousTransactionOutputIndex);
-        jsonBlock.addProperty("amount", amount);
         jsonBlock.addProperty("fromAddr", fromAddress);
         // Need to make sure keys are always in the right order in the JSON
         String unorderedJson = jsonBlock.toString();
@@ -53,10 +49,6 @@ public class TransactionInput implements Serializable {
         return previousTransactionOutputIndex;
     }
 
-    public double getAmount() {
-        return amount;
-    }
-
     public String getFromAddress() {
         return fromAddress;
     }
@@ -71,15 +63,14 @@ public class TransactionInput implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         TransactionInput that = (TransactionInput) o;
         return previousTransactionOutputIndex == that.previousTransactionOutputIndex &&
-                Double.compare(that.amount, amount) == 0 &&
-                Objects.equals(previousTransactionHash, that.previousTransactionHash) &&
-                Objects.equals(fromAddress, that.fromAddress) &&
-                Objects.equals(signature, that.signature);
+                previousTransactionHash.equals(that.previousTransactionHash) &&
+                fromAddress.equals(that.fromAddress) &&
+                signature.equals(that.signature);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(previousTransactionHash, previousTransactionOutputIndex, amount, fromAddress, signature);
+        return Objects.hash(previousTransactionHash, previousTransactionOutputIndex, fromAddress, signature);
     }
 
     @Override
@@ -87,7 +78,6 @@ public class TransactionInput implements Serializable {
         return "TransactionInput{" +
                 "previousTransactionHash='" + previousTransactionHash + '\'' +
                 ", previousTransactionOutputIndex=" + previousTransactionOutputIndex +
-                ", amount=" + amount +
                 ", fromAddress='" + fromAddress + '\'' +
                 ", signature='" + signature + '\'' +
                 '}';

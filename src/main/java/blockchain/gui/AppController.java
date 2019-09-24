@@ -127,8 +127,7 @@ public class AppController {
     private void addSampleBlocks() {
         String previousHash = this.node.getBlockchain().getLatestBlock().getCurrentHash();
         for (int i = 1; i < 40; i++) {
-            TransactionInput input = new TransactionInput("prevhash", i - 1,
-                    50.0, "fromAddress", "signature");
+            TransactionInput input = new TransactionInput("prevhash", i - 1, "fromAddress", "signature");
             TransactionOutput output = new TransactionOutput(50.0, "receiverAddress");
             List<TransactionInput> inputList = new LinkedList<>();
             inputList.add(input);
@@ -145,8 +144,7 @@ public class AppController {
 
     private void addSampleTransactions() {
         for (int i = 0; true; i++) {
-            TransactionInput input = new TransactionInput("prevhash", i - 1,
-                    50.0, "fromAddress", "signature");
+            TransactionInput input = new TransactionInput("prevhash", i - 1, "fromAddress", "signature");
             TransactionOutput output = new TransactionOutput(50.0, "receiverAddress");
             List<TransactionInput> inputList = new LinkedList<>();
             inputList.add(input);

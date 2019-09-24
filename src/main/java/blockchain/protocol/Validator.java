@@ -30,7 +30,7 @@ public class Validator {
         for (TransactionInput txInput : tx.getInputs()) {
             byte[] signature = Utils.hexStringToByteArray(txInput.getSignature());
             String txInputDataHash = TransactionInput.calculateHash(txInput.getPreviousTransactionHash(),
-                    txInput.getPreviousTransactionOutputIndex(), txInput.getAmount(), txInput.getFromAddress());
+                    txInput.getPreviousTransactionOutputIndex(), txInput.getFromAddress());
 
             Transaction referencedTx = blockchain.findTransactionInMainChain(txInput.getPreviousTransactionHash());
             TransactionOutput referencedTxOutput = referencedTx.getOutputs().get(txInput.getPreviousTransactionOutputIndex());
@@ -176,7 +176,9 @@ public class Validator {
         // The sum of input transactions must be greater than or equal to output transactions (greater if fee is present)
         double inputsSum = 0.0;
         for (TransactionInput txInput : tx.getInputs()) {
-            inputsSum += txInput.getAmount();
+            TransactionOutput txOutput = blockchain.findTransactionInMainChain(txInput.getPreviousTransactionHash())
+                    .getOutputs().get(txInput.getPreviousTransactionOutputIndex());
+            inputsSum += txOutput.getAmount();
         }
         double outputsSum = 0.0;
         for (TransactionOutput txOutput : tx.getOutputs()) {
@@ -190,6 +192,7 @@ public class Validator {
         // The transaction isn't already in the blockchain (in the main branch)
         if (blockchain.findTransactionInMainChain(tx.getHash()) != null) {
             LOGGER.warning("TX validation failed: tx already in blockchain");
+            return false;
         }
 
         // All input transactions must be unspent in the blockchain
