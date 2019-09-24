@@ -2,4 +2,48 @@
 
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="200.0" prefWidth="200.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="blockchain.gui.MinerTabPageController"/>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.geometry.Insets?>
+<AnchorPane prefHeight="200.0" prefWidth="200.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="blockchain.gui.MinerTabPageController">
+    <children>
+        <VBox minHeight="60.0" minWidth="600.0" prefHeight="60.0" prefWidth="600.0" AnchorPane.leftAnchor="0.0">
+            <children>
+                <HBox minHeight="100.0" minWidth="1200.0" prefHeight="60.0" prefWidth="1200.0">
+                    <children>
+                        <Label fx:id="minerToggleLabel" alignment="CENTER" contentDisplay="CENTER" minHeight="100.0" minWidth="1000.0" prefHeight="100.0" prefWidth="1000.0" style="-fx-background-color: #C0C0C0;" text="Miner is currently OFF" textAlignment="CENTER" textFill="RED">
+                            <font>
+                                <Font size="60.0" />
+                            </font>
+                        </Label>
+                        <Separator minHeight="100.0" minWidth="1.0" orientation="VERTICAL" prefHeight="100.0" prefWidth="1.0" />
+                        <ToggleButton fx:id="minerToggleButton" contentDisplay="CENTER" maxHeight="100.0" maxWidth="200.0" minHeight="100.0" minWidth="200.0" mnemonicParsing="false" prefHeight="100.0" prefWidth="200.0" text="TURN ON" textAlignment="CENTER" textFill="LIME">
+                            <opaqueInsets>
+                                <Insets />
+                            </opaqueInsets>
+                            <font>
+                                <Font name="System Bold" size="32.0" />
+                            </font>
+                        </ToggleButton>
+                    </children>
+                </HBox>
+                <Separator minHeight="1.0" minWidth="1200.0" prefHeight="1.0" prefWidth="1200.0" />
+            </children>
+        </VBox>
+        <Label alignment="CENTER" contentDisplay="BOTTOM" layoutY="101.0" minHeight="120.0" minWidth="1200.0" style="-fx-background-color: #fAFAAA;" text="Last calculated hash" textAlignment="CENTER">
+            <font>
+                <Font size="34.0" />
+            </font>
+        </Label>
+        <Separator layoutX="300.0" layoutY="201.0" minHeight="1.0" minWidth="600.0" prefHeight="1.0" prefWidth="600.0" />
+        <Label fx:id="lastCalculatedHashLabel" alignment="CENTER" contentDisplay="CENTER" layoutY="201.0" minHeight="100.0" minWidth="1200.0" style="-fx-background-color: #FDfDDD;" text="Hash">
+            <font>
+                <Font size="22.0" />
+            </font>
+        </Label>
+        <Separator layoutY="301.0" maxHeight="1.0" maxWidth="1200.0" minHeight="1.0" minWidth="1200.0" prefHeight="1.0" prefWidth="1200.0" />
+    </children></AnchorPane>

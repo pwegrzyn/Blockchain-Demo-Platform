@@ -114,7 +114,6 @@ public class AppController {
         if (Configuration.getInstance().getNodeRunningMode() != Mode.FULL) {
             this.minerTab.setDisable(true);
         } else {
-            minerTabPageController.init();
             minerTabPageController.setNode((FullNode) this.node);
         }
 

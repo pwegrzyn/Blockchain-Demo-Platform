@@ -154,6 +154,7 @@ public class Miner extends Thread {
         } while (nonce < 0);
 
         Block newBlock = new Block(newBlockIndex, transactionsToAdd, previousHash, nonce, currentTimestamp);
+        System.setProperty("lastCalculatedHash", newBlock.getCurrentHash());
         return newBlock;
     }
 

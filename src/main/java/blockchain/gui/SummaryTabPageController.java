@@ -36,7 +36,7 @@ public class SummaryTabPageController {
     private static final Logger LOGGER = Logger.getLogger(SummaryTabPageController.class.getName());
     private Node node;
     private Configuration config;
-    private static final long refreshTime = 1;
+    private static final long refreshTimeInSeconds = 1;
 
     public void setNode(Node node){
         this.node = node;
@@ -50,7 +50,7 @@ public class SummaryTabPageController {
         updateDynamicControls();
         // Init refreshing thread
         // WARNING: This method is super-hacky, and should be avoided
-        Timeline updateControlsTimeline = new Timeline(new KeyFrame(Duration.seconds(refreshTime), new EventHandler<ActionEvent>() {
+        Timeline updateControlsTimeline = new Timeline(new KeyFrame(Duration.seconds(refreshTimeInSeconds), new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 updateDynamicControls();
