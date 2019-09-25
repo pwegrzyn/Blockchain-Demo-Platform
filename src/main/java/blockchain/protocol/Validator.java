@@ -3,13 +3,11 @@ package blockchain.protocol;
 import blockchain.crypto.ECDSA;
 import blockchain.model.*;
 import blockchain.util.Utils;
-import org.bouncycastle.crypto.BlockCipher;
 
 import java.io.UnsupportedEncodingException;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.util.List;
-import java.util.Queue;
 import java.util.logging.Logger;
 
 
@@ -25,14 +23,14 @@ public class Validator {
     /*
      Check if all inputs in a given transaction have a valid signature
      */
-    public boolean verifySignature(Blockchain blockchain, Transaction tx) throws NoSuchAlgorithmException, NoSuchProviderException,
+    public boolean verifySignature(Transaction tx) throws NoSuchAlgorithmException, NoSuchProviderException,
             InvalidKeySpecException, UnsupportedEncodingException, SignatureException, InvalidKeyException {
         for (TransactionInput txInput : tx.getInputs()) {
             byte[] signature = Utils.hexStringToByteArray(txInput.getSignature());
             String txInputDataHash = TransactionInput.calculateHash(txInput.getPreviousTransactionHash(),
                     txInput.getPreviousTransactionOutputIndex(), txInput.getFromAddress());
 
-            Transaction referencedTx = blockchain.findTransactionInMainChain(txInput.getPreviousTransactionHash());
+            Transaction referencedTx = SynchronizedBlockchainWrapper.useBlockchain(b -> b.findTransactionInMainChain(txInput.getPreviousTransactionHash()));
             TransactionOutput referencedTxOutput = referencedTx.getOutputs().get(txInput.getPreviousTransactionOutputIndex());
             PublicKey creatorPublicKey = ecdsa.strToPublicKey(referencedTxOutput.getReceiverAddress());
 
@@ -76,17 +74,17 @@ public class Validator {
     /*
      Validate a new incoming block (including all the transaction within it)
      */
-    public boolean validateNewIncomingBlock(Blockchain blockchain, Block block) throws NoSuchAlgorithmException, UnsupportedEncodingException,
+    public boolean validateNewIncomingBlock(Block block) throws NoSuchAlgorithmException, UnsupportedEncodingException,
             SignatureException, NoSuchProviderException, InvalidKeyException, InvalidKeySpecException {
         // Check if block is the last one (previous index + 1)
-        int lastBlockIndexInBlockchain = blockchain.getLatestBlock().getIndex();
+        int lastBlockIndexInBlockchain = SynchronizedBlockchainWrapper.useBlockchain(b -> b.getLatestBlock().getIndex());
         if (block.getIndex() != lastBlockIndexInBlockchain + 1) {
             LOGGER.warning("Incoming block validation failed: bad index");
             return false;
         }
 
         // The previous block is correct (previous hash of it == block.previousHash)
-        String hashOfPrevBlock = blockchain.getLatestBlock().getCurrentHash();
+        String hashOfPrevBlock = SynchronizedBlockchainWrapper.useBlockchain(b -> b.getLatestBlock().getCurrentHash());
         if (!block.getPreviousHash().equals(hashOfPrevBlock)) {
             LOGGER.warning("Incoming block validation failed: bad previous hash");
             return false;
@@ -101,7 +99,7 @@ public class Validator {
         }
 
         // All transactions inside the block must be valid
-        if (!validateTXsInBlock(blockchain, block)) {
+        if (!validateTXsInBlock(block)) {
             LOGGER.warning("Incoming block validation failed: bad transaction in the block");
             return false;
         }
@@ -124,10 +122,10 @@ public class Validator {
     /*
      Validate a new incoming transaction
      */
-    public boolean validateNewIncomingTX(Blockchain blockchain, Transaction transaction) throws NoSuchAlgorithmException,
+    public boolean validateNewIncomingTX(Transaction transaction) throws NoSuchAlgorithmException,
             UnsupportedEncodingException, SignatureException, NoSuchProviderException, InvalidKeyException, InvalidKeySpecException {
         // The tx is not already present in the pool
-        for (Transaction tx : blockchain.getUnconfirmedTransactions()) {
+        for (Transaction tx : SynchronizedBlockchainWrapper.useBlockchain(Blockchain::getUnconfirmedTransactions)) {
             if (tx.getHash().equals(transaction.getHash())) {
                 LOGGER.warning("Incoming tx validation failed: tx already present in pool");
                 return false;
@@ -135,7 +133,7 @@ public class Validator {
         }
 
         // All the rest of the standard TX validation checks
-        if (!validateTX(blockchain, transaction)) {
+        if (!validateTX(transaction)) {
             LOGGER.warning("Incoming tx validation failed: rest of checks");
             return false;
         }
@@ -146,10 +144,10 @@ public class Validator {
     /*
      Validate all transactions coming in a new block
      */
-    private boolean validateTXsInBlock(Blockchain blockchain, Block block) throws NoSuchAlgorithmException, UnsupportedEncodingException,
+    private boolean validateTXsInBlock(Block block) throws NoSuchAlgorithmException, UnsupportedEncodingException,
             SignatureException, NoSuchProviderException, InvalidKeyException, InvalidKeySpecException {
         for (Transaction tx: block.getTransactions()) {
-            if (!validateTX(blockchain, tx)) {
+            if (!validateTX(tx)) {
                 return false;
             }
         }
@@ -159,7 +157,7 @@ public class Validator {
     /*
      Validate a transaction coming in a new block
      */
-    private boolean validateTX(Blockchain blockchain, Transaction tx) throws NoSuchAlgorithmException, UnsupportedEncodingException,
+    private boolean validateTX(Transaction tx) throws NoSuchAlgorithmException, UnsupportedEncodingException,
             SignatureException, NoSuchProviderException, InvalidKeyException, InvalidKeySpecException {
         // The transaction hash must be correct (calculated transaction hash == transaction.hash)
         String hashOfTx = Transaction.calculateTransactionHash(tx.getId(), tx.getInputs(), tx.getOutputs());
@@ -169,14 +167,15 @@ public class Validator {
         }
 
         // The signatures of all input transactions must be valid
-        if (!verifySignature(blockchain, tx)) {
+        if (!verifySignature(tx)) {
             return false;
         }
 
         // The sum of input transactions must be greater than or equal to output transactions (greater if fee is present)
         double inputsSum = 0.0;
         for (TransactionInput txInput : tx.getInputs()) {
-            TransactionOutput txOutput = blockchain.findTransactionInMainChain(txInput.getPreviousTransactionHash())
+            TransactionOutput txOutput = SynchronizedBlockchainWrapper
+                    .useBlockchain(b -> b.findTransactionInMainChain(txInput.getPreviousTransactionHash()))
                     .getOutputs().get(txInput.getPreviousTransactionOutputIndex());
             inputsSum += txOutput.getAmount();
         }
@@ -190,13 +189,13 @@ public class Validator {
         }
 
         // The transaction isn't already in the blockchain (in the main branch)
-        if (blockchain.findTransactionInMainChain(tx.getHash()) != null) {
+        if (SynchronizedBlockchainWrapper.useBlockchain(b -> b.findTransactionInMainChain(tx.getHash())) != null) {
             LOGGER.warning("TX validation failed: tx already in blockchain");
             return false;
         }
 
         // All input transactions must be unspent in the blockchain
-        if (!checkIfAllInputsAreUnspent(blockchain, tx)) {
+        if (!checkIfAllInputsAreUnspent(tx)) {
             LOGGER.warning("TX validation failed: contains spent inputs");
             return false;
         }
@@ -207,8 +206,8 @@ public class Validator {
     /*
      Check if all inputs in a given transaction are unspent
      */
-    private boolean checkIfAllInputsAreUnspent(Blockchain blockchain, Transaction txToCheck) {
-        List<Block> mainBranch = blockchain.getMainBranch();
+    private boolean checkIfAllInputsAreUnspent(Transaction txToCheck) {
+        List<Block> mainBranch = SynchronizedBlockchainWrapper.useBlockchain(Blockchain::getMainBranch);
         for (TransactionInput txToCheckInput : txToCheck.getInputs()) {
             for (Block block : mainBranch) {
                 for (Transaction tx : block.getTransactions()) {

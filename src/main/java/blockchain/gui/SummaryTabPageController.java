@@ -2,10 +2,7 @@ package blockchain.gui;
 
 import blockchain.config.Configuration;
 import blockchain.config.Mode;
-import blockchain.model.Block;
-import blockchain.model.Transaction;
-import blockchain.model.TransactionInput;
-import blockchain.model.TransactionOutput;
+import blockchain.model.*;
 import blockchain.net.Node;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -72,7 +69,7 @@ public class SummaryTabPageController {
         Integer users = 0;
         Set<String> userSet = new HashSet<>();
 
-        for(Block block : node.getBlockchain().getMainBranch()){
+        for(Block block : SynchronizedBlockchainWrapper.javaFxReadOnlyBlockchain().getMainBranch()){
             for(Transaction transaction : block.getTransactions()){
                 for(TransactionOutput transactionOutput : transaction.getOutputs()){
                     String newUser = transactionOutput.getReceiverAddress();
@@ -92,13 +89,13 @@ public class SummaryTabPageController {
     }
 
     private Integer calculateBlockCount(){
-        return node.getBlockchain().getBlockDB().values().size();
+        return SynchronizedBlockchainWrapper.javaFxReadOnlyBlockchain().getBlockDB().values().size();
     }
 
     private Integer calculateTransactionCount(){
         Integer transactions = 0;
 
-        for(Block block : node.getBlockchain().getMainBranch()){
+        for(Block block : SynchronizedBlockchainWrapper.javaFxReadOnlyBlockchain().getMainBranch()){
             transactions += block.getTransactions().size();
         }
 
@@ -109,7 +106,7 @@ public class SummaryTabPageController {
         Map<Transaction, List<Integer>> unusedTransactions = new HashMap<>();
         Map<String, Transaction> hashTransactionMap = new HashMap<>();
 
-        for(Block block : node.getBlockchain().getMainBranch()){
+        for(Block block : SynchronizedBlockchainWrapper.javaFxReadOnlyBlockchain().getMainBranch()){
             for(Transaction transaction : block.getTransactions()){
                 hashTransactionMap.put(transaction.getHash(), transaction);
 

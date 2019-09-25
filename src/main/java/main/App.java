@@ -4,7 +4,6 @@ import blockchain.gui.AppGUI;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
-import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,7 +26,7 @@ public class App extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) throws IOException {
+    public void start(Stage primaryStage) throws Exception {
         AppGUI gui = new AppGUI(primaryStage);
         gui.initApplication();
     }

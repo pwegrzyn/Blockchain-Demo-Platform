@@ -4,6 +4,7 @@ import blockchain.config.Configuration;
 import blockchain.config.Mode;
 import blockchain.model.Blockchain;
 import blockchain.protocol.Validator;
+import blockchain.model.SynchronizedBlockchainWrapper;
 import org.jgroups.JChannel;
 import org.jgroups.Message;
 import org.jgroups.ReceiverAdapter;
@@ -28,10 +29,8 @@ public abstract class Node {
     private JChannel channel;
     private String clusterName;
     private Validator validator;
-    protected Blockchain blockchain;
 
-    public Node(String clusterName, Blockchain blockchain) {
-        this.blockchain = blockchain;
+    public Node(String clusterName) {
         System.setProperty("java.net.preferIPv4Stack", "true");
         this.clusterName = clusterName;
         this.validator = new Validator();
@@ -80,10 +79,6 @@ public abstract class Node {
         return this.channel.getView().getMembers().stream().map(Object::toString).collect(Collectors.toList());
     }
 
-    public Blockchain getBlockchain() {
-        return this.blockchain;
-    }
-
     private Protocol[] getProtocolStack() {
         Protocol[] protocolStack = new Protocol[0];
         try {
@@ -121,15 +116,15 @@ public abstract class Node {
             try {
                 ProtocolMessage message = (ProtocolMessage) Util.objectFromByteBuffer(msg.getBuffer());
                 if (message.getType() == ProtocolMessage.MessageType.NEW_BLOCK) {
-                    if (Node.this.validator.validateNewIncomingBlock(Node.this.blockchain, message.getBlock())) {
-                        Node.this.blockchain.addBlock(message.getBlock());
+                    if (Node.this.validator.validateNewIncomingBlock(message.getBlock())) {
+                        SynchronizedBlockchainWrapper.useBlockchain(b -> {b.addBlock(message.getBlock()); return null;});
                     }
                 } else if (message.getType() == ProtocolMessage.MessageType.NEW_TRANSACTION) {
-                    if (Node.this.validator.validateNewIncomingTX(Node.this.blockchain, message.getTransaction())) {
+                    if (Node.this.validator.validateNewIncomingTX(message.getTransaction())) {
                         // tbh we only need to listen for transactions when we are mining we maybe in the future
                         // we will make it so that wallets update their balances based on the blockchain AND incoming
                         // not yet confirmed transactions
-                        Node.this.blockchain.getUnconfirmedTransactions().add(message.getTransaction());
+                        SynchronizedBlockchainWrapper.useBlockchain(b -> {b.getUnconfirmedTransactions().add(message.getTransaction()); return null;});
                     }
                 } else {
                     LOGGER.warning("Unknown message type received: " + message.getType());
@@ -142,11 +137,17 @@ public abstract class Node {
         @Override
         public void getState(OutputStream outputStream) throws Exception {
             LOGGER.info("Providing state to newly connected node.");
-            synchronized (Node.this.blockchain) {
-                try(ObjectOutputStream objectStream = new ObjectOutputStream(new BufferedOutputStream(outputStream,
-                        STATE_TRANSFER_BUFFER_SIZE))) {
-                    objectStream.writeObject(Node.this.blockchain);
-                }
+            synchronized(this){
+                SynchronizedBlockchainWrapper.useBlockchain(b -> {
+                    try(ObjectOutputStream objectStream = new ObjectOutputStream(new BufferedOutputStream(outputStream,
+                            STATE_TRANSFER_BUFFER_SIZE))) {
+                        objectStream.writeObject(b);
+                        return null;
+                    } catch (Exception e){
+                        throw new IllegalStateException("Could not write blockchain for some reason");
+                    }
+                });
+
             }
             LOGGER.info("Provided state.");
         }
@@ -154,12 +155,12 @@ public abstract class Node {
         @Override
         public void setState(InputStream inputStream) throws Exception {
             LOGGER.info("Receiving state from existing nodes.");
-            synchronized (Node.this.blockchain) {
+            synchronized(this){
                 Blockchain receivedState;
                 try(ObjectInputStream objectStream = new ObjectInputStream(inputStream)) {
                     receivedState = (Blockchain) objectStream.readObject();
                 }
-                Node.this.blockchain = receivedState;
+                SynchronizedBlockchainWrapper.setBlockchain(receivedState);
             }
             LOGGER.info("Received state.");
         }
