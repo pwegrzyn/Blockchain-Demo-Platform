@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.VBox?>
 
 
-<AnchorPane prefHeight="750.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="blockchain.gui.BlockchainVisTabPageController">
+<AnchorPane prefHeight="750.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="blockchain.gui.BlockchainVisTabPageController">
     <children>
         <VBox fx:id="MainVBox"/>
     </children>
