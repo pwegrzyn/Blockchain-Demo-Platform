@@ -63,12 +63,12 @@ public class Blockchain implements Serializable {
     }
 
     public List<Block> getMainBranch() {
-        if (this.latestBlock.get() == null) return Collections.emptyList();
+        if (latestBlock.get() == null) return Collections.emptyList();
         List<Block> result = new LinkedList<>();
-        String hashPtr = this.latestBlock.get().getCurrentHash();
+        String hashPtr = latestBlock.get().getCurrentHash();
         // Genesis Block has the string "0" as its previous hash field
         while (!hashPtr.equals("0")) {
-            Block blockToAdd = this.blockDB.get(hashPtr);
+            Block blockToAdd = blockDB.get(hashPtr);
             result.add(blockToAdd);
             hashPtr = blockToAdd.getPreviousHash();
         }

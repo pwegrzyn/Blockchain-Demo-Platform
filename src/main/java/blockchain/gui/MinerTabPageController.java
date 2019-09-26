@@ -19,7 +19,7 @@ import java.util.logging.Logger;
 
 public class MinerTabPageController {
 
-    private static final Logger log = Logger.getLogger(MinerTabPageController.class.getName());
+    private static final Logger logger = Logger.getLogger(MinerTabPageController.class.getName());
 
     @FXML
     private Label minerToggleLabel;
@@ -62,11 +62,11 @@ public class MinerTabPageController {
             if(newValue){
                 setLabelToRedOFF(isMinerOnToggle);
                 setLabelToGreenON(minerToggleLabel);
-                log.info("Starting miner process");
+                logger.info("Starting miner process");
                 minerThread = Executors.newSingleThreadExecutor();
                 minerThread.submit(new Miner(node));
             } else {
-                log.info("Shutting down miner process");
+                logger.info("Shutting down miner process");
                 minerThread.shutdownNow();
                 setLabelToGreenON(isMinerOnToggle);
                 setLabelToRedOFF(minerToggleLabel);

@@ -56,8 +56,8 @@
                                     <Separator prefWidth="200.0" />
                                     <AnchorPane prefHeight="400.0" prefWidth="1200.0">
                                        <children>
-                                          <TextField fx:id="newTransactionAddressLabel" layoutX="194.0" layoutY="80.0" prefHeight="50.0" prefWidth="380.0" />
-                                          <TextField fx:id="newTransactionAmountLabel" layoutX="194.0" layoutY="180.0" prefHeight="50.0" />
+                                          <TextField fx:id="transactionAddressLabel" layoutX="194.0" layoutY="80.0" prefHeight="50.0" prefWidth="380.0" />
+                                          <TextField fx:id="transactionAmountLabel" layoutX="194.0" layoutY="180.0" prefHeight="50.0" />
                                           <Label layoutX="58.0" layoutY="88.0" text="Address">
                                              <font>
                                                 <Font size="24.0" />
@@ -68,7 +68,7 @@
                                                 <Font size="24.0" />
                                              </font>
                                           </Label>
-                                          <Button fx:id="newTransactionButton" layoutX="194.0" layoutY="280.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="86.0" text="Send">
+                                          <Button fx:id="addTransactionButton" layoutX="194.0" layoutY="280.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="86.0" text="Send">
                                              <font>
                                                 <Font size="14.0" />
                                              </font>
