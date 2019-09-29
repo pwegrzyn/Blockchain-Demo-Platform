@@ -154,11 +154,46 @@ public class Blockchain implements Serializable {
             }
         }
         if (longestChainStarter != this.latestBlock.get()) {
+            // Update the pool of unconfirmed transactions
+            updateUnconfirmedTransactions(longestChainStarter);
+
             // the last main branch now becomes a fork
             this.latestBlocksInOtherBranches.add(this.latestBlock.get());
             // we got a new main branch
             this.latestBlock.set(longestChainStarter);
             this.latestBlocksInOtherBranches.remove(longestChainStarter);
+        }
+    }
+
+    private void updateUnconfirmedTransactions(Block longestChainStarter) {
+        List<Block> currentMainChain = this.getMainBranch();
+        List<Block> newMainChain = this.getArbitraryBranch(longestChainStarter);
+
+        // Remove from the queue all the transactions that will become confirmed
+        List<Transaction> txsToRemoveFromQueue = new LinkedList<>();
+        for (Transaction tx : this.getUnconfirmedTransactions()) {
+            for (Block block : newMainChain) {
+                if (block.findTransaction(tx.getHash()) != null) {
+                    txsToRemoveFromQueue.add(tx);
+                }
+            }
+        }
+        this.getUnconfirmedTransactions().removeAll(txsToRemoveFromQueue);
+
+        // Add to the queue all transactions that will become unconfirmed
+        for (Block blockInCurrent : currentMainChain) {
+            for (Transaction transactionInCurrent : blockInCurrent.getTransactions()) {
+                boolean foundInNew = false;
+                for (Block blockInNew : newMainChain) {
+                    if (blockInNew.findTransaction(transactionInCurrent.getHash()) != null) {
+                        foundInNew = true;
+                        break;
+                    }
+                }
+                if (!foundInNew) {
+                    this.unconfirmedTransactions.add(transactionInCurrent);
+                }
+            }
         }
     }
 
