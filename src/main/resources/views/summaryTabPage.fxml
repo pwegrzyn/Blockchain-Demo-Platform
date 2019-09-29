@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="200.0" prefWidth="200.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="blockchain.gui.SummaryTabPageController">
+<AnchorPane prefHeight="200.0" prefWidth="200.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="blockchain.gui.SummaryTabPageController">
                <children>
                   <VBox prefHeight="721.0" prefWidth="1200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
@@ -74,7 +74,7 @@
                                              </font>
                                           </Label>
                                           <Separator layoutY="147.0" maxHeight="1.0" minHeight="1.0" prefHeight="1.0" prefWidth="600.0" />
-                                          <Label alignment="CENTER" contentDisplay="CENTER" layoutY="148.0" prefHeight="50.0" prefWidth="600.0" style="-fx-background-color: #C0C0C0;" text="Active Users" textAlignment="CENTER">
+                                          <Label alignment="CENTER" contentDisplay="CENTER" layoutY="148.0" prefHeight="50.0" prefWidth="600.0" style="-fx-background-color: #C0C0C0;" text="Active Users (click to copy to clipboard)" textAlignment="CENTER">
                                              <font>
                                                 <Font size="24.0" />
                                              </font>

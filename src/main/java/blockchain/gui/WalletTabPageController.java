@@ -69,7 +69,7 @@ public class WalletTabPageController {
     private boolean isAddressIncorrect() {
 
         if(transactionAddressLabel.getText().length() == 0){
-            logger.info("New transaction address field is empty");
+            showAlert("New Transaction Error", "New transaction address field is empty!", Alert.AlertType.WARNING);
             return true;
         }
 
@@ -80,19 +80,19 @@ public class WalletTabPageController {
 
     private boolean isAmountIncorrect() {
         if(transactionAmountLabel.getText().length() == 0){
-            logger.info("New transaction amount field is empty");
+            showAlert("New Transaction Error", "New transaction amount field is empty!", Alert.AlertType.WARNING);
             return true;
         }
 
         double newTransactionAmount = Double.parseDouble(transactionAmountLabel.getText());
 
         if(newTransactionAmount <= 0){
-            logger.info("New transaction amount cannot be lower or equal to 0");
+            showAlert("New Transaction Error", "New transaction amount cannot be lower or equal to 0!", Alert.AlertType.WARNING);
             return true;
         }
 
         if(getBalance() < newTransactionAmount){
-            logger.info("Cannot create transaction that costs more than you own");
+            showAlert("New Transaction Error", "Cannot create transaction that costs more than you own!", Alert.AlertType.WARNING);
             return true;
         }
 
@@ -247,5 +247,14 @@ public class WalletTabPageController {
 
     public void setNode(WalletNode node) {
         this.node = node;
+    }
+
+    private void showAlert(String header, String content, Alert.AlertType type) {
+        String title = "Wallet";
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 }

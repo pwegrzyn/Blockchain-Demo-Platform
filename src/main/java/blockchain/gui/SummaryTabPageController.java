@@ -6,14 +6,19 @@ import blockchain.model.*;
 import blockchain.net.Node;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.util.Duration;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -44,6 +49,18 @@ public class SummaryTabPageController {
         this.publicKeyTextField.setText(config.getPublicKey());
         this.privateKeyTextField.setText(config.getPrivateKey());
         this.nodeTypeLabel.setText(Configuration.getInstance().getNodeRunningMode() == Mode.WALLET ? "Wallet node" : "Full node");
+
+        // Copy public address to clipboard on selection
+        this.usersListView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                final Clipboard clipboard = Clipboard.getSystemClipboard();
+                final ClipboardContent content = new ClipboardContent();
+                content.putString(newValue);
+                clipboard.setContent(content);
+            }
+        });
+
         updateDynamicControls();
         // Init refreshing thread
         // WARNING: This method is super-hacky, and should be avoided
