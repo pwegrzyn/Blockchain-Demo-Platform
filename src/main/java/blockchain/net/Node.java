@@ -1,7 +1,6 @@
 package blockchain.net;
 
 import blockchain.config.Configuration;
-import blockchain.config.Mode;
 import blockchain.model.Blockchain;
 import blockchain.protocol.Validator;
 import blockchain.model.SynchronizedBlockchainWrapper;
@@ -72,7 +71,10 @@ public abstract class Node {
     }
 
     public int countNodes() {
-        return this.channel.getView().getMembers().size();
+        if (this.channel != null && this.channel.getView() != null && this.channel.getView().getMembers() != null) {
+            return this.channel.getView().getMembers().size();
+        }
+        return -1;
     }
 
     public List<String> getConnectedNodes() {
@@ -116,7 +118,7 @@ public abstract class Node {
             try {
                 ProtocolMessage message = (ProtocolMessage) Util.objectFromByteBuffer(msg.getBuffer());
                 if (message.getType() == ProtocolMessage.MessageType.NEW_BLOCK) {
-                    if (Node.this.validator.validateNewIncomingBlock(message.getBlock())) {
+                    if (Node.this.validator.validateBlock(message.getBlock())) {
                         SynchronizedBlockchainWrapper.useBlockchain(b -> {b.addBlock(message.getBlock()); return null;});
                     }
                 } else if (message.getType() == ProtocolMessage.MessageType.NEW_TRANSACTION) {

@@ -64,6 +64,16 @@ public class Transaction implements Serializable {
         return outputs;
     }
 
+    public String getCreatorAddr() {
+        // special case if using the Genesis TX as an input
+        if (this.type == TransactionType.GENESIS) {
+            return "0";
+        }
+        Transaction inputTX = SynchronizedBlockchainWrapper.useBlockchain(blockchain ->
+                blockchain.findTransactionInMainChain(this.inputs.get(0).getPreviousTransactionHash()));
+        return inputTX.getOutputs().get(0).getReceiverAddress();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

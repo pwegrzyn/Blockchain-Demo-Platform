@@ -10,7 +10,7 @@ public class FullNode extends WalletNode {
     }
 
     public BlockBroadcastResult broadcastNewBlock(Block newBlock) {
-        ProtocolMessage message=new ProtocolMessage(newBlock);
+        ProtocolMessage message = new ProtocolMessage(newBlock);
         this.broadcast(message);
         return new BlockBroadcastResult();
     }

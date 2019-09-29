@@ -74,7 +74,7 @@ public class Validator {
     /*
      Validate a new incoming block (including all the transaction within it)
      */
-    public boolean validateNewIncomingBlock(Block block) throws NoSuchAlgorithmException, UnsupportedEncodingException,
+    public boolean validateBlock(Block block) throws NoSuchAlgorithmException, UnsupportedEncodingException,
             SignatureException, NoSuchProviderException, InvalidKeyException, InvalidKeySpecException {
         // Check if block is the last one (previous index + 1)
         int lastBlockIndexInBlockchain = SynchronizedBlockchainWrapper.useBlockchain(b -> b.getLatestBlock().getIndex());

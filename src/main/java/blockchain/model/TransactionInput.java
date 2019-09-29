@@ -16,7 +16,7 @@ public class TransactionInput implements Serializable {
     private final String previousTransactionHash;
     private final int previousTransactionOutputIndex;
     private final String fromAddress;
-    // the signature is made be taking the hash of the fields above and signing it with a my private key -
+    // the signature is made by taking the hash of the fields above and signing it with a my private key -
     // this way other nodes can verify than this transaction was made indeed by the owner of the public key
     private final String signature;
 

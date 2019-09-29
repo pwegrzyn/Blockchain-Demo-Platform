@@ -75,7 +75,10 @@ public class SummaryTabPageController {
     }
 
     private void updateDynamicControls() {
-        this.userCountLabel.setText(calculateUserCountByView().toString());
+        String currentUserCount = calculateUserCountByView().toString();
+        if (!currentUserCount.equals("-1")) {
+            this.userCountLabel.setText(currentUserCount);
+        }
         this.blockCountLabel.setText(calculateBlockCount().toString());
         this.transactionCountLabel.setText(calculateTransactionCount().toString());
         this.currencyAmountLabel.setText(calculateCurrencyAmount().toString());

@@ -54,7 +54,7 @@ public class Miner extends Thread {
                 continue;
 
             /* Check if mined block is valid and broadcast to other nodes */
-            if (validator.validateNewIncomingBlock(newMinedBlock)) {
+            if (validator.validateBlock(newMinedBlock)) {
                 BlockBroadcastResult result = this.fullNode.broadcastNewBlock(newMinedBlock);
                 if (result.isConfirmed()) {
                     /*All is cool, other nodes confirm the validity of the block, add it to your local blockchain*/
@@ -63,7 +63,6 @@ public class Miner extends Thread {
                 /*Synchronize your blockchain state with other nodes, if a new block was added after the sync, then
                 stop working on your current block and recycle its transactions to the unconfirmed transaction pool*/
                     this.fullNode.synchronizeWithOthers();
-                    SynchronizedBlockchainWrapper.useBlockchain(b -> {b.recycleInvalidBlock(newMinedBlock); return null;});
                 }
             }
 
@@ -110,16 +109,14 @@ public class Miner extends Thread {
             if (txAlreadyIncluded) continue;
 
             if (SynchronizedBlockchainWrapper
-                    .useBlockchain(b -> b.findTransaction(unconfirmedTransaction.getHash()) != null)){
+                    .useBlockchain(b -> b.findTransactionInMainChain(unconfirmedTransaction.getHash()) != null)){
                 continue;
             }
-
-//            if (!this.validator.verifySignature(this.blockchain, unconfirmedTransaction)) continue;
 
             transactionsToAdd.add(unconfirmedTransaction);
         }
         if (transactionsToAdd.size() < 1) {
-            LOGGER.info("Not enough transactions to begin mining a new block!");
+            LOGGER.info("Not enough transactions to begin mining a new block! Trying again in 2 seconds...");
             Thread.sleep(2000);
             return null;
         }

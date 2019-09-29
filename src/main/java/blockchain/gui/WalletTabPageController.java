@@ -1,6 +1,7 @@
 package blockchain.gui;
 
 import blockchain.config.Configuration;
+import blockchain.crypto.ECDSA;
 import blockchain.model.*;
 import blockchain.net.WalletNode;
 import blockchain.util.Utils;
@@ -16,6 +17,9 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.Duration;
 
+import java.io.UnsupportedEncodingException;
+import java.security.*;
+import java.security.spec.InvalidKeySpecException;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -25,6 +29,7 @@ import java.util.stream.Collectors;
 public class WalletTabPageController {
 
     private static final Logger logger = Logger.getLogger(WalletTabPageController.class.getName());
+    private final ECDSA ecdsa = new ECDSA();
 
     @FXML private TableView inputsTableView;
     @FXML private Label balanceLabel;
@@ -59,6 +64,7 @@ public class WalletTabPageController {
 
                 Transaction newTransaction = new Transaction(transactionId, type, inputList, outputList);
                 node.broadcastNewTransaction(newTransaction);
+                SynchronizedBlockchainWrapper.useBlockchain(blockchain -> blockchain.getUnconfirmedTransactions().add(newTransaction));
             }});
     }
 
@@ -135,12 +141,29 @@ public class WalletTabPageController {
         return gatheredTransactionsToBeUsed
                 .stream()
                 .map(
-                        t -> new TransactionInput(
-                                t.getHash(),
-                                t.getOutputs().indexOf(getOutputTransactionsAddressedToMeForGivenTransaction(t)),
-                                configuration.getPublicKey(),
-                                "signature")) // TODO!!! use ECDSA signature method
+                        t -> {
+                            try {
+                                return new TransactionInput(
+                                        t.getHash(),
+                                        t.getOutputs().indexOf(getOutputTransactionsAddressedToMeForGivenTransaction(t)),
+                                        t.getCreatorAddr(),
+                                        generateTXSignature(t));
+                            } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeySpecException
+                                    | UnsupportedEncodingException | SignatureException | InvalidKeyException e) {
+                                logger.warning("ECDSA exception during signature generation in wallet!");
+                                return null;
+                            }
+                        })
                 .collect(Collectors.toList());
+    }
+
+    private String generateTXSignature(Transaction transaction) throws NoSuchAlgorithmException, NoSuchProviderException, InvalidKeySpecException,
+            UnsupportedEncodingException, SignatureException, InvalidKeyException {
+        String txInputHash = TransactionInput.calculateHash(transaction.getHash(),
+                transaction.getOutputs().indexOf(getOutputTransactionsAddressedToMeForGivenTransaction(transaction)), transaction.getCreatorAddr());
+        PrivateKey myPrivateKey = ecdsa.strToPrivateKey(configuration.getPrivateKey());
+        byte[] generatedSignature = ecdsa.generateSignature(txInputHash, myPrivateKey);
+        return Utils.bytesToHexStr(generatedSignature);
     }
 
     private double valueOfTransactionsToMe(LinkedList<Transaction> gatheredTransactions) {
@@ -149,7 +172,7 @@ public class WalletTabPageController {
                 .map(
                         t -> t.getOutputs()
                                 .stream()
-                                .filter(out -> out.getReceiverAddress().equals(configuration.getPublicKey()))
+                                .filter(out -> out.getReceiverAddress().equals(configuration.getPublicKey()) || out.getReceiverAddress().equals("0"))
                                 .map(TransactionOutput::getAmount)
                                 .reduce((x, y) -> x + y)
                                 .orElse(0.0))
@@ -161,7 +184,7 @@ public class WalletTabPageController {
         return transaction
                 .getOutputs()
                 .stream()
-                .filter(t -> t.getReceiverAddress().equals(configuration.getPublicKey()))
+                .filter(t -> t.getReceiverAddress().equals(configuration.getPublicKey()) || t.getReceiverAddress().equals("0"))
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("Could not find transaction output to this client"));
     }
@@ -187,7 +210,8 @@ public class WalletTabPageController {
 
         for(Block block : SynchronizedBlockchainWrapper.javaFxReadOnlyBlockchain().getMainBranch()){
             for(Transaction transaction : block.getTransactions()){
-                if(transaction.getOutputs().stream().anyMatch(transactionOutput -> transactionOutput.getReceiverAddress().equals(userPublicKey))){
+                if(transaction.getOutputs().stream().anyMatch(transactionOutput -> transactionOutput.getReceiverAddress().equals(userPublicKey)
+                    || transactionOutput.getReceiverAddress().equals("0"))){ // Genesis block
                     allTransactionsToMe.add(transaction);
                 }
 
@@ -216,7 +240,7 @@ public class WalletTabPageController {
 
         for(Transaction transaction : myRemainingTransactions){
             for(TransactionOutput tx : transaction.getOutputs()){
-                if(tx.getReceiverAddress().equals(userPublicKey)){
+                if(tx.getReceiverAddress().equals(userPublicKey) || tx.getReceiverAddress().equals("0")){
                     result += tx.getAmount();
                 }
             }

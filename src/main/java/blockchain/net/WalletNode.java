@@ -11,8 +11,8 @@ public class WalletNode extends Node {
     }
 
     public void broadcastNewTransaction(Transaction transaction) {
-        // TODO broadcast the tx to the network
-        return;
+        ProtocolMessage message = new ProtocolMessage(transaction);
+        this.broadcast(message);
     }
 
 }

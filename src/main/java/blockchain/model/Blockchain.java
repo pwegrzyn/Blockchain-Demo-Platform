@@ -89,12 +89,6 @@ public class Blockchain implements Serializable {
         return null;
     }
 
-    public void recycleInvalidBlock(Block newMinedBlock) {
-        /*The passed block was marked as invalid by the network, we need to extract all the txs included in it and add them
-        to the pool of unconfirmed txs again*/
-        // TODO recycling invalid block
-    }
-
     public void addBlock(Block newMinedBlock) {
         LOGGER.info("Adding new block to the blockchain");
         this.blockDB.put(newMinedBlock.getCurrentHash(), newMinedBlock);
