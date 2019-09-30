@@ -13,8 +13,11 @@ import org.graphstream.ui.javafx.FxGraphRenderer;
 
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class BlockchainVisTabPageController {
+    private static final Logger LOGGER = Logger.getLogger(BlockchainVisTabPageController.class.getName());
+
     private SingleGraph g;
     @FXML
     private VBox MainVBox;
@@ -48,6 +51,7 @@ public class BlockchainVisTabPageController {
         panel.setPrefHeight(680);
         panel.setPrefWidth(1210);
 
+
         this.MainVBox.getChildren().add(panel);
         this.updateGraphButton.setOnAction(e -> drawGraph());
 
@@ -63,7 +67,7 @@ public class BlockchainVisTabPageController {
                 String prev = block.getPreviousHash();
 
                 if (prev != "0") {
-                    addEdge(curr, prev);
+                    addEdge(prev, curr);
                 } else {
                     if (g.getNode(curr) == null)
                         g.addNode(curr);
@@ -77,17 +81,17 @@ public class BlockchainVisTabPageController {
                 g.getNode(block.getCurrentHash()).setAttribute("ui.class", "mainBranch");
 
         } catch (Exception e) {
-            System.err.println("Error while generating graph\n" + e);
+            LOGGER.warning("Error while generating graph\n" + e);
         }
     }
 
-    private void addEdge(String curr, String prev) {
+    private void addEdge(String prev, String curr) {
         if (g.getNode(prev) == null)
             g.addNode(prev);
         if (g.getNode(curr) == null)
             g.addNode(curr);
-        if (g.getEdge(curr + "-" + prev) == null)
-            g.addEdge(curr + "-" + prev, curr, prev);
+        if (g.getEdge(prev + "-" + curr) == null)
+            g.addEdge(prev + "-" + curr, prev, curr);
     }
 
 }
