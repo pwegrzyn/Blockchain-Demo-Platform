@@ -47,6 +47,7 @@ public class TxVisTabPageController {
             txGraph.setAttribute("ui.antialias");
             txGraph.setAttribute("ui.quality");
             txGraph.setAttribute("ui.stylesheet", "url(src/main/resources/stylesheet/txGraph.css)");
+            txGraph.setAutoCreate(true);
 
             List<Block> blocks = SynchronizedBlockchainWrapper.useBlockchain(b -> b.getMainBranch());
 

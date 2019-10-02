@@ -1,11 +1,15 @@
 graph {
-    padding: 60px;
+    padding: 20px;
+}
+
+edge {
+    shape: freeplane;
 }
 
 node {
+    shape: freeplane;
     fill-color: green;
-    text-offset: 0, -5;
-    text-background-mode: rounded-box;
-    text-background-color: white;
-    text-alignment: above;
+    text-offset: 1px, -3px;
+    size-mode: fit;
+    stroke-mode: plain;
 }

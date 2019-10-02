@@ -61,7 +61,8 @@ public class BlockchainVisTabPageController {
                 }
 
                 Node node = bcGraph.getNode(curr);
-                node.setAttribute("ui.label", block.getIndex());
+                node.removeAttribute("ui.class");
+                node.setAttribute("ui.label", "block-" + block.getIndex());
             }
 
             List<Block> mainBranch = SynchronizedBlockchainWrapper.useBlockchain(b -> b.getMainBranch());
@@ -79,7 +80,7 @@ public class BlockchainVisTabPageController {
         if (bcGraph.getNode(curr) == null)
             bcGraph.addNode(curr);
         if (bcGraph.getEdge(prev + "-" + curr) == null)
-            bcGraph.addEdge(prev + "-" + curr, prev, curr);
+            bcGraph.addEdge(prev + "-" + curr, prev, curr,true);
     }
 
 }
