@@ -1,0 +1,15 @@
+graph {
+    padding: 60px;
+}
+
+node {
+    fill-color: red;
+    text-offset: 0, -5;
+    text-background-mode: rounded-box;
+    text-background-color: white;
+    text-alignment: above;
+}
+
+node.mainBranch {
+    fill-color: green;
+}

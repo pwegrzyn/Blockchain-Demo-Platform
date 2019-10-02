@@ -20,39 +20,20 @@ import java.util.logging.Logger;
 public class TxVisTabPageController {
     private static final Logger LOGGER = Logger.getLogger(BlockchainVisTabPageController.class.getName());
 
-    private SingleGraph g;
+    private SingleGraph txGraph;
     @FXML
     private VBox MainVBox;
     @FXML
     private Button updateGraphButton;
 
-    private static String stylesheet =
-            "" +
-                    "graph {" +
-                    "   padding: 60px;" +
-                    "}" +
-                    "node {" +
-                    "   text-offset: -10,-3;" +
-                    "}" +
-                    "node.mainBranch {" +
-                    "   fill-color: red;" +
-                    "}";
-
     public void init() {
-        g = new SingleGraph("blockchain");
-
-        FxViewer v = new FxViewer(g, FxViewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
-
-        g.setAttribute("ui.antialias");
-        g.setAttribute("ui.quality");
-        g.setAttribute("ui.stylesheet", stylesheet);
-        g.setAutoCreate(true);
+        txGraph = new SingleGraph("txVis");
+        FxViewer v = new FxViewer(txGraph, FxViewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
 
         v.enableAutoLayout();
         FxViewPanel panel = (FxViewPanel) v.addDefaultView(false, new FxGraphRenderer());
         panel.setPrefHeight(680);
         panel.setPrefWidth(1210);
-
 
         this.MainVBox.getChildren().add(panel);
         this.updateGraphButton.setOnAction(e -> drawGraph());
@@ -62,35 +43,38 @@ public class TxVisTabPageController {
 
     private void drawGraph() {
         try {
-            g.clear();
+            txGraph.clear();
+            txGraph.setAttribute("ui.antialias");
+            txGraph.setAttribute("ui.quality");
+            txGraph.setAttribute("ui.stylesheet", "url(src/main/resources/stylesheet/txGraph.css)");
+
             List<Block> blocks = SynchronizedBlockchainWrapper.useBlockchain(b -> b.getMainBranch());
 
             for (Block block : blocks) {
                 for (Transaction tx : block.getTransactions()) {
                     String currTx = tx.getHash();
 
-                    if (g.getNode(currTx) == null)
-                        g.addNode(currTx);
+                    if (txGraph.getNode(currTx) == null)
+                        txGraph.addNode(currTx);
 
                     for (TransactionInput input : tx.getInputs()) {
                         addEdge(input.getPreviousTransactionHash(), currTx);
                     }
 
-                    Node node = g.getNode(currTx);
+                    Node node = txGraph.getNode(currTx);
                     node.setAttribute("ui.label", tx.getId());
                 }
             }
-
         } catch (Exception e) {
-            LOGGER.warning("Error while generating graph");
+            LOGGER.warning("Error while generating tx graph");
         }
     }
 
     private void addEdge(String prev, String curr) {
-        if (g.getNode(prev) == null)
-            g.addNode(prev);
-        if (g.getEdge(prev + "-" + curr) == null)
-            g.addEdge(prev + "-" + curr, prev, curr);
+        if (txGraph.getNode(prev) == null)
+            txGraph.addNode(prev);
+        if (txGraph.getEdge(prev + "-" + curr) == null)
+            txGraph.addEdge(prev + "-" + curr, prev, curr, true);
     }
 
 }

@@ -18,39 +18,26 @@ import java.util.logging.Logger;
 public class BlockchainVisTabPageController {
     private static final Logger LOGGER = Logger.getLogger(BlockchainVisTabPageController.class.getName());
 
-    private SingleGraph g;
+    private SingleGraph bcGraph;
     @FXML
     private VBox MainVBox;
     @FXML
     private Button updateGraphButton;
 
-    private static String stylesheet =
-            "" +
-                    "graph {" +
-                    "   padding: 60px;" +
-                    "}" +
-                    "node {" +
-                    "   text-offset: -10,-3;" +
-                    "}" +
-                    "node.mainBranch {" +
-                    "   fill-color: red;" +
-                    "}";
-
     public void init() {
-        g = new SingleGraph("blockchain");
+        bcGraph = new SingleGraph("bcVis");
 
-        FxViewer v = new FxViewer(g, FxViewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
+        FxViewer v = new FxViewer(bcGraph, FxViewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
 
-        g.setAttribute("ui.antialias");
-        g.setAttribute("ui.quality");
-        g.setAttribute("ui.stylesheet", stylesheet);
-        g.setAutoCreate(true);
+        bcGraph.setAttribute("ui.antialias");
+        bcGraph.setAttribute("ui.quality");
+        bcGraph.setAttribute("ui.stylesheet", "url(src/main/resources/stylesheet/bcGraph.css)");
+        bcGraph.setAutoCreate(true);
 
         v.enableAutoLayout();
         FxViewPanel panel = (FxViewPanel) v.addDefaultView(false, new FxGraphRenderer());
         panel.setPrefHeight(680);
         panel.setPrefWidth(1210);
-
 
         this.MainVBox.getChildren().add(panel);
         this.updateGraphButton.setOnAction(e -> drawGraph());
@@ -69,29 +56,30 @@ public class BlockchainVisTabPageController {
                 if (prev != "0") {
                     addEdge(prev, curr);
                 } else {
-                    if (g.getNode(curr) == null)
-                        g.addNode(curr);
+                    if (bcGraph.getNode(curr) == null)
+                        bcGraph.addNode(curr);
                 }
-                Node node = g.getNode(curr);
+
+                Node node = bcGraph.getNode(curr);
                 node.setAttribute("ui.label", block.getIndex());
             }
 
             List<Block> mainBranch = SynchronizedBlockchainWrapper.useBlockchain(b -> b.getMainBranch());
             for (Block block : mainBranch)
-                g.getNode(block.getCurrentHash()).setAttribute("ui.class", "mainBranch");
+                bcGraph.getNode(block.getCurrentHash()).setAttribute("ui.class", "mainBranch");
 
         } catch (Exception e) {
-            LOGGER.warning("Error while generating graph\n" + e);
+            LOGGER.warning("Error while generating blockchain graph");
         }
     }
 
     private void addEdge(String prev, String curr) {
-        if (g.getNode(prev) == null)
-            g.addNode(prev);
-        if (g.getNode(curr) == null)
-            g.addNode(curr);
-        if (g.getEdge(prev + "-" + curr) == null)
-            g.addEdge(prev + "-" + curr, prev, curr);
+        if (bcGraph.getNode(prev) == null)
+            bcGraph.addNode(prev);
+        if (bcGraph.getNode(curr) == null)
+            bcGraph.addNode(curr);
+        if (bcGraph.getEdge(prev + "-" + curr) == null)
+            bcGraph.addEdge(prev + "-" + curr, prev, curr);
     }
 
 }
