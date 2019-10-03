@@ -67,13 +67,9 @@ public class BlockchainVisTabPageController {
                 for (Block block : mainBranch)
                     bcGraph.getNode(block.getCurrentHash()).setAttribute("ui.class", "mainBranch");
 
+                Thread.sleep(5000);
             } catch (Exception e) {
                 LOGGER.warning("Error while generating blockchain graph");
-            }
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
         }
     }

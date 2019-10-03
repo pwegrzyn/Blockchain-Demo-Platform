@@ -64,13 +64,11 @@ public class TxVisTabPageController {
                         node.setAttribute("ui.label", tx.getId());
                     }
                 }
+
+                Thread.sleep(5000);
             } catch (Exception e) {
                 LOGGER.warning("Error while generating tx graph");
-            }
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                return;
             }
         }
     }
