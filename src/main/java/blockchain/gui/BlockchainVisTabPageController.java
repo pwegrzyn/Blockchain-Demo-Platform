@@ -3,7 +3,6 @@ package blockchain.gui;
 import blockchain.model.Block;
 import blockchain.model.SynchronizedBlockchainWrapper;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
@@ -21,13 +20,11 @@ public class BlockchainVisTabPageController {
     private SingleGraph bcGraph;
     @FXML
     private VBox MainVBox;
-    @FXML
-    private Button updateGraphButton;
 
     public void init() {
         bcGraph = new SingleGraph("bcVis");
 
-        FxViewer v = new FxViewer(bcGraph, FxViewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
+        FxViewer v = new FxViewer(bcGraph, FxViewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
 
         bcGraph.setAttribute("ui.antialias");
         bcGraph.setAttribute("ui.quality");
@@ -36,41 +33,48 @@ public class BlockchainVisTabPageController {
 
         v.enableAutoLayout();
         FxViewPanel panel = (FxViewPanel) v.addDefaultView(false, new FxGraphRenderer());
-        panel.setPrefHeight(680);
+        panel.setPrefHeight(730);
         panel.setPrefWidth(1210);
 
         this.MainVBox.getChildren().add(panel);
-        this.updateGraphButton.setOnAction(e -> drawGraph());
 
-        drawGraph();
+        Thread thread = new Thread(() -> drawGraph());
+        thread.start();
     }
 
     private void drawGraph() {
-        try {
-            Map<String, Block> blocks = SynchronizedBlockchainWrapper.useBlockchain(b -> b.getBlockDB());
+        while (true) {
+            try {
+                Map<String, Block> blocks = SynchronizedBlockchainWrapper.useBlockchain(b -> b.getBlockDB());
 
-            for (Block block : blocks.values()) {
-                String curr = block.getCurrentHash();
-                String prev = block.getPreviousHash();
+                for (Block block : blocks.values()) {
+                    String curr = block.getCurrentHash();
+                    String prev = block.getPreviousHash();
 
-                if (prev != "0") {
-                    addEdge(prev, curr);
-                } else {
-                    if (bcGraph.getNode(curr) == null)
-                        bcGraph.addNode(curr);
+                    if (prev != "0") {
+                        addEdge(prev, curr);
+                    } else {
+                        if (bcGraph.getNode(curr) == null)
+                            bcGraph.addNode(curr);
+                    }
+
+                    Node node = bcGraph.getNode(curr);
+                    node.removeAttribute("ui.class");
+                    node.setAttribute("ui.label", "block-" + block.getIndex());
                 }
 
-                Node node = bcGraph.getNode(curr);
-                node.removeAttribute("ui.class");
-                node.setAttribute("ui.label", "block-" + block.getIndex());
+                List<Block> mainBranch = SynchronizedBlockchainWrapper.useBlockchain(b -> b.getMainBranch());
+                for (Block block : mainBranch)
+                    bcGraph.getNode(block.getCurrentHash()).setAttribute("ui.class", "mainBranch");
+
+            } catch (Exception e) {
+                LOGGER.warning("Error while generating blockchain graph");
             }
-
-            List<Block> mainBranch = SynchronizedBlockchainWrapper.useBlockchain(b -> b.getMainBranch());
-            for (Block block : mainBranch)
-                bcGraph.getNode(block.getCurrentHash()).setAttribute("ui.class", "mainBranch");
-
-        } catch (Exception e) {
-            LOGGER.warning("Error while generating blockchain graph");
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -80,7 +84,7 @@ public class BlockchainVisTabPageController {
         if (bcGraph.getNode(curr) == null)
             bcGraph.addNode(curr);
         if (bcGraph.getEdge(prev + "-" + curr) == null)
-            bcGraph.addEdge(prev + "-" + curr, prev, curr,true);
+            bcGraph.addEdge(prev + "-" + curr, prev, curr, true);
     }
 
 }

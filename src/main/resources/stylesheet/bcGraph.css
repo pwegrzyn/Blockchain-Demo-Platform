@@ -1,5 +1,5 @@
 graph {
-    padding: 20px;
+    padding: 50px;
 }
 
 edge {
@@ -9,7 +9,7 @@ edge {
 node {
     shape: freeplane;
     fill-color: red;
-    text-offset: 1px, -3px;
+    text-offset: 3px, -3px;
     size-mode: fit;
     stroke-mode: plain;
 }
