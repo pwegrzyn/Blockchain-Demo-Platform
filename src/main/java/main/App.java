@@ -3,7 +3,9 @@ package main;
 import blockchain.gui.AppGUI;
 import javafx.application.Application;
 import javafx.stage.Stage;
+import org.apache.commons.math3.ml.neuralnet.Network;
 
+import java.net.NetworkInterface;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

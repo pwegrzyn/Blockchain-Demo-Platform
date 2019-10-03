@@ -15,7 +15,10 @@ import org.jgroups.util.Util;
 
 import java.io.*;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,6 +34,8 @@ public abstract class Node {
 
     public Node(String clusterName) {
         System.setProperty("java.net.preferIPv4Stack", "true");
+        System.setProperty("jgroups.bind_addr", "172.19.129.14");
+        System.setProperty("java.net.bind_addr", "172.19.129.14");
         this.clusterName = clusterName;
         this.validator = new Validator();
         try {
@@ -86,10 +91,24 @@ public abstract class Node {
 
     private Protocol[] getProtocolStack() {
         Protocol[] protocolStack = new Protocol[0];
+        UDP udp = new UDP();
+        InetAddress addr = null;
         try {
+            NetworkInterface i = NetworkInterface.getByName("eth10");
+            Enumeration<InetAddress> e = i.getInetAddresses();
+            if (e.hasMoreElements()) {
+                addr = e.nextElement();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        udp.setBindAddress(addr);
+        try {
+            udp.setValue("mcast_group_addr", InetAddress.getByName(Configuration.getInstance()
+                    .getMcast_addr()));
             protocolStack = new Protocol[]{
-                    new UDP().setValue("mcast_group_addr", InetAddress.getByName(Configuration.getInstance()
-                            .getMcast_addr())),
+                    udp,
                     new PING(),
                     new MERGE3(),
                     new FD_SOCK(),
@@ -122,14 +141,20 @@ public abstract class Node {
                 ProtocolMessage message = (ProtocolMessage) Util.objectFromByteBuffer(msg.getBuffer());
                 if (message.getType() == ProtocolMessage.MessageType.NEW_BLOCK) {
                     if (Node.this.validator.validateBlock(message.getBlock())) {
-                        SynchronizedBlockchainWrapper.useBlockchain(b -> {b.addBlock(message.getBlock()); return null;});
+                        SynchronizedBlockchainWrapper.useBlockchain(b -> {
+                            b.addBlock(message.getBlock());
+                            return null;
+                        });
                     }
                 } else if (message.getType() == ProtocolMessage.MessageType.NEW_TRANSACTION) {
                     if (Node.this.validator.validateNewIncomingTX(message.getTransaction())) {
                         // tbh we only need to listen for transactions when we are mining we maybe in the future
                         // we will make it so that wallets update their balances based on the blockchain AND incoming
                         // not yet confirmed transactions
-                        SynchronizedBlockchainWrapper.useBlockchain(b -> {b.getUnconfirmedTransactions().add(message.getTransaction()); return null;});
+                        SynchronizedBlockchainWrapper.useBlockchain(b -> {
+                            b.getUnconfirmedTransactions().add(message.getTransaction());
+                            return null;
+                        });
                     }
                 } else {
                     LOGGER.warning("Unknown message type received: " + message.getType());
@@ -142,13 +167,13 @@ public abstract class Node {
         @Override
         public void getState(OutputStream outputStream) throws Exception {
             LOGGER.info("Providing state to newly connected node.");
-            synchronized(this){
+            synchronized (this) {
                 SynchronizedBlockchainWrapper.useBlockchain(b -> {
-                    try(ObjectOutputStream objectStream = new ObjectOutputStream(new BufferedOutputStream(outputStream,
+                    try (ObjectOutputStream objectStream = new ObjectOutputStream(new BufferedOutputStream(outputStream,
                             STATE_TRANSFER_BUFFER_SIZE))) {
                         objectStream.writeObject(b);
                         return null;
-                    } catch (Exception e){
+                    } catch (Exception e) {
                         throw new IllegalStateException("Could not write blockchain for some reason");
                     }
                 });
@@ -160,9 +185,9 @@ public abstract class Node {
         @Override
         public void setState(InputStream inputStream) throws Exception {
             LOGGER.info("Receiving state from existing nodes.");
-            synchronized(this){
+            synchronized (this) {
                 Blockchain receivedState;
-                try(ObjectInputStream objectStream = new ObjectInputStream(inputStream)) {
+                try (ObjectInputStream objectStream = new ObjectInputStream(inputStream)) {
                     receivedState = (Blockchain) objectStream.readObject();
                 }
                 SynchronizedBlockchainWrapper.setBlockchain(receivedState);
