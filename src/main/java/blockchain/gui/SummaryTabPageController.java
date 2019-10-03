@@ -82,7 +82,10 @@ public class SummaryTabPageController {
         this.blockCountLabel.setText(calculateBlockCount().toString());
         this.transactionCountLabel.setText(calculateTransactionCount().toString());
         this.currencyAmountLabel.setText(calculateCurrencyAmount().toString());
-        this.usersListView.setItems(FXCollections.observableArrayList(this.node.getConnectedNodes()));
+        List<String> connectedUsers = this.node.getConnectedNodes();
+        if (connectedUsers != null) {
+            this.usersListView.setItems(FXCollections.observableArrayList(connectedUsers));
+        }
     }
 
     private Integer calculateUserCountByActions() {

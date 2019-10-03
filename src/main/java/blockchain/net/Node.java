@@ -78,7 +78,10 @@ public abstract class Node {
     }
 
     public List<String> getConnectedNodes() {
-        return this.channel.getView().getMembers().stream().map(Object::toString).collect(Collectors.toList());
+        if (this.channel != null && this.channel.getView() != null && this.channel.getView().getMembers() != null) {
+            return this.channel.getView().getMembers().stream().map(Object::toString).collect(Collectors.toList());
+        }
+        return null;
     }
 
     private Protocol[] getProtocolStack() {
