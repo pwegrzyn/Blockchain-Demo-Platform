@@ -14,8 +14,8 @@ import org.jgroups.stack.ProtocolStack;
 import org.jgroups.util.Util;
 
 import java.io.*;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.net.*;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -85,32 +85,65 @@ public abstract class Node {
     }
 
     private Protocol[] getProtocolStack() {
-        Protocol[] protocolStack = new Protocol[0];
+        Protocol[] protocolStack = new Protocol[]{
+                this.getUdpProtocol(),
+                new PING(),
+                new MERGE3(),
+                new FD_SOCK(),
+                new FD_ALL()
+                        .setValue("timeout", 12000)
+                        .setValue("interval", 3000),
+                new VERIFY_SUSPECT(),
+                new BARRIER(),
+                new NAKACK2(),
+                new UNICAST3(),
+                new STABLE(),
+                new GMS(),
+                new UFC(),
+                new MFC(),
+                new FRAG2(),
+                new STATE_TRANSFER()};
+
+        return protocolStack;
+    }
+
+    private UDP getUdpProtocol() {
+        UDP udp = new UDP();
         try {
-            protocolStack = new Protocol[]{
-                    new UDP().setValue("mcast_group_addr", InetAddress.getByName(Configuration.getInstance()
-                            .getMcast_addr())),
-                    new PING(),
-                    new MERGE3(),
-                    new FD_SOCK(),
-                    new FD_ALL()
-                            .setValue("timeout", 12000)
-                            .setValue("interval", 3000),
-                    new VERIFY_SUSPECT(),
-                    new BARRIER(),
-                    new NAKACK2(),
-                    new UNICAST3(),
-                    new STABLE(),
-                    new GMS(),
-                    new UFC(),
-                    new MFC(),
-                    new FRAG2(),
-                    new STATE_TRANSFER()};
-        } catch (UnknownHostException e) {
-            LOGGER.log(Level.SEVERE, "Error occurred while creating the protocol stack", e);
+            String interfaceName = Configuration.getInstance().getNetworkInterfaceName();
+
+            // bind to proper network interface
+            if (interfaceName.length() != 0) {
+                Enumeration<NetworkInterface> eni = NetworkInterface.getNetworkInterfaces();
+
+                while (eni.hasMoreElements()) {
+                    NetworkInterface ni = eni.nextElement();
+
+                    if (ni.getDisplayName().equals(interfaceName)) {
+                        Enumeration<InetAddress> eia = ni.getInetAddresses();
+
+                        while (eia.hasMoreElements()) {
+                            InetAddress ia = eia.nextElement();
+
+                            if (ia instanceof Inet4Address) {
+                                udp.setBindAddress(ia);
+                                LOGGER.log(Level.INFO, "Connecting to desired network interface with IP: " + ia.getHostAddress());
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+
+            udp.setValue("mcast_group_addr", InetAddress.getByName(Configuration.getInstance()
+                    .getMcast_addr()));
+
+        } catch (SocketException | UnknownHostException e) {
+            LOGGER.log(Level.SEVERE, "Error occurred while initializing UDP protocol ", e);
             System.exit(1);
         }
-        return protocolStack;
+        return udp;
     }
 
     private class MessageReceiver extends ReceiverAdapter {
@@ -122,14 +155,20 @@ public abstract class Node {
                 ProtocolMessage message = (ProtocolMessage) Util.objectFromByteBuffer(msg.getBuffer());
                 if (message.getType() == ProtocolMessage.MessageType.NEW_BLOCK) {
                     if (Node.this.validator.validateBlock(message.getBlock())) {
-                        SynchronizedBlockchainWrapper.useBlockchain(b -> {b.addBlock(message.getBlock()); return null;});
+                        SynchronizedBlockchainWrapper.useBlockchain(b -> {
+                            b.addBlock(message.getBlock());
+                            return null;
+                        });
                     }
                 } else if (message.getType() == ProtocolMessage.MessageType.NEW_TRANSACTION) {
                     if (Node.this.validator.validateNewIncomingTX(message.getTransaction())) {
                         // tbh we only need to listen for transactions when we are mining we maybe in the future
                         // we will make it so that wallets update their balances based on the blockchain AND incoming
                         // not yet confirmed transactions
-                        SynchronizedBlockchainWrapper.useBlockchain(b -> {b.getUnconfirmedTransactions().add(message.getTransaction()); return null;});
+                        SynchronizedBlockchainWrapper.useBlockchain(b -> {
+                            b.getUnconfirmedTransactions().add(message.getTransaction());
+                            return null;
+                        });
                     }
                 } else {
                     LOGGER.warning("Unknown message type received: " + message.getType());
@@ -142,13 +181,13 @@ public abstract class Node {
         @Override
         public void getState(OutputStream outputStream) throws Exception {
             LOGGER.info("Providing state to newly connected node.");
-            synchronized(this){
+            synchronized (this) {
                 SynchronizedBlockchainWrapper.useBlockchain(b -> {
-                    try(ObjectOutputStream objectStream = new ObjectOutputStream(new BufferedOutputStream(outputStream,
+                    try (ObjectOutputStream objectStream = new ObjectOutputStream(new BufferedOutputStream(outputStream,
                             STATE_TRANSFER_BUFFER_SIZE))) {
                         objectStream.writeObject(b);
                         return null;
-                    } catch (Exception e){
+                    } catch (Exception e) {
                         throw new IllegalStateException("Could not write blockchain for some reason");
                     }
                 });
@@ -160,9 +199,9 @@ public abstract class Node {
         @Override
         public void setState(InputStream inputStream) throws Exception {
             LOGGER.info("Receiving state from existing nodes.");
-            synchronized(this){
+            synchronized (this) {
                 Blockchain receivedState;
-                try(ObjectInputStream objectStream = new ObjectInputStream(inputStream)) {
+                try (ObjectInputStream objectStream = new ObjectInputStream(inputStream)) {
                     receivedState = (Blockchain) objectStream.readObject();
                 }
                 SynchronizedBlockchainWrapper.setBlockchain(receivedState);

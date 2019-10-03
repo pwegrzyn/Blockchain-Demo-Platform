@@ -20,6 +20,7 @@ public class Configuration {
     private String publicKey;
     private String privateKey;
     private int visualizationPort;
+    private String networkInterfaceName;
 
     private Configuration() {
         Properties properties = loadProperties();
@@ -27,6 +28,7 @@ public class Configuration {
         initMcastAddr(properties);
         initVersion(properties);
         initVisualizationPort(properties);
+        initNetworkInterfaceName(properties);
     }
 
     public static Configuration getInstance() {
@@ -87,6 +89,10 @@ public class Configuration {
         this.visualizationPort = visualizationPort;
     }
 
+    public String getNetworkInterfaceName() {
+        return this.networkInterfaceName;
+    }
+
     private Properties loadProperties() {
         try (InputStream input = Configuration.class.getClassLoader().getResourceAsStream("config.properties")) {
             Properties prop = new Properties();
@@ -96,7 +102,7 @@ public class Configuration {
             }
             prop.load(input);
             LOGGER.config("Properties successfully loaded from config.properties.");
-            return  prop;
+            return prop;
         } catch (IOException ex) {
             ex.printStackTrace();
             return null;
@@ -105,11 +111,13 @@ public class Configuration {
 
     private void initMode(Properties properties) {
         String nodeRunningModeStr = properties.getProperty("node.mode").toLowerCase().trim();
-        switch(nodeRunningModeStr) {
+        switch (nodeRunningModeStr) {
             case "full":
-                this.nodeRunningMode = Mode.FULL; break;
+                this.nodeRunningMode = Mode.FULL;
+                break;
             case "wallet":
-                this.nodeRunningMode = Mode.WALLET; break;
+                this.nodeRunningMode = Mode.WALLET;
+                break;
             default:
                 LOGGER.warning("Invalid node.mode property value! Setting default mode: FULL");
                 this.nodeRunningMode = Mode.FULL;
@@ -140,6 +148,11 @@ public class Configuration {
     private void initVisualizationPort(Properties properties) {
         String port = properties.getProperty("vis.visualization_port").toLowerCase().trim();
         this.visualizationPort = Integer.parseInt(port);
+    }
+
+    private void initNetworkInterfaceName(Properties properties) {
+        String intName = properties.getProperty("networkInterfaceName").trim();
+        this.networkInterfaceName = intName;
     }
 
 }
