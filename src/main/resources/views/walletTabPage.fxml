@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="200.0" prefWidth="200.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="blockchain.gui.WalletTabPageController">
+<AnchorPane prefHeight="200.0" prefWidth="200.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="blockchain.gui.WalletTabPageController">
 
                <children>
                   <HBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -56,14 +56,14 @@
                                     <Separator prefWidth="200.0" />
                                     <AnchorPane prefHeight="400.0" prefWidth="1200.0">
                                        <children>
-                                          <TextField fx:id="transactionAddressLabel" layoutX="194.0" layoutY="80.0" prefHeight="50.0" prefWidth="380.0" />
-                                          <TextField fx:id="transactionAmountLabel" layoutX="194.0" layoutY="180.0" prefHeight="50.0" />
-                                          <Label layoutX="58.0" layoutY="88.0" text="Address">
+                                          <TextField fx:id="transactionAddressLabel" layoutX="194.0" layoutY="38.0" prefHeight="50.0" prefWidth="380.0" />
+                                          <TextField fx:id="transactionAmountLabel" layoutX="194.0" layoutY="115.0" prefHeight="50.0" />
+                                          <Label layoutX="58.0" layoutY="46.0" text="Address">
                                              <font>
                                                 <Font size="24.0" />
                                              </font>
                                           </Label>
-                                          <Label layoutX="58.0" layoutY="185.0" text="Amount">
+                                          <Label layoutX="58.0" layoutY="123.0" text="Amount">
                                              <font>
                                                 <Font size="24.0" />
                                              </font>
@@ -73,6 +73,12 @@
                                                 <Font size="14.0" />
                                              </font>
                                           </Button>
+                              <Label layoutX="28.0" layoutY="199.0" text="Fee (optional)">
+                                 <font>
+                                    <Font size="24.0" />
+                                 </font>
+                              </Label>
+                              <TextField id="transactionFee" fx:id="transactionFee" layoutX="194.0" layoutY="190.0" prefHeight="53.0" prefWidth="149.0" />
                                        </children>
                                     </AnchorPane>
                                  </children>

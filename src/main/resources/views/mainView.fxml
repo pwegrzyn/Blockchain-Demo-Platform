@@ -11,12 +11,12 @@
     <Tab fx:id="blockchainTab" closable="false" text="Blockchain">
         <fx:include fx:id="blockchainTabPage" source="blockchainTabPage.fxml"/>
          </Tab>
-      <Tab fx:id="bcVisualizationTab" closable="false" text="Blockchain Graph">
+      <Tab fx:id="transactionsTab" closable="false" text="Unconfirmed TXs">
+          <fx:include fx:id="transactionsTabPage" source="transactionsTabPage.fxml"/>
+      </Tab>
+      <Tab fx:id="bcVisualizationTab" closable="false" text="Block Graph">
           <fx:include fx:id="bcVisTabPage" source="bcVisTabPage.fxml"/>
       </Tab>
-      <Tab fx:id="transactionsTab" closable="false" text="Transactions">
-        <fx:include fx:id="transactionsTabPage" source="transactionsTabPage.fxml"/>
-     </Tab>
       <Tab fx:id="txVisualizationTab" closable="false" text="TXs Graph">
           <fx:include fx:id="txVisTabPage" source="txVisTabPage.fxml"/>
       </Tab>

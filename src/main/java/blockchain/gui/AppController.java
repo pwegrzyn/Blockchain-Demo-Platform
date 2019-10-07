@@ -104,6 +104,8 @@ public class AppController {
         // Init the blockchain graph electron
         this.bcVisTabPageController.init();
 
+        this.transactionsTabPageController.init();
+
         // Disable the miner tab if Running Mode is WALLET
         if (Configuration.getInstance().getNodeRunningMode() != Mode.FULL) {
             this.minerTab.setDisable(true);

@@ -35,6 +35,7 @@ public class WalletTabPageController {
     @FXML private Label balanceLabel;
     @FXML private TextField transactionAddressLabel;
     @FXML private TextField transactionAmountLabel;
+    @FXML private TextField transactionFee;
     @FXML private Button addTransactionButton;
 
     LinkedList<Transaction> myRemainingTransactions = new LinkedList<>();
@@ -69,7 +70,7 @@ public class WalletTabPageController {
     }
 
     private boolean isNewTransactionIncorrect() {
-        return isAddressIncorrect() || isAmountIncorrect();
+        return isAddressIncorrect() || isAmountIncorrect() || isFeeIncorrect();
     }
 
     private boolean isAddressIncorrect() {
@@ -103,6 +104,23 @@ public class WalletTabPageController {
         }
 
         return false;
+    }
+
+    private boolean isFeeIncorrect() {
+        if (this.transactionFee.getText().length() == 0) {
+            return false;
+        }
+
+        try {
+            double newFeeAmount = Double.parseDouble(transactionFee.getText());
+        } catch (NumberFormatException e) {
+            showAlert("New Transaction Error", "New transaction fee is not a valid number!", Alert.AlertType.WARNING);
+            return true;
+        }
+
+        return false;
+
+        // TODO check fee amount
     }
 
     private double amountOfInputTransactions(List<TransactionInput> inputList) {

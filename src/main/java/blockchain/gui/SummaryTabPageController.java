@@ -79,11 +79,23 @@ public class SummaryTabPageController {
         if (!currentUserCount.equals("-1")) {
             this.userCountLabel.setText(currentUserCount);
         }
+
         this.blockCountLabel.setText(calculateBlockCount().toString());
         this.transactionCountLabel.setText(calculateTransactionCount().toString());
         this.currencyAmountLabel.setText(calculateCurrencyAmount().toString());
+
         List<String> connectedUsers = this.node.getConnectedNodes();
         if (connectedUsers != null) {
+            String myAddr = null;
+            for (String user : connectedUsers) {
+                if (user.equals(Configuration.getInstance().getPublicKey())) {
+                    myAddr = user;
+                    break;
+                }
+            }
+            String newAddr = "(me) " + myAddr;
+            connectedUsers.remove(myAddr);
+            connectedUsers.add(newAddr);
             this.usersListView.setItems(FXCollections.observableArrayList(connectedUsers));
         }
     }
