@@ -12,8 +12,10 @@ import org.graphstream.ui.fx_viewer.FxViewPanel;
 import org.graphstream.ui.fx_viewer.FxViewer;
 import org.graphstream.ui.javafx.FxGraphRenderer;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 
 public class TxVisTabPageController {
@@ -25,7 +27,13 @@ public class TxVisTabPageController {
 
     public void init() {
         txGraph = new SingleGraph("txVis");
+
         FxViewer v = new FxViewer(txGraph, FxViewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
+
+        txGraph.setAttribute("ui.antialias");
+        txGraph.setAttribute("ui.quality");
+        txGraph.setAttribute("ui.stylesheet", "url(src/main/resources/stylesheet/txGraph.css)");
+        txGraph.setAutoCreate(true);
 
         v.enableAutoLayout();
         FxViewPanel panel = (FxViewPanel) v.addDefaultView(false, new FxGraphRenderer());
@@ -41,34 +49,35 @@ public class TxVisTabPageController {
     private void drawGraph() {
         while (true) {
             try {
-                txGraph.clear();
-                txGraph.setAttribute("ui.antialias");
-                txGraph.setAttribute("ui.quality");
-                txGraph.setAttribute("ui.stylesheet", "url(src/main/resources/stylesheet/txGraph.css)");
-                txGraph.setAutoCreate(true);
+                Map<String, Transaction> transactionDB = new HashMap<>();
+                for (Block block : SynchronizedBlockchainWrapper.useBlockchain(b -> b.getMainBranch())) {
+                    for (Transaction tx : block.getTransactions())
+                        transactionDB.put(tx.getHash(), tx);
+                }
 
-                List<Block> blocks = SynchronizedBlockchainWrapper.useBlockchain(b -> b.getMainBranch());
+                //check if existing transactions should still exist
+                Stream<Node> nodes = txGraph.nodes();
+                nodes.forEach(e -> {
+                    String label = e.getId();
+                    if (transactionDB.containsKey(label)) {
+                        transactionDB.remove(label);
+                    } else {
+                        txGraph.removeNode(e);
+                    }
+                });
 
-                for (Block block : blocks) {
-                    for (Transaction tx : block.getTransactions()) {
-                        String currTx = tx.getHash();
-
-                        if (txGraph.getNode(currTx) == null)
-                            txGraph.addNode(currTx);
-
-                        for (TransactionInput input : tx.getInputs()) {
-                            addEdge(input.getPreviousTransactionHash(), currTx);
-                        }
-
-                        Node node = txGraph.getNode(currTx);
-                        node.setAttribute("ui.label", tx.getId());
+                // add new transactions
+                for (Transaction tx : transactionDB.values()) {
+                    String currTx = tx.getHash();
+                    txGraph.addNode(currTx).setAttribute("ui.label", tx.getId());
+                    for (TransactionInput input : tx.getInputs()) {
+                        addEdge(input.getPreviousTransactionHash(), currTx);
                     }
                 }
 
                 Thread.sleep(5000);
             } catch (Exception e) {
                 LOGGER.warning("Error while generating tx graph");
-                return;
             }
         }
     }
