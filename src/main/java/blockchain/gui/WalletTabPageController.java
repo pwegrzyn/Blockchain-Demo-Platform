@@ -114,16 +114,21 @@ public class WalletTabPageController {
             return false;
         }
 
+        double newFeeAmount = 0;
         try {
-            double newFeeAmount = Double.parseDouble(transactionFee.getText());
+            newFeeAmount = Double.parseDouble(transactionFee.getText());
         } catch (NumberFormatException e) {
             showAlert("New Transaction Error", "New transaction fee is not a valid number!", Alert.AlertType.WARNING);
             return true;
         }
 
+        if (newFeeAmount + Double.parseDouble(transactionAmountLabel.getText()) > getBalance()) {
+            showAlert("New Transaction Error", "Can't spend more than you own (including fee)!", Alert.AlertType.WARNING);
+            return true;
+        }
+
         return false;
 
-        // TODO check fee amount
     }
 
     private double amountOfInputTransactions(List<TransactionInput> inputList) {
