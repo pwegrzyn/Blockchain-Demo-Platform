@@ -22,6 +22,9 @@ public class Transaction implements Serializable {
     // And at max 2 outputs (to recipient and leftover change to self)
     private final List<TransactionOutput> outputs;
 
+    // Auxillalry field to handle the case of the first tx using gensis as it's input in getCreatorAddr()
+    private String creator;
+
     public Transaction(String id, TransactionType type, List<TransactionInput> inputs, List<TransactionOutput> outputs) {
         this.id = id;
         this.hash = calculateTransactionHash(id, inputs, outputs);
@@ -69,9 +72,16 @@ public class Transaction implements Serializable {
         if (this.type == TransactionType.GENESIS) {
             return "0";
         }
+        if (this.creator != null) {
+            return this.creator;
+        }
         Transaction inputTX = SynchronizedBlockchainWrapper.useBlockchain(blockchain ->
                 blockchain.findTransactionInMainChain(this.inputs.get(0).getPreviousTransactionHash()));
         return inputTX.getOutputs().get(0).getReceiverAddress();
+    }
+
+    public void setCreator(String creator) {
+        this.creator = creator;
     }
 
     @Override

@@ -103,6 +103,7 @@ public class Blockchain implements Serializable {
         // If a new block builds upon the last block of the main branch then update the latestBlock
         if (this.latestBlock.get().getCurrentHash().equals(newMinedBlock.getPreviousHash()) &&
             this.latestBlock.get().getIndex() + 1 == newMinedBlock.getIndex()) {
+            updateUnconfirmedTransactions(newMinedBlock);
             this.latestBlock.set(newMinedBlock);
             LOGGER.info("New block builds on top of the main branch - everything OK");
             return;

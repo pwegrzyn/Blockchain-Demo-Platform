@@ -22,6 +22,7 @@ import javafx.scene.input.ClipboardContent;
 
 import java.util.*;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 
 public class SummaryTabPageController {
@@ -141,7 +142,9 @@ public class SummaryTabPageController {
         Map<Transaction, List<Integer>> unusedTransactions = new HashMap<>();
         Map<String, Transaction> hashTransactionMap = new HashMap<>();
 
-        for(Block block : SynchronizedBlockchainWrapper.javaFxReadOnlyBlockchain().getMainBranch()){
+        List<Block> currentBlockchain = SynchronizedBlockchainWrapper.javaFxReadOnlyBlockchain().getMainBranch();
+        Collections.reverse(currentBlockchain);
+        for(Block block : currentBlockchain) {
             for(Transaction transaction : block.getTransactions()){
                 hashTransactionMap.put(transaction.getHash(), transaction);
 

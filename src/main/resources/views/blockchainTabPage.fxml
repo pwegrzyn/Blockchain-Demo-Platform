@@ -100,7 +100,6 @@
                                       <columns>
                                         <TableColumn prefWidth="74.0" text="Hash" />
                                         <TableColumn prefWidth="73.0" text="Index" />
-                                          <TableColumn prefWidth="73.0" text="Value" />
                                       </columns>
                                     </TableView>
                                     <TableView fx:id="txOutputTxTable" layoutX="166.0" layoutY="281.0" prefHeight="95.0" prefWidth="222.0">

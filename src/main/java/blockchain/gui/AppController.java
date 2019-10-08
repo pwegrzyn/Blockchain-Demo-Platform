@@ -90,6 +90,8 @@ public class AppController {
         // Get the initial blockchain if this node is the first one or get the blockchain which was taken from other
         // existing nodes otherwise
 
+        blockchainTabPageController.init();
+
         // Init the wallet tab controller
         walletTabPageController.init();
         walletTabPageController.setNode(node);

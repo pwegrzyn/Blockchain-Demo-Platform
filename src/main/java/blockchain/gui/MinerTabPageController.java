@@ -60,7 +60,6 @@ public class MinerTabPageController {
             if(oldValue == newValue) return;
 
             if(newValue){
-                setLabelToRedOFF(isMinerOnToggle);
                 setLabelToGreenON(minerToggleLabel);
                 logger.info("Starting miner process");
                 minerThread = Executors.newSingleThreadExecutor();
@@ -68,7 +67,6 @@ public class MinerTabPageController {
             } else {
                 logger.info("Shutting down miner process");
                 minerThread.shutdownNow();
-                setLabelToGreenON(isMinerOnToggle);
                 setLabelToRedOFF(minerToggleLabel);
             }
         });

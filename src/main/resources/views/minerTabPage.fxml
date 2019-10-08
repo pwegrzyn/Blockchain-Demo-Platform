@@ -21,7 +21,7 @@
                             </font>
                         </Label>
                         <Separator minHeight="100.0" minWidth="1.0" orientation="VERTICAL" prefHeight="100.0" prefWidth="1.0" />
-                        <ToggleButton fx:id="isMinerOnToggle" contentDisplay="CENTER" maxHeight="100.0" maxWidth="200.0" minHeight="100.0" minWidth="200.0" mnemonicParsing="false" prefHeight="100.0" prefWidth="200.0" text="TURN ON" textAlignment="CENTER" textFill="LIME">
+                        <ToggleButton fx:id="isMinerOnToggle" contentDisplay="CENTER" maxHeight="100.0" maxWidth="200.0" minHeight="100.0" minWidth="200.0" mnemonicParsing="false" prefHeight="100.0" prefWidth="200.0" text="ON/OFF" textAlignment="CENTER">
                             <opaqueInsets>
                                 <Insets />
                             </opaqueInsets>

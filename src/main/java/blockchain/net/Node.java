@@ -154,6 +154,7 @@ public abstract class Node {
             try {
                 ProtocolMessage message = (ProtocolMessage) Util.objectFromByteBuffer(msg.getBuffer());
                 if (message.getType() == ProtocolMessage.MessageType.NEW_BLOCK) {
+                    LOGGER.info("Received new block broadcast from neighbours");
                     if (Node.this.validator.validateBlock(message.getBlock())) {
                         SynchronizedBlockchainWrapper.useBlockchain(b -> {
                             b.addBlock(message.getBlock());
@@ -165,6 +166,7 @@ public abstract class Node {
                         // tbh we only need to listen for transactions when we are mining we maybe in the future
                         // we will make it so that wallets update their balances based on the blockchain AND incoming
                         // not yet confirmed transactions
+                        LOGGER.info("Received new transaction broadcast from neighbours");
                         SynchronizedBlockchainWrapper.useBlockchain(b -> {
                             b.getUnconfirmedTransactions().add(message.getTransaction());
                             return null;
@@ -175,6 +177,7 @@ public abstract class Node {
                 }
             } catch (Exception e) {
                 LOGGER.warning("Error while receiving message from neighbours!");
+                e.printStackTrace();
             }
         }
 

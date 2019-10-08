@@ -55,6 +55,7 @@ public class Miner extends Thread {
 
             /* Check if mined block is valid and broadcast to other nodes */
             if (validator.validateBlock(newMinedBlock)) {
+                LOGGER.info("Valid block has been mined (nonce: " + newMinedBlock.getNonce() + ") - broadcasting to neighbours...");
                 BlockBroadcastResult result = this.fullNode.broadcastNewBlock(newMinedBlock);
                 if (result.isConfirmed()) {
                     /*All is cool, other nodes confirm the validity of the block, add it to your local blockchain*/
@@ -80,14 +81,14 @@ public class Miner extends Thread {
         String previousHash = latestBlock.getCurrentHash();
 
         /*Go through all the unconfirmed transactions and pick at most MAX_TRANSACTIONS_PER_BLOCK of them to be included
-        in the next block (TODO: Some of the logic here probably belongs to the Validator class)*/
+        in the next block */
         List<Transaction> transactionsToAdd = new LinkedList<>();
         for (int i = 0; i < MAX_TRANSACTIONS_PER_BLOCK; i++) {
             Transaction unconfirmedTransaction;
             try {
                 unconfirmedTransaction = SynchronizedBlockchainWrapper
                         .useBlockchain(b -> b.getUnconfirmedTransactions().remove());
-
+                LOGGER.info("Miner chose new transaction (id: " + unconfirmedTransaction.getId() + ") to add to the new block being mined");
             } catch (NoSuchElementException e) {
                 break;
             }
@@ -96,6 +97,7 @@ public class Miner extends Thread {
             List<TransactionOutput> outputs = unconfirmedTransaction.getOutputs();
             String id = unconfirmedTransaction.getId();
             if (!unconfirmedTransaction.getHash().equals(Transaction.calculateTransactionHash(id, inputs, outputs))) {
+                LOGGER.warning("Newly added tx in miner has invalid hash - aborting!");
                 continue;
             }
 
@@ -106,17 +108,21 @@ public class Miner extends Thread {
                     break;
                 }
             }
-            if (txAlreadyIncluded) continue;
-
-            if (SynchronizedBlockchainWrapper
-                    .useBlockchain(b -> b.findTransactionInMainChain(unconfirmedTransaction.getHash()) != null)){
+            if (txAlreadyIncluded) {
+                LOGGER.warning("Newly added tx in miner is already included in the new block being mined - skipping!");
                 continue;
             }
 
+            if (SynchronizedBlockchainWrapper
+                    .useBlockchain(b -> b.findTransactionInMainChain(unconfirmedTransaction.getHash()) != null)){
+                LOGGER.warning("Newly added tx in miner is already included in the current blockchain - skipping!");
+                continue;
+            }
+
+            LOGGER.info("Tx (id: " + unconfirmedTransaction.getId() + ") has been definitely added to the new block - OK");
             transactionsToAdd.add(unconfirmedTransaction);
         }
         if (transactionsToAdd.size() < 1) {
-            LOGGER.info("Not enough transactions to begin mining a new block! Trying again in 2 seconds...");
             Thread.sleep(2000);
             return null;
         }
@@ -142,7 +148,8 @@ public class Miner extends Thread {
 
             /* Check if a new block has appeared in blockchain during mining */
             Block potentialNewLatestBlock = SynchronizedBlockchainWrapper.useBlockchain(Blockchain::getLatestBlock);
-            if (previousHash != potentialNewLatestBlock.getCurrentHash()) {
+            if (!previousHash.equals(potentialNewLatestBlock.getCurrentHash())) {
+                LOGGER.info("While working on a block the miner received a new latest block from neighbours. Recycling TXs and starting again.");
                 for (Transaction tx : transactionsToAdd) {
                     if (potentialNewLatestBlock.findTransaction(tx.getHash()) == null) {
                         SynchronizedBlockchainWrapper

@@ -17,8 +17,12 @@ import javafx.scene.layout.VBox;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class BlockchainTabPageController {
+
+    private static final Logger LOGGER = Logger.getLogger(BlockchainTabPageController.class.getName());
 
     private ObservableList<String> hashBlockList;
     private SimpleObjectProperty<Block> latestBlock;
@@ -60,7 +64,7 @@ public class BlockchainTabPageController {
     private String selectedBlockHash = "";
 
     @FXML
-    private void initialize(){
+    public void init(){
 
         new Thread(() -> {
             while(SynchronizedBlockchainWrapper.javaFxReadOnlyBlockchain() == null){
@@ -101,10 +105,8 @@ public class BlockchainTabPageController {
         ObservableList<TableColumn<TransactionInput, String>> columns = txInputTxTable.getColumns();
         TableColumn<TransactionInput, String> txIdColumn = columns.get(0);
         TableColumn<TransactionInput, String> txIndexColumn = columns.get(1);
-        TableColumn<TransactionInput, String> txValueColumn = columns.get(2);
         txIdColumn.setCellValueFactory(new PropertyValueFactory<TransactionInput, String>("previousTransactionHash"));
         txIndexColumn.setCellValueFactory(new PropertyValueFactory<TransactionInput, String>("previousTransactionOutputIndex"));
-        txValueColumn.setCellValueFactory(new PropertyValueFactory<TransactionInput, String>("amount"));
         txInputTxTable.setItems(FXCollections.observableArrayList(transactions));
     }
 
@@ -181,52 +183,28 @@ public class BlockchainTabPageController {
         this.latestBlock = blockchain.getLatestBlockObservable();
         this.blockListView.setItems(hashBlockList);
 
-        ConcurrentMap<String, Block> latestDB = getBlockchain().getBlockDB();
-        Block latest = this.latestBlock.get();
-        if (latest != null) {
-            do {
-                this.hashBlockList.add(latest.getCurrentHash());
-                if (latest.getIndex() == 0) break;
-                latest = latestDB.get(latest.getPreviousHash());
-            } while (latest != null && latest.getIndex() >= 0);
-        }
+        this.hashBlockList.addAll(blockchain.getMainBranch().stream().map(Block::getCurrentHash).collect(Collectors.toList()));
 
         this.latestBlock.addListener((obs, ov, nv) -> {
+            LOGGER.info("Latest block changing in Blockchain Visualization Tab");
+
             String prevSel = this.blockListView.selectionModelProperty().getValue().getSelectedItem();
             if (ov != null && nv.getCurrentHash().equals(ov.getCurrentHash()))
                 return;
-            ConcurrentMap<String, Block> blocksDB = getBlockchain().getBlockDB();
-            Block block = nv;
-            Platform.runLater(() -> hashBlockList.clear());
-            do {
-                Block finalBlock = block;
-                Platform.runLater(() -> hashBlockList.add(finalBlock.getCurrentHash()));
-                if (block.getIndex() == 0) break;
-                block = blocksDB.get(block.getPreviousHash());
-            } while (block != null && block.getIndex() >= 0);
+
+            Platform.runLater(() -> {
+                LOGGER.info("Updating blocklist in Blockchain Visualization Tab");
+                hashBlockList.clear();
+                hashBlockList.addAll(getBlockchain().getMainBranch().stream().map(Block::getCurrentHash).collect(Collectors.toList()));
+            });
+
+
             Platform.runLater(() -> {
                 if (hashBlockList.contains(prevSel))
                     this.blockListView.selectionModelProperty().getValue().select(prevSel);
             });
         });
 
-        this.hashBlockList.addListener(new ListChangeListener<String>() {
-            @Override
-            public void onChanged(Change<? extends String> c) {
-                if (!c.next()) return;
-                if (c.wasAdded()) {
-                    for (String s : c.getAddedSubList()) {
-                        Block blockToAdd = blockchain.findBlock(s);
-                        ObservableList<String> blocklist = blockListView.getItems();
-                        if (blocklist.get(blocklist.size() - 1).equals(blockToAdd.getPreviousHash())) {
-                            blocklist.add(blockToAdd.getCurrentHash());
-                        }
-                    }
-                } else if (c.wasRemoved()) {
-
-                }
-            }
-        });
     }
 
     private Blockchain getBlockchain(){

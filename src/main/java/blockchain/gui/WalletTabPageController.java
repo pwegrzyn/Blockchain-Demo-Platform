@@ -48,7 +48,7 @@ public class WalletTabPageController {
 
     private long refreshTimeInSeconds = 1;
 
-    public void init(){
+    public void init() {
         initializeTransactionsTable();
         setAddTransactionHandler();
         addBalanceRefresher();
@@ -67,8 +67,14 @@ public class WalletTabPageController {
                 List<TransactionOutput> outputList = generateOutputTransactions(spentAmount);
 
                 Transaction newTransaction = new Transaction(transactionId, type, inputList, outputList);
+                newTransaction.setCreator(Configuration.getInstance().getPublicKey());
                 node.broadcastNewTransaction(newTransaction);
                 SynchronizedBlockchainWrapper.useBlockchain(blockchain -> blockchain.getUnconfirmedTransactions().add(newTransaction));
+
+                showAlert("New Transaction Success!", "The transaction has been broadcasted to other nodes. Please wait for miners validate it .", Alert.AlertType.INFORMATION);
+                transactionAddressLabel.setText("");
+                transactionAmountLabel.setText("");
+                transactionFee.setText("");
             }});
     }
 
@@ -83,6 +89,11 @@ public class WalletTabPageController {
             return true;
         }
 
+        if (transactionAddressLabel.getText().equals(Configuration.getInstance().getPublicKey())) {
+            showAlert("New Transaction Error", "Cannot send transaction to own address!", Alert.AlertType.WARNING);
+            return true;
+        }
+
         // TODO Check transaction
 
         return false;
@@ -94,14 +105,20 @@ public class WalletTabPageController {
             return true;
         }
 
-        double newTransactionAmount = Double.parseDouble(transactionAmountLabel.getText());
+        double newTransactionAmount = 0;
+        try {
+            newTransactionAmount = Double.parseDouble(transactionAmountLabel.getText());
+        } catch (NumberFormatException e) {
+            showAlert("New Transaction Error", "New transaction amount is not a valid number!", Alert.AlertType.WARNING);
+            return true;
+        }
 
         if(newTransactionAmount <= 0){
             showAlert("New Transaction Error", "New transaction amount cannot be lower or equal to 0!", Alert.AlertType.WARNING);
             return true;
         }
 
-        if(getBalance() < newTransactionAmount){
+        if(getBalance() < newTransactionAmount) {
             showAlert("New Transaction Error", "Cannot create transaction that costs more than you own!", Alert.AlertType.WARNING);
             return true;
         }
@@ -111,7 +128,8 @@ public class WalletTabPageController {
 
     private boolean isFeeIncorrect() {
         if (this.transactionFee.getText().length() == 0) {
-            return false;
+            showAlert("New Transaction Error", "Fee amount must be specified! Type 0 to pay no fee", Alert.AlertType.WARNING);
+            return true;
         }
 
         double newFeeAmount = 0;
@@ -119,6 +137,11 @@ public class WalletTabPageController {
             newFeeAmount = Double.parseDouble(transactionFee.getText());
         } catch (NumberFormatException e) {
             showAlert("New Transaction Error", "New transaction fee is not a valid number!", Alert.AlertType.WARNING);
+            return true;
+        }
+
+        if (newFeeAmount < 0) {
+            showAlert("New Transaction Error", "Fee cannot be negative!", Alert.AlertType.WARNING);
             return true;
         }
 
@@ -147,7 +170,7 @@ public class WalletTabPageController {
 
     private List<TransactionOutput> generateOutputTransactions(double spentAmount) {
         double transactionCost = Double.parseDouble(transactionAmountLabel.getText());
-        double remainingAmount = spentAmount - transactionCost;
+        double remainingAmount = spentAmount - transactionCost - Double.parseDouble(transactionFee.getText());
 
          return Arrays.asList(
                 new TransactionOutput(transactionCost, transactionAddressLabel.getText()),
@@ -156,7 +179,7 @@ public class WalletTabPageController {
     }
 
     private synchronized List<TransactionInput> selectInputTransactions() {
-        double transactionCost = Double.parseDouble(transactionAmountLabel.getText());
+        double transactionCost = Double.parseDouble(transactionAmountLabel.getText()) + Double.parseDouble(transactionFee.getText());
 
         LinkedList<Transaction> gatheredTransactionsToBeUsed = new LinkedList<>();
 
@@ -221,6 +244,7 @@ public class WalletTabPageController {
             public void handle(ActionEvent event) {
                 balanceLabel.setText("" + getBalance());
                 observableRemainingTransactions = myRemainingTransactions();
+                inputsTableView.setItems(FXCollections.observableArrayList(observableRemainingTransactions));
             }
         }));
         updateControlsTimeline.setCycleCount(Timeline.INDEFINITE);
@@ -234,7 +258,9 @@ public class WalletTabPageController {
 
         // Add transactions addressed to me
 
-        for(Block block : SynchronizedBlockchainWrapper.javaFxReadOnlyBlockchain().getMainBranch()){
+        List<Block> currentBlockchain = SynchronizedBlockchainWrapper.javaFxReadOnlyBlockchain().getMainBranch();
+        Collections.reverse(currentBlockchain);
+        for(Block block : currentBlockchain) {
             for(Transaction transaction : block.getTransactions()){
                 if(transaction.getOutputs().stream().anyMatch(transactionOutput -> transactionOutput.getReceiverAddress().equals(userPublicKey)
                     || transactionOutput.getReceiverAddress().equals("0"))){ // Genesis block
@@ -280,12 +306,12 @@ public class WalletTabPageController {
         ObservableList<TableColumn<Transaction, String>> columns = inputsTableView.getColumns();
         TableColumn<Transaction, String> txIndexColumn = columns.get(0);
         TableColumn<Transaction, String> txValueColumn = columns.get(1);
-        txIndexColumn.setCellValueFactory(new PropertyValueFactory<Transaction, String>("hash"));
+        txIndexColumn.setCellValueFactory(new PropertyValueFactory<Transaction, String>("id"));
         txValueColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(String.valueOf(cell.getValue()
                 .getOutputs()
                 .stream()
                 .filter(tx -> tx.getReceiverAddress()
-                        .equals(userPublicKey))
+                        .equals(userPublicKey) || tx.getReceiverAddress().equals("0"))
                 .findFirst()
                 .get()
                 .getAmount())));

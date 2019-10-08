@@ -32,6 +32,12 @@ public class Validator {
 
             Transaction referencedTx = SynchronizedBlockchainWrapper.useBlockchain(b -> b.findTransactionInMainChain(txInput.getPreviousTransactionHash()));
             TransactionOutput referencedTxOutput = referencedTx.getOutputs().get(txInput.getPreviousTransactionOutputIndex());
+
+            // genesis block tx case
+            if (referencedTxOutput.getReceiverAddress().equals("0")) {
+                return true;
+            }
+
             PublicKey creatorPublicKey = ecdsa.strToPublicKey(referencedTxOutput.getReceiverAddress());
 
             if (!ecdsa.checkSignature(txInputDataHash, creatorPublicKey, signature)) {
