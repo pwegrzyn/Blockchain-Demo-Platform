@@ -38,7 +38,9 @@ public class WalletTabPageController {
     @FXML private TextField transactionFee;
     @FXML private Button addTransactionButton;
 
-    LinkedList<Transaction> myRemainingTransactions = new LinkedList<>();
+    private LinkedList<Transaction> observableRemainingTransactions;
+
+    private LinkedList<Transaction> modelRemainingTransactions;
 
     private WalletNode node;
 
@@ -57,6 +59,7 @@ public class WalletTabPageController {
             @Override public void handle(ActionEvent e) {
                 if(isNewTransactionIncorrect()) return;
 
+                modelRemainingTransactions = myRemainingTransactions();
                 String transactionId = Utils.generateRandomString(32);
                 TransactionType type = TransactionType.REGULAR;
                 List<TransactionInput> inputList = selectInputTransactions();
@@ -125,7 +128,7 @@ public class WalletTabPageController {
 
     private double amountOfInputTransactions(List<TransactionInput> inputList) {
         Map<String, Double> hashAmountTransactionsMap =
-                myRemainingTransactions
+                myRemainingTransactions()
                         .stream()
                         .collect(Collectors.toMap(Transaction::getHash,
                                 t -> getOutputTransactionsAddressedToMeForGivenTransaction(t).getAmount()));
@@ -153,7 +156,7 @@ public class WalletTabPageController {
         LinkedList<Transaction> gatheredTransactionsToBeUsed = new LinkedList<>();
 
         while(valueOfTransactionsToMe(gatheredTransactionsToBeUsed) < transactionCost){
-            gatheredTransactionsToBeUsed.add(myRemainingTransactions.pollFirst());
+            gatheredTransactionsToBeUsed.add(modelRemainingTransactions.pollFirst());
         }
 
         return gatheredTransactionsToBeUsed
@@ -212,14 +215,14 @@ public class WalletTabPageController {
             @Override
             public void handle(ActionEvent event) {
                 balanceLabel.setText("" + getBalance());
-                updateMyRemainingTransactions();
+                observableRemainingTransactions = myRemainingTransactions();
             }
         }));
         updateControlsTimeline.setCycleCount(Timeline.INDEFINITE);
         updateControlsTimeline.play();
     }
 
-    private synchronized void updateMyRemainingTransactions(){
+    private synchronized LinkedList<Transaction> myRemainingTransactions(){
         String userPublicKey = configuration.getPublicKey();
 
         LinkedList<Transaction> allTransactionsToMe = new LinkedList<>();
@@ -248,7 +251,7 @@ public class WalletTabPageController {
             }
         }
 
-        myRemainingTransactions = allTransactionsToMe;
+        return allTransactionsToMe;
     }
 
     private double getBalance() {
@@ -256,7 +259,7 @@ public class WalletTabPageController {
         double result = 0.0;
 
 
-        for(Transaction transaction : myRemainingTransactions){
+        for(Transaction transaction : observableRemainingTransactions){
             for(TransactionOutput tx : transaction.getOutputs()){
                 if(tx.getReceiverAddress().equals(userPublicKey) || tx.getReceiverAddress().equals("0")){
                     result += tx.getAmount();
@@ -283,8 +286,7 @@ public class WalletTabPageController {
                 .getAmount())));
 
 
-        inputsTableView.setItems(FXCollections.observableArrayList(myRemainingTransactions));
-
+        inputsTableView.setItems(FXCollections.observableArrayList(observableRemainingTransactions));
     }
 
     public void setNode(WalletNode node) {
