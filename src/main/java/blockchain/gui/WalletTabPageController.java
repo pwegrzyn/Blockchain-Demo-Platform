@@ -38,7 +38,7 @@ public class WalletTabPageController {
     @FXML private TextField transactionFee;
     @FXML private Button addTransactionButton;
 
-    private LinkedList<Transaction> observableRemainingTransactions;
+    private LinkedList<Transaction> observableRemainingTransactions = new LinkedList<>();
 
     private LinkedList<Transaction> modelRemainingTransactions;
 
