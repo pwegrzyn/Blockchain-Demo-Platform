@@ -18,8 +18,12 @@ import java.util.logging.Logger;
 public class ECDSA {
 
     private static final Logger LOGGER = Logger.getLogger(ECDSA.class.getName());
-    private static final int PRIV_KEY_ENCODED_LEN = 288;
-    private static final int PUB_KEY_ENCODED_LEN = 176;
+    private static final String testPublicKey =
+            "MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEd0RUzdEAQMTAe6+HQzGfOQeD8a7SXwu6AN/GIQjiyDqTLgyIoa5PpTuWJTxtYyAuLojyaImfF/AJKZTrvqpsaA==";
+    private static final String testPrivateKey =
+            "MIGNAgEAMBAGByqGSM49AgEGBSuBBAAKBHYwdAIBAQQgOt9GUJ9wsRXYt/Ib5jdiQ79A5Ue65pgtI6DcKsaBXLqgBwYFK4EEAAqhRANCAAR3RFTN0QBAxMB7r4dDMZ85B4PxrtJfC7oA38YhCOLIOpMuDIihrk+lO5YlPG1jIC4uiPJoiZ8X8AkplOu+qmxo";
+    private static final int PRIV_KEY_ENCODED_LEN = testPrivateKey.length();
+    private static final int PUB_KEY_ENCODED_LEN = testPublicKey.length();
 
     public ECDSA() {
         Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
