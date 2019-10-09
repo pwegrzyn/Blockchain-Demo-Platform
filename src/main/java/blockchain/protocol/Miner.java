@@ -119,6 +119,24 @@ public class Miner extends Thread {
                 continue;
             }
 
+            // Check if a tx added in an earlier iteration does not collide with our referenced outputs
+            boolean inputsReused = false;
+            for (Transaction txToBeChecked : transactionsToAdd) {
+                for (TransactionInput inputToCheck : unconfirmedTransaction.getInputs()) {
+                    for (TransactionInput inputToBeChecked : txToBeChecked.getInputs()) {
+                        if (inputToCheck.getPreviousTransactionOutputIndex() == inputToBeChecked.getPreviousTransactionOutputIndex()
+                                && inputToCheck.getPreviousTransactionHash().equals(inputToBeChecked.getPreviousTransactionHash())) {
+                            inputsReused = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (inputsReused) {
+                LOGGER.warning("Newly added tx in miner uses already used inputs! - skipping!");
+                continue;
+            }
+
             LOGGER.info("Tx (id: " + unconfirmedTransaction.getId() + ") has been definitely added to the new block - OK");
             transactionsToAdd.add(unconfirmedTransaction);
         }
