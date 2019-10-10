@@ -16,6 +16,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
 import javafx.util.Duration;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
@@ -52,15 +53,17 @@ public class SummaryTabPageController {
         this.nodeTypeLabel.setText(Configuration.getInstance().getNodeRunningMode() == Mode.WALLET ? "Wallet node" : "Full node");
 
         // Copy public address to clipboard on selection
-        this.usersListView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+        this.usersListView.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+            public void handle(MouseEvent event) {
+                String newValue = usersListView.getSelectionModel().getSelectedItem();
                 final Clipboard clipboard = Clipboard.getSystemClipboard();
                 final ClipboardContent content = new ClipboardContent();
                 content.putString(newValue);
                 clipboard.setContent(content);
             }
         });
+
 
         updateDynamicControls();
         // Init refreshing thread
