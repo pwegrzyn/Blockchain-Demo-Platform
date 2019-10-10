@@ -94,7 +94,7 @@ public class Sha256NonceSearching extends Sha256Abstract {
 
             if (result < 0)
                 offset[0] += global_work_size[0];
-            if (offset[0] + global_work_size[0] < 0) {
+            if (offset[0] + global_work_size[0] < 0 || offset[0] > 1000000) {
                 break;
             }
         } while (result < 0);
