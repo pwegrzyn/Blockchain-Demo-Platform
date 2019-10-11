@@ -75,10 +75,11 @@ public class BlockchainVisTabPageController {
     }
 
     private void addEdge(String prev, String curr) {
-        if (bcGraph.getNode(prev) == null)
-            bcGraph.addNode(prev);
         if (bcGraph.getNode(curr) == null)
             bcGraph.addNode(curr);
+        if (prev.equals("0")) return;
+        if (bcGraph.getNode(prev) == null)
+            System.out.println("Added node: " + prev);
         if (bcGraph.getEdge(prev + "-" + curr) == null)
             bcGraph.addEdge(prev + "-" + curr, prev, curr, true);
     }

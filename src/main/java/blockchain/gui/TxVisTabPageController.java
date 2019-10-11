@@ -83,6 +83,7 @@ public class TxVisTabPageController {
     }
 
     private void addEdge(String prev, String curr) {
+        if (prev.equals("")) return;
         if (txGraph.getNode(prev) == null)
             txGraph.addNode(prev);
         if (txGraph.getEdge(prev + "-" + curr) == null)
