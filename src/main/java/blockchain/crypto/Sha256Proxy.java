@@ -11,22 +11,32 @@ public class Sha256Proxy {
 
     public static String calculateShaHash(String input) {
         synchronized (sha256) {
-            sha256.setData(input);
+            sha256.setData(precessInput(input));
             return sha256.crypt();
         }
     }
 
     public static String calculateShaHashWithNonce(String input, int nonce) {
         synchronized (sha256WithNonce) {
-            sha256WithNonce.setData(calculateShaHash(input), nonce);
+            sha256WithNonce.setData(precessInput(input), nonce);
             return sha256WithNonce.crypt();
         }
     }
 
     public static int searchForNonce(String input, String target) {
         synchronized (sha256NonceSearching) {
-            sha256NonceSearching.setData(calculateShaHash(input), target);
+            sha256NonceSearching.setData(precessInput(input), target);
             return sha256NonceSearching.crypt();
         }
     }
+
+    private static String precessInput(String input) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(input);
+        while (stringBuilder.length() % 64 > 46) {
+            stringBuilder.append('0');
+        }
+        return stringBuilder.toString();
+    }
+
 }
