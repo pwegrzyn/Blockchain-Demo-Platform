@@ -27,7 +27,6 @@ public class MinerTabPageController {
     @FXML
     private ToggleButton isMinerOnToggle;
     // Toggle is false by default
-    // Toggle has "TURN ON" message by default
     // Which means that miner is OFF by default
 
     @FXML

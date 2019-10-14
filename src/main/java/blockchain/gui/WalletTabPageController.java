@@ -254,35 +254,42 @@ public class WalletTabPageController {
     private synchronized LinkedList<Transaction> myRemainingTransactions(){
         String userPublicKey = configuration.getPublicKey();
 
-        LinkedList<Transaction> allTransactionsToMe = new LinkedList<>();
+        Map<TransactionOutput, Transaction> allTransactionsToMe = new HashMap<>();
 
         // Add transactions addressed to me
-
         List<Block> currentBlockchain = SynchronizedBlockchainWrapper.javaFxReadOnlyBlockchain().getMainBranch();
-        Collections.reverse(currentBlockchain);
+
         for(Block block : currentBlockchain) {
             for(Transaction transaction : block.getTransactions()){
-                if(transaction.getOutputs().stream().anyMatch(transactionOutput -> transactionOutput.getReceiverAddress().equals(userPublicKey)
-                    || transactionOutput.getReceiverAddress().equals("0"))){ // Genesis block
-                    allTransactionsToMe.add(transaction);
+                for(TransactionOutput output : transaction.getOutputs()){
+                    if(output.getReceiverAddress().equals(userPublicKey) || output.getReceiverAddress().equals("0")){
+                        allTransactionsToMe.put(output, transaction);
+                    }
                 }
-
-                transaction.getInputs()
-                        .stream()
-                        .map(TransactionInput::getPreviousTransactionHash)
-                        .forEach(hash -> {
-                            LinkedList<Transaction> myUsedTransactions = new LinkedList<>();
-                            for(Transaction tx : allTransactionsToMe){
-                                if(tx.getHash().equals(hash)){
-                                    myUsedTransactions.add(tx);
-                                }
-                            }
-                            allTransactionsToMe.removeAll(myUsedTransactions);
-                        });
             }
         }
 
-        return allTransactionsToMe;
+        Map<TransactionOutput, Transaction> result = new HashMap<>(allTransactionsToMe);
+
+        // Delete used transactions
+        for(Block block : currentBlockchain){
+            for(Transaction transaction : block.getTransactions()){
+                for(TransactionInput input : transaction.getInputs()){
+                    String usedTxHash = input.getPreviousTransactionHash();
+                    int usedTxIndex = input.getPreviousTransactionOutputIndex();
+
+                    for(Transaction myTransaction : allTransactionsToMe.values()){
+                        if(myTransaction.getHash().equals(usedTxHash)){
+                            TransactionOutput usedOutput = myTransaction.getOutputs().get(usedTxIndex);
+                            result.remove(usedOutput);
+                        }
+                    }
+
+                }
+            }
+        }
+
+        return result.values().stream().distinct().collect(Collectors.toCollection(LinkedList::new));
     }
 
     private double getBalance() {
