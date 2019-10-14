@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.*;
 
 public class Block implements Serializable {
@@ -43,7 +44,7 @@ public class Block implements Serializable {
         int nonce = 0;
         String previousHash = "0";
         String receiver = "0";
-        double amount = 50.0;
+        BigDecimal amount = new BigDecimal(50.0);
         long timestamp = 0;
         List<TransactionOutput> genesisTransactionOutputs = new LinkedList<>();
         genesisTransactionOutputs.add(new TransactionOutput(amount, receiver));

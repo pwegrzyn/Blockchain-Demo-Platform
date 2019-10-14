@@ -5,6 +5,7 @@ import blockchain.model.*;
 import blockchain.util.Utils;
 
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.util.List;
@@ -178,18 +179,18 @@ public class Validator {
         }
 
         // The sum of input transactions must be greater than or equal to output transactions (greater if fee is present)
-        double inputsSum = 0.0;
+        BigDecimal inputsSum = new BigDecimal(0.0);
         for (TransactionInput txInput : tx.getInputs()) {
             TransactionOutput txOutput = SynchronizedBlockchainWrapper
                     .useBlockchain(b -> b.findTransactionInMainChain(txInput.getPreviousTransactionHash()))
                     .getOutputs().get(txInput.getPreviousTransactionOutputIndex());
-            inputsSum += txOutput.getAmount();
+            inputsSum = inputsSum.add(txOutput.getAmount());
         }
-        double outputsSum = 0.0;
+        BigDecimal outputsSum = new BigDecimal(0.0);
         for (TransactionOutput txOutput : tx.getOutputs()) {
-            outputsSum += txOutput.getAmount();
+            outputsSum = outputsSum.add(txOutput.getAmount());
         }
-        if (inputsSum < outputsSum) {
+        if (inputsSum.compareTo(outputsSum) < 0) {
             LOGGER.warning("TX validation failed: inputs less than outputs");
             return false;
         }

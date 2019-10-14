@@ -21,6 +21,7 @@ import javafx.util.Duration;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -141,7 +142,7 @@ public class SummaryTabPageController {
         return transactions;
     }
 
-    private Double calculateCurrencyAmount(){
+    private BigDecimal calculateCurrencyAmount(){
         Map<Transaction, List<Integer>> unusedTransactions = new HashMap<>();
         Map<String, Transaction> hashTransactionMap = new HashMap<>();
 
@@ -171,11 +172,11 @@ public class SummaryTabPageController {
             }
         }
 
-        Double sum = 0.0;
+        BigDecimal sum = new BigDecimal(0.0);
 
         for(Map.Entry<Transaction, List<Integer>> entry : unusedTransactions.entrySet()){
             for(Integer i : entry.getValue()){
-                sum += entry.getKey().getOutputs().get(i).getAmount();
+                sum = sum.add(entry.getKey().getOutputs().get(i).getAmount());
             }
         }
 

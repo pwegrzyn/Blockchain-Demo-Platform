@@ -18,6 +18,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.Duration;
 
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.util.*;
@@ -63,7 +64,7 @@ public class WalletTabPageController {
                 String transactionId = Utils.generateRandomString(32);
                 TransactionType type = TransactionType.REGULAR;
                 List<TransactionInput> inputList = selectInputTransactions();
-                double spentAmount = amountOfInputTransactions(inputList);
+                BigDecimal spentAmount = amountOfInputTransactions(inputList);
                 List<TransactionOutput> outputList = generateOutputTransactions(spentAmount);
 
                 Transaction newTransaction = new Transaction(transactionId, type, inputList, outputList);
@@ -105,20 +106,20 @@ public class WalletTabPageController {
             return true;
         }
 
-        double newTransactionAmount = 0;
+        BigDecimal newTransactionAmount = new BigDecimal(0.0);
         try {
-            newTransactionAmount = Double.parseDouble(transactionAmountLabel.getText());
+            newTransactionAmount = new BigDecimal(transactionAmountLabel.getText());
         } catch (NumberFormatException e) {
             showAlert("New Transaction Error", "New transaction amount is not a valid number!", Alert.AlertType.WARNING);
             return true;
         }
 
-        if(newTransactionAmount <= 0){
+        if(newTransactionAmount.compareTo(new BigDecimal(0.0)) <= 0){
             showAlert("New Transaction Error", "New transaction amount cannot be lower or equal to 0!", Alert.AlertType.WARNING);
             return true;
         }
 
-        if(getBalance() < newTransactionAmount) {
+        if(getBalance().compareTo(newTransactionAmount) < 0) {
             showAlert("New Transaction Error", "Cannot create transaction that costs more than you own!", Alert.AlertType.WARNING);
             return true;
         }
@@ -132,20 +133,20 @@ public class WalletTabPageController {
             return true;
         }
 
-        double newFeeAmount = 0;
+        BigDecimal newFeeAmount = new BigDecimal(0.0);
         try {
-            newFeeAmount = Double.parseDouble(transactionFee.getText());
+            newFeeAmount = new BigDecimal(transactionFee.getText());
         } catch (NumberFormatException e) {
             showAlert("New Transaction Error", "New transaction fee is not a valid number!", Alert.AlertType.WARNING);
             return true;
         }
 
-        if (newFeeAmount < 0) {
+        if (newFeeAmount.compareTo(new BigDecimal(0)) < 0) {
             showAlert("New Transaction Error", "Fee cannot be negative!", Alert.AlertType.WARNING);
             return true;
         }
 
-        if (newFeeAmount + Double.parseDouble(transactionAmountLabel.getText()) > getBalance()) {
+        if (newFeeAmount.add(new BigDecimal(transactionAmountLabel.getText())).compareTo(getBalance()) > 0) {
             showAlert("New Transaction Error", "Can't spend more than you own (including fee)!", Alert.AlertType.WARNING);
             return true;
         }
@@ -154,8 +155,8 @@ public class WalletTabPageController {
 
     }
 
-    private double amountOfInputTransactions(List<TransactionInput> inputList) {
-        Map<String, Double> hashAmountTransactionsMap =
+    private BigDecimal amountOfInputTransactions(List<TransactionInput> inputList) {
+        Map<String, BigDecimal> hashAmountTransactionsMap =
                 myRemainingTransactions()
                         .stream()
                         .collect(Collectors.toMap(Transaction::getHash,
@@ -164,13 +165,14 @@ public class WalletTabPageController {
         return inputList
                 .stream()
                 .map(input -> hashAmountTransactionsMap.get(input.getPreviousTransactionHash()))
-                .reduce((x, y) -> x + y)
-                .orElse(0.0);
+                .reduce((x, y) -> x.add(y))
+                .orElse(new BigDecimal(0.0));
     }
 
-    private List<TransactionOutput> generateOutputTransactions(double spentAmount) {
-        double transactionCost = Double.parseDouble(transactionAmountLabel.getText());
-        double remainingAmount = spentAmount - transactionCost - Double.parseDouble(transactionFee.getText());
+    private List<TransactionOutput> generateOutputTransactions(BigDecimal spentAmount) {
+        BigDecimal transactionCost = new BigDecimal(transactionAmountLabel.getText());
+
+        BigDecimal remainingAmount = spentAmount.subtract(transactionCost).subtract(new BigDecimal(transactionFee.getText()));
 
          return Arrays.asList(
                 new TransactionOutput(transactionCost, transactionAddressLabel.getText()),
@@ -179,11 +181,11 @@ public class WalletTabPageController {
     }
 
     private synchronized List<TransactionInput> selectInputTransactions() {
-        double transactionCost = Double.parseDouble(transactionAmountLabel.getText()) + Double.parseDouble(transactionFee.getText());
+        BigDecimal transactionCost = new BigDecimal(transactionAmountLabel.getText()).add(new BigDecimal(transactionFee.getText()));
 
         LinkedList<Transaction> gatheredTransactionsToBeUsed = new LinkedList<>();
 
-        while(valueOfTransactionsToMe(gatheredTransactionsToBeUsed) < transactionCost){
+        while(valueOfTransactionsToMe(gatheredTransactionsToBeUsed).compareTo(transactionCost) < 0){
             gatheredTransactionsToBeUsed.add(modelRemainingTransactions.pollFirst());
         }
 
@@ -215,7 +217,7 @@ public class WalletTabPageController {
         return Utils.bytesToHexStr(generatedSignature);
     }
 
-    private double valueOfTransactionsToMe(LinkedList<Transaction> gatheredTransactions) {
+    private BigDecimal valueOfTransactionsToMe(LinkedList<Transaction> gatheredTransactions) {
         return gatheredTransactions
                 .stream()
                 .map(
@@ -223,10 +225,10 @@ public class WalletTabPageController {
                                 .stream()
                                 .filter(out -> out.getReceiverAddress().equals(configuration.getPublicKey()) || out.getReceiverAddress().equals("0"))
                                 .map(TransactionOutput::getAmount)
-                                .reduce((x, y) -> x + y)
-                                .orElse(0.0))
-                .reduce((x, y) -> x + y)
-                .orElse(0.0);
+                                .reduce(BigDecimal::add)
+                                .orElse(new BigDecimal(0.0)))
+                .reduce(BigDecimal::add)
+                .orElse(new BigDecimal(0.0));
     }
 
     private TransactionOutput getOutputTransactionsAddressedToMeForGivenTransaction(Transaction transaction){
@@ -292,15 +294,15 @@ public class WalletTabPageController {
         return result.values().stream().distinct().collect(Collectors.toCollection(LinkedList::new));
     }
 
-    private double getBalance() {
+    private BigDecimal getBalance() {
         String userPublicKey = configuration.getPublicKey();
-        double result = 0.0;
+        BigDecimal result = new BigDecimal(0.0);
 
 
         for(Transaction transaction : observableRemainingTransactions){
             for(TransactionOutput tx : transaction.getOutputs()){
                 if(tx.getReceiverAddress().equals(userPublicKey) || tx.getReceiverAddress().equals("0")){
-                    result += tx.getAmount();
+                    result = result.add(tx.getAmount());
                 }
             }
         }

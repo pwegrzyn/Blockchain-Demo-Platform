@@ -1,19 +1,20 @@
 package blockchain.model;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Objects;
 
 public class TransactionOutput implements Serializable {
 
-    private final double amount;
+    private final BigDecimal amount;
     private final String receiverAddress;
 
-    public TransactionOutput(double amount, String receiverAddress) {
+    public TransactionOutput(BigDecimal amount, String receiverAddress) {
         this.amount = amount;
         this.receiverAddress = receiverAddress;
     }
 
-    public double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
@@ -26,7 +27,7 @@ public class TransactionOutput implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         TransactionOutput that = (TransactionOutput) o;
-        return Double.compare(that.amount, amount) == 0 &&
+        return that.amount.equals(this.amount) &&
                 Objects.equals(receiverAddress, that.receiverAddress);
     }
 
