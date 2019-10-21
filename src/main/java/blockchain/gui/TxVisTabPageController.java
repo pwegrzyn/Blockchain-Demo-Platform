@@ -69,7 +69,12 @@ public class TxVisTabPageController {
                 // add new transactions
                 for (Transaction tx : transactionDB.values()) {
                     String currTx = tx.getHash();
-                    txGraph.addNode(currTx).setAttribute("ui.label", tx.getId());
+                    Node node = txGraph.getNode(currTx);
+                    if (node == null)
+                        node = txGraph.addNode(currTx);
+                    else
+                        node = txGraph.getNode(currTx);
+                    node.setAttribute("ui.label", tx.getId());
                     for (TransactionInput input : tx.getInputs()) {
                         addEdge(input.getPreviousTransactionHash(), currTx);
                     }
