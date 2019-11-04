@@ -1,11 +1,13 @@
 package blockchain.protocol;
 
+import blockchain.config.Configuration;
 import blockchain.crypto.Sha256Proxy;
 import blockchain.model.*;
 import blockchain.net.BlockBroadcastResult;
 import blockchain.net.FullNode;
 
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -59,7 +61,10 @@ public class Miner extends Thread {
                 BlockBroadcastResult result = this.fullNode.broadcastNewBlock(newMinedBlock);
                 if (result.isConfirmed()) {
                     /*All is cool, other nodes confirm the validity of the block, add it to your local blockchain*/
-                    SynchronizedBlockchainWrapper.useBlockchain(b -> {b.addBlock(newMinedBlock); return null;});
+                    SynchronizedBlockchainWrapper.useBlockchain(b -> {
+                        b.addBlock(newMinedBlock);
+                        return null;
+                    });
                 } else {
                 /*Synchronize your blockchain state with other nodes, if a new block was added after the sync, then
                 stop working on your current block and recycle its transactions to the unconfirmed transaction pool*/
@@ -114,7 +119,7 @@ public class Miner extends Thread {
             }
 
             if (SynchronizedBlockchainWrapper
-                    .useBlockchain(b -> b.findTransactionInMainChain(unconfirmedTransaction.getHash()) != null)){
+                    .useBlockchain(b -> b.findTransactionInMainChain(unconfirmedTransaction.getHash()) != null)) {
                 LOGGER.warning("Newly added tx in miner is already included in the current blockchain - skipping!");
                 continue;
             }
@@ -145,7 +150,7 @@ public class Miner extends Thread {
             return null;
         }
 
-        assignLeftoverValueAsFee(transactionsToAdd);
+        assignLeftoverValueAsFee(transactionsToAdd, newBlockIndex);
 
         addRewardTransaction(transactionsToAdd);
 
@@ -171,7 +176,10 @@ public class Miner extends Thread {
                 for (Transaction tx : transactionsToAdd) {
                     if (potentialNewLatestBlock.findTransaction(tx.getHash()) == null) {
                         SynchronizedBlockchainWrapper
-                                .useBlockchain(b -> {b.getUnconfirmedTransactions().add(tx); return null;});
+                                .useBlockchain(b -> {
+                                    b.getUnconfirmedTransactions().add(tx);
+                                    return null;
+                                });
                     }
                 }
                 return null;
@@ -187,8 +195,34 @@ public class Miner extends Thread {
     as a voluntary fee, which transaction creators can add as an incentive for miners to add their transactions
     to the blockchain quicker. We need to go through all the transactions and add to the block a new transaction,
     which takes all the leftovers as inputs at sends to it the miners address;*/
-    private void assignLeftoverValueAsFee(List<Transaction> proposedTransactions) {
-        // TODO extracting leftover value from transactions
+    private void assignLeftoverValueAsFee(List<Transaction> proposedTransactions, int blockIndex) {
+        BigDecimal amount = new BigDecimal(0);
+
+        for (Transaction tx : proposedTransactions) {
+            BigDecimal inputVal = new BigDecimal(0), outputVal = new BigDecimal(0);
+
+            for (TransactionInput txInput : tx.getInputs()) {
+                Transaction referencedTx = SynchronizedBlockchainWrapper.useBlockchain(
+                        b -> b.findTransactionInMainChain(txInput.getPreviousTransactionHash()));
+                int inputIndex = txInput.getPreviousTransactionOutputIndex();
+                inputVal = inputVal.add(referencedTx.getOutputs().get(inputIndex).getAmount());
+                System.out.println("+" + referencedTx.getOutputs().get(inputIndex).getAmount());
+            }
+
+            for (TransactionOutput txOutput : tx.getOutputs()) {
+                outputVal = outputVal.add(txOutput.getAmount());
+                System.out.println("-" + txOutput.getAmount());
+            }
+
+            amount = inputVal.subtract(outputVal);
+        }
+
+        TransactionOutput feesOutput = new TransactionOutput(amount, Configuration.getInstance().getPublicKey());
+        List<TransactionOutput> rewardOutputs = new LinkedList<>();
+        rewardOutputs.add(feesOutput);
+        Transaction feesTransaction = new Transaction("FeesId" + blockIndex, TransactionType.FEE,
+                new LinkedList<>(), rewardOutputs);
+        proposedTransactions.add(feesTransaction);
     }
 
     private void addRewardTransaction(List<Transaction> proposedTransactions) {
