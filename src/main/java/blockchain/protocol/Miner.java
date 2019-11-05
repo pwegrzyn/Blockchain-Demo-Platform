@@ -152,7 +152,7 @@ public class Miner extends Thread {
 
         assignLeftoverValueAsFee(transactionsToAdd, newBlockIndex);
 
-        addRewardTransaction(transactionsToAdd);
+        addRewardTransaction(transactionsToAdd, newBlockIndex);
 
         int nonce = -1;
         long currentTimestamp;
@@ -200,7 +200,6 @@ public class Miner extends Thread {
 
         for (Transaction tx : proposedTransactions)
             amount = amount.add(tx.getFee());
-        System.out.println("fee: " + amount);
 
         TransactionOutput feesOutput = new TransactionOutput(amount, Configuration.getInstance().getPublicKey());
         List<TransactionOutput> feeOutputs = new LinkedList<>();
@@ -212,8 +211,17 @@ public class Miner extends Thread {
         proposedTransactions.add(feesTransaction);
     }
 
-    private void addRewardTransaction(List<Transaction> proposedTransactions) {
-        // TODO add reward tx
+    private void addRewardTransaction(List<Transaction> proposedTransactions, int blockIndex) {
+        BigDecimal amount = Configuration.getInstance().getBlockRewardValue();
+
+        TransactionOutput rewardOutput = new TransactionOutput(amount, Configuration.getInstance().getPublicKey());
+        List<TransactionOutput> rewardOutputs = new LinkedList<>();
+        rewardOutputs.add(rewardOutput);
+
+        Transaction rewardTransaction = new Transaction("RewardId" + blockIndex, TransactionType.REWARD,
+                new LinkedList<>(), rewardOutputs);
+
+        proposedTransactions.add(rewardTransaction);
     }
 
 }

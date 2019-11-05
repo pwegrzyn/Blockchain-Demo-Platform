@@ -4,6 +4,7 @@ import blockchain.util.Utils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.Properties;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -21,6 +22,7 @@ public class Configuration {
     private String privateKey;
     private int visualizationPort;
     private String networkInterfaceName;
+    private BigDecimal blockRewardValue = new BigDecimal(10);
 
     private Configuration() {
         Properties properties = loadProperties();
@@ -91,6 +93,10 @@ public class Configuration {
 
     public String getNetworkInterfaceName() {
         return this.networkInterfaceName;
+    }
+
+    public BigDecimal getBlockRewardValue() {
+        return this.blockRewardValue;
     }
 
     private Properties loadProperties() {
