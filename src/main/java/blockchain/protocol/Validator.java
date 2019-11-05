@@ -1,5 +1,6 @@
 package blockchain.protocol;
 
+import blockchain.config.Configuration;
 import blockchain.crypto.ECDSA;
 import blockchain.model.*;
 import blockchain.util.Utils;
@@ -170,6 +171,11 @@ public class Validator {
             if (tx.getType() == TransactionType.FEE && !validateFeeTx(tx, block.getTransactions())) {
                 return false;
             }
+
+            // If Reward tx check its correctness
+            if (tx.getType() == TransactionType.REWARD && !validateRewardTx(tx)) {
+                return false;
+            }
         }
         return true;
     }
@@ -187,7 +193,8 @@ public class Validator {
         }
 
         // If it is Fee tx end verification here
-        if (tx.getType() == TransactionType.FEE) return true;
+        if (tx.getType() == TransactionType.FEE || tx.getType() == TransactionType.REWARD)
+            return true;
 
         // The signatures of all input transactions must be valid
         if (!verifySignature(tx)) {
@@ -256,12 +263,12 @@ public class Validator {
             amount = amount.add(tx.getFee());
         }
 
-        List<TransactionOutput> outputs = feeTx.getOutputs();
         if (feeTx.getInputs().size() != 0) {
             LOGGER.warning("TX validation failed: fee tx cannot contain any inputs");
             return false;
         }
 
+        List<TransactionOutput> outputs = feeTx.getOutputs();
         if (outputs.size() != 1) {
             LOGGER.warning("TX validation failed: fee tx can contain only one output");
             return false;
@@ -269,6 +276,28 @@ public class Validator {
 
         if (outputs.get(0).getAmount().compareTo(amount) != 0) {
             LOGGER.warning("TX validation failed: fee tx contains incorrect value");
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean validateRewardTx(Transaction rewardTx) {
+        BigDecimal amount = Configuration.getInstance().getBlockRewardValue();
+
+        if (rewardTx.getInputs().size() != 0) {
+            LOGGER.warning("TX validation failed: reward tx cannot contain any inputs");
+            return false;
+        }
+
+        List<TransactionOutput> outputs = rewardTx.getOutputs();
+        if (outputs.size() != 1) {
+            LOGGER.warning("TX validation failed: reward tx can contain only one output");
+            return false;
+        }
+
+        if (outputs.get(0).getAmount().compareTo(amount) != 0) {
+            LOGGER.warning("TX validation failed: reward tx contains incorrect value");
             return false;
         }
 
