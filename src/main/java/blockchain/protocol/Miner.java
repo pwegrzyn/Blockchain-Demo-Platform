@@ -203,10 +203,12 @@ public class Miner extends Thread {
         System.out.println("fee: " + amount);
 
         TransactionOutput feesOutput = new TransactionOutput(amount, Configuration.getInstance().getPublicKey());
-        List<TransactionOutput> rewardOutputs = new LinkedList<>();
-        rewardOutputs.add(feesOutput);
+        List<TransactionOutput> feeOutputs = new LinkedList<>();
+        feeOutputs.add(feesOutput);
+
         Transaction feesTransaction = new Transaction("FeeId" + blockIndex, TransactionType.FEE,
-                new LinkedList<>(), rewardOutputs);
+                new LinkedList<>(), feeOutputs);
+
         proposedTransactions.add(feesTransaction);
     }
 
