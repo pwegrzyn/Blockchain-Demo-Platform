@@ -111,15 +111,19 @@ public class Validator {
             return false;
         }
 
-        // Only one reward TX;
-        int rewardTx = 0;
+        // Only one reward and fee TX;
+        int rewardTx = 0, feeTx = 0;
         for (Transaction tx : block.getTransactions()) {
-            if (tx.getType() == TransactionType.REWARD) {
+            if (tx.getType() == TransactionType.REWARD)
                 rewardTx++;
-            }
+            else if (tx.getType() == TransactionType.FEE)
+                feeTx++;
         }
         if (rewardTx > 1) {
             LOGGER.warning("Incoming block validation failed: more than one REWARD tx");
+            return false;
+        } else if (feeTx > 1) {
+            LOGGER.warning("Incoming block validation failed: more than one FEE tx");
             return false;
         }
 
@@ -145,6 +149,10 @@ public class Validator {
             return false;
         }
 
+        if (transaction.getType() != TransactionType.REGULAR) {
+            return false;
+        }
+
         return true;
     }
 
@@ -153,8 +161,13 @@ public class Validator {
      */
     private boolean validateTXsInBlock(Block block) throws NoSuchAlgorithmException, UnsupportedEncodingException,
             SignatureException, NoSuchProviderException, InvalidKeyException, InvalidKeySpecException {
-        for (Transaction tx: block.getTransactions()) {
+        for (Transaction tx : block.getTransactions()) {
             if (!validateTX(tx)) {
+                return false;
+            }
+
+            // If Fee tx check its correctness
+            if (tx.getType() == TransactionType.FEE && !validateFeeTx(tx, block.getTransactions())) {
                 return false;
             }
         }
@@ -172,6 +185,9 @@ public class Validator {
             LOGGER.warning("TX validation failed: bad hash");
             return false;
         }
+
+        // If it is Fee tx end verification here
+        if (tx.getType() == TransactionType.FEE) return true;
 
         // The signatures of all input transactions must be valid
         if (!verifySignature(tx)) {
@@ -220,13 +236,42 @@ public class Validator {
                 for (Transaction tx : block.getTransactions()) {
                     for (TransactionInput txInput : tx.getInputs()) {
                         if (txInput.getPreviousTransactionHash().equals(txToCheckInput.getPreviousTransactionHash()) &&
-                            txInput.getPreviousTransactionOutputIndex() == txToCheckInput.getPreviousTransactionOutputIndex()) {
+                                txInput.getPreviousTransactionOutputIndex() == txToCheckInput.getPreviousTransactionOutputIndex()) {
                             return false;
                         }
                     }
                 }
             }
         }
+        return true;
+    }
+
+    /*
+     Validate value of FEE transaction
+     */
+    private boolean validateFeeTx(Transaction feeTx, List<Transaction> transactions) {
+        BigDecimal amount = new BigDecimal(0);
+
+        for (Transaction tx : transactions) {
+            amount = amount.add(tx.getFee());
+        }
+
+        List<TransactionOutput> outputs = feeTx.getOutputs();
+        if (feeTx.getInputs().size() != 0) {
+            LOGGER.warning("TX validation failed: fee tx cannot contain any inputs");
+            return false;
+        }
+
+        if (outputs.size() != 1) {
+            LOGGER.warning("TX validation failed: fee tx can contain only one output");
+            return false;
+        }
+
+        if (outputs.get(0).getAmount().compareTo(amount) != 0) {
+            LOGGER.warning("TX validation failed: fee tx contains incorrect value");
+            return false;
+        }
+
         return true;
     }
 

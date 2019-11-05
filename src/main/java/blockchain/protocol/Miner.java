@@ -198,29 +198,14 @@ public class Miner extends Thread {
     private void assignLeftoverValueAsFee(List<Transaction> proposedTransactions, int blockIndex) {
         BigDecimal amount = new BigDecimal(0);
 
-        for (Transaction tx : proposedTransactions) {
-            BigDecimal inputVal = new BigDecimal(0), outputVal = new BigDecimal(0);
-
-            for (TransactionInput txInput : tx.getInputs()) {
-                Transaction referencedTx = SynchronizedBlockchainWrapper.useBlockchain(
-                        b -> b.findTransactionInMainChain(txInput.getPreviousTransactionHash()));
-                int inputIndex = txInput.getPreviousTransactionOutputIndex();
-                inputVal = inputVal.add(referencedTx.getOutputs().get(inputIndex).getAmount());
-                System.out.println("+" + referencedTx.getOutputs().get(inputIndex).getAmount());
-            }
-
-            for (TransactionOutput txOutput : tx.getOutputs()) {
-                outputVal = outputVal.add(txOutput.getAmount());
-                System.out.println("-" + txOutput.getAmount());
-            }
-
-            amount = inputVal.subtract(outputVal);
-        }
+        for (Transaction tx : proposedTransactions)
+            amount = amount.add(tx.getFee());
+        System.out.println("fee: " + amount);
 
         TransactionOutput feesOutput = new TransactionOutput(amount, Configuration.getInstance().getPublicKey());
         List<TransactionOutput> rewardOutputs = new LinkedList<>();
         rewardOutputs.add(feesOutput);
-        Transaction feesTransaction = new Transaction("FeesId" + blockIndex, TransactionType.FEE,
+        Transaction feesTransaction = new Transaction("FeeId" + blockIndex, TransactionType.FEE,
                 new LinkedList<>(), rewardOutputs);
         proposedTransactions.add(feesTransaction);
     }

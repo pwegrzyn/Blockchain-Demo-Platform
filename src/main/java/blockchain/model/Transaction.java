@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.TreeMap;
@@ -36,8 +37,10 @@ public class Transaction implements Serializable {
     public static String calculateTransactionHash(String id, List<TransactionInput> inputs, List<TransactionOutput> outputs) {
         JsonObject jsonBlock = new JsonObject();
         jsonBlock.addProperty("id", id);
-        JsonArray inputsArray = (JsonArray) new Gson().toJsonTree(inputs, new TypeToken<List<TransactionInput>>(){}.getType());
-        JsonArray outputsArray = (JsonArray) new Gson().toJsonTree(outputs, new TypeToken<List<TransactionOutput>>(){}.getType());
+        JsonArray inputsArray = (JsonArray) new Gson().toJsonTree(inputs, new TypeToken<List<TransactionInput>>() {
+        }.getType());
+        JsonArray outputsArray = (JsonArray) new Gson().toJsonTree(outputs, new TypeToken<List<TransactionOutput>>() {
+        }.getType());
         jsonBlock.add("inputs", inputsArray);
         jsonBlock.add("outputs", outputsArray);
         // Need to make sure keys are always in the right order in the JSON
@@ -82,6 +85,24 @@ public class Transaction implements Serializable {
 
     public void setCreator(String creator) {
         this.creator = creator;
+    }
+
+    public BigDecimal getFee() {
+        if (type != TransactionType.REGULAR) return new BigDecimal(0);
+
+        BigDecimal inputVal = new BigDecimal(0), outputVal = new BigDecimal(0);
+
+        for (TransactionInput txInput : getInputs()) {
+            Transaction referencedTx = SynchronizedBlockchainWrapper.useBlockchain(
+                    b -> b.findTransactionInMainChain(txInput.getPreviousTransactionHash()));
+            int inputIndex = txInput.getPreviousTransactionOutputIndex();
+            inputVal = inputVal.add(referencedTx.getOutputs().get(inputIndex).getAmount());
+        }
+
+        for (TransactionOutput txOutput : getOutputs()) {
+            outputVal = outputVal.add(txOutput.getAmount());
+        }
+        return inputVal.subtract(outputVal);
     }
 
     @Override
