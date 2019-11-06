@@ -78,6 +78,12 @@ public class Transaction implements Serializable {
         if (this.creator != null) {
             return this.creator;
         }
+        if (this.type == TransactionType.REWARD) {
+            return "1";
+        }
+        if (this.type == TransactionType.FEE) {
+            return "2";
+        }
         Transaction inputTX = SynchronizedBlockchainWrapper.useBlockchain(blockchain ->
                 blockchain.findTransactionInMainChain(this.inputs.get(0).getPreviousTransactionHash()));
         return inputTX.getOutputs().get(0).getReceiverAddress();

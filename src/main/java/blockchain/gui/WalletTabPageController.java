@@ -280,6 +280,7 @@ public class WalletTabPageController {
                     String usedTxHash = input.getPreviousTransactionHash();
                     int usedTxIndex = input.getPreviousTransactionOutputIndex();
 
+                    boolean atLeastOneOutputToMeIsUnspent = false;
                     for(Transaction myTransaction : allTransactionsToMe.values()){
                         if(myTransaction.getHash().equals(usedTxHash)){
                             TransactionOutput usedOutput = myTransaction.getOutputs().get(usedTxIndex);
