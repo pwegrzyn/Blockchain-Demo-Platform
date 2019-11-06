@@ -49,4 +49,7 @@ public class TransactionOutput implements Serializable {
                 '}';
     }
 
+    public String getUuid() {
+        return uuid;
+    }
 }

@@ -16,15 +16,15 @@
          <children>
             <VBox maxHeight="721.0" minWidth="400.0" prefHeight="200.0" prefWidth="400.0">
                <children>
-                  <Label fx:id="transactionsTableView" alignment="CENTER" contentDisplay="CENTER" prefHeight="45.0" prefWidth="400.0" style="-fx-background-color: #C0C0C0;" text="Transactions" textAlignment="CENTER">
+                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="45.0" prefWidth="400.0" style="-fx-background-color: #C0C0C0;" text="Transactions" textAlignment="CENTER">
                      <font>
                         <Font size="29.0" />
                      </font>
                   </Label>
-                  <TableView prefHeight="676.0" prefWidth="400.0">
+                  <TableView fx:id="transactionsTableView" prefHeight="676.0" prefWidth="400.0">
                      <columns>
-                        <TableColumn prefWidth="225.0" text="Transaction ID" />
-                        <TableColumn prefWidth="175.0" text="Transaction Hash" />
+                        <TableColumn prefWidth="200.0" text="Transaction ID" />
+                        <TableColumn prefWidth="200.0" text="Transaction Hash" />
                      </columns>
                   </TableView>
                </children>
@@ -34,12 +34,12 @@
                <children>
                   <VBox minWidth="800.0" prefHeight="360.0" prefWidth="800.0">
                      <children>
-                        <Label fx:id="inputsTableView" alignment="CENTER" contentDisplay="CENTER" minHeight="45.0" minWidth="800.0" prefHeight="45.0" prefWidth="800.0" style="-fx-background-color: #C0C0C0;" text="Inputs" textAlignment="CENTER">
+                        <Label alignment="CENTER" contentDisplay="CENTER" minHeight="45.0" minWidth="800.0" prefHeight="45.0" prefWidth="800.0" style="-fx-background-color: #C0C0C0;" text="Inputs" textAlignment="CENTER">
                            <font>
                               <Font size="29.0" />
                            </font>
                         </Label>
-                        <TableView prefHeight="315.0" prefWidth="400.0">
+                        <TableView fx:id="inputsTableView" prefHeight="315.0" prefWidth="400.0">
                            <columns>
                               <TableColumn prefWidth="240.0" text="Used transaction output hash" />
                               <TableColumn minWidth="0.0" prefWidth="50.0" text="Index" />
@@ -51,15 +51,15 @@
                   <Separator maxHeight="1.0" minHeight="1.0" prefHeight="1.0" prefWidth="800.0" />
                   <VBox minWidth="800.0" prefHeight="360.0" prefWidth="800.0">
                      <children>
-                        <Label fx:id="outputsTableView" alignment="CENTER" contentDisplay="CENTER" minHeight="45.0" prefHeight="45.0" prefWidth="800.0" style="-fx-background-color: #C0C0C0;" text="Outputs" textAlignment="CENTER">
+                        <Label alignment="CENTER" contentDisplay="CENTER" minHeight="45.0" prefHeight="45.0" prefWidth="800.0" style="-fx-background-color: #C0C0C0;" text="Outputs" textAlignment="CENTER">
                            <font>
                               <Font size="29.0" />
                            </font>
                         </Label>
-                        <TableView prefHeight="315.0" prefWidth="400.0">
+                        <TableView fx:id="outputsTableView" prefHeight="315.0" prefWidth="400.0">
                            <columns>
-                              <TableColumn prefWidth="200.0" text="Id" />
-                              <TableColumn prefWidth="90.0" text="Amount" />
+                              <TableColumn prefWidth="145.0" text="Id" />
+                              <TableColumn prefWidth="145.0" text="Amount" />
                               <TableColumn prefWidth="510.0" text="Receiver" />
                            </columns>
                         </TableView>
