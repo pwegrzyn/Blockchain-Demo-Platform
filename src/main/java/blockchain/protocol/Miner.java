@@ -205,7 +205,7 @@ public class Miner extends Thread {
         List<TransactionOutput> feeOutputs = new LinkedList<>();
         feeOutputs.add(feesOutput);
 
-        Transaction feesTransaction = new Transaction("FeeId" + blockIndex, TransactionType.FEE,
+        Transaction feesTransaction = new Transaction("Fee_" + blockIndex, TransactionType.FEE,
                 new LinkedList<>(), feeOutputs);
 
         proposedTransactions.add(feesTransaction);
@@ -218,7 +218,7 @@ public class Miner extends Thread {
         List<TransactionOutput> rewardOutputs = new LinkedList<>();
         rewardOutputs.add(rewardOutput);
 
-        Transaction rewardTransaction = new Transaction("RewardId" + blockIndex, TransactionType.REWARD,
+        Transaction rewardTransaction = new Transaction("Reward_" + blockIndex, TransactionType.REWARD,
                 new LinkedList<>(), rewardOutputs);
 
         proposedTransactions.add(rewardTransaction);
