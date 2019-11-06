@@ -106,6 +106,16 @@ public class BlockchainTabPageController {
         TableColumn<TransactionInput, String> txIdColumn = columns.get(0);
         TableColumn<TransactionInput, String> txIndexColumn = columns.get(1);
         txIdColumn.setCellValueFactory(new PropertyValueFactory<TransactionInput, String>("previousTransactionHash"));
+        txIdColumn.setCellFactory(column -> new TableCell<TransactionInput, String>()
+        {
+            @Override
+            protected void updateItem(String item, boolean empty)
+            {
+                super.updateItem(item, false);
+                setText(item);
+                setTooltip(new Tooltip(item));
+            }
+        });
         txIndexColumn.setCellValueFactory(new PropertyValueFactory<TransactionInput, String>("previousTransactionOutputIndex"));
         txInputTxTable.setItems(FXCollections.observableArrayList(transactions));
     }
@@ -115,6 +125,16 @@ public class BlockchainTabPageController {
         TableColumn<TransactionOutput, String> txIndexColumn = columns.get(0);
         TableColumn<TransactionOutput, String> txValueColumn = columns.get(1);
         txIndexColumn.setCellValueFactory(new PropertyValueFactory<TransactionOutput, String>("receiverAddress"));
+        txIndexColumn.setCellFactory(column -> new TableCell<TransactionOutput, String>()
+        {
+            @Override
+            protected void updateItem(String item, boolean empty)
+            {
+                super.updateItem(item, false);
+                setText(item);
+                setTooltip(new Tooltip(item));
+            }
+        });
         txValueColumn.setCellValueFactory(new PropertyValueFactory<TransactionOutput, String>("amount"));
         txOutputTxTable.setItems(FXCollections.observableArrayList(transactions));
     }

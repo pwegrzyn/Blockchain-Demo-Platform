@@ -45,8 +45,6 @@ public class WalletTabPageController {
 
     private WalletNode node;
 
-    private Configuration configuration = Configuration.getInstance();
-
     private long refreshTimeInSeconds = 1;
 
     public void init() {
@@ -58,9 +56,10 @@ public class WalletTabPageController {
     private void setAddTransactionHandler() {
         addTransactionButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
+                modelRemainingTransactions = myRemainingTransactions();
+
                 if(isNewTransactionIncorrect()) return;
 
-                modelRemainingTransactions = myRemainingTransactions();
                 String transactionId = Utils.generateRandomString(32);
                 TransactionType type = TransactionType.REGULAR;
                 List<TransactionInput> inputList = selectInputTransactions();
@@ -119,7 +118,7 @@ public class WalletTabPageController {
             return true;
         }
 
-        if(getBalance().compareTo(newTransactionAmount) < 0) {
+        if(getBalance(true).compareTo(newTransactionAmount) < 0) {
             showAlert("New Transaction Error", "Cannot create transaction that costs more than you own!", Alert.AlertType.WARNING);
             return true;
         }
@@ -146,7 +145,7 @@ public class WalletTabPageController {
             return true;
         }
 
-        if (newFeeAmount.add(new BigDecimal(transactionAmountLabel.getText())).compareTo(getBalance()) > 0) {
+        if (newFeeAmount.add(new BigDecimal(transactionAmountLabel.getText())).compareTo(getBalance(true)) > 0) {
             showAlert("New Transaction Error", "Can't spend more than you own (including fee)!", Alert.AlertType.WARNING);
             return true;
         }
@@ -176,7 +175,7 @@ public class WalletTabPageController {
 
          return Arrays.asList(
                 new TransactionOutput(transactionCost, transactionAddressLabel.getText()),
-                new TransactionOutput(remainingAmount, configuration.getPublicKey())
+                new TransactionOutput(remainingAmount, Configuration.getInstance().getPublicKey())
         );
     }
 
@@ -212,7 +211,7 @@ public class WalletTabPageController {
             UnsupportedEncodingException, SignatureException, InvalidKeyException {
         String txInputHash = TransactionInput.calculateHash(transaction.getHash(),
                 transaction.getOutputs().indexOf(getOutputTransactionsAddressedToMeForGivenTransaction(transaction)), transaction.getCreatorAddr());
-        PrivateKey myPrivateKey = ecdsa.strToPrivateKey(configuration.getPrivateKey());
+        PrivateKey myPrivateKey = ecdsa.strToPrivateKey(Configuration.getInstance().getPrivateKey());
         byte[] generatedSignature = ecdsa.generateSignature(txInputHash, myPrivateKey);
         return Utils.bytesToHexStr(generatedSignature);
     }
@@ -223,7 +222,7 @@ public class WalletTabPageController {
                 .map(
                         t -> t.getOutputs()
                                 .stream()
-                                .filter(out -> out.getReceiverAddress().equals(configuration.getPublicKey()) || out.getReceiverAddress().equals("0"))
+                                .filter(out -> out.getReceiverAddress().equals(Configuration.getInstance().getPublicKey()) || out.getReceiverAddress().equals("0"))
                                 .map(TransactionOutput::getAmount)
                                 .reduce(BigDecimal::add)
                                 .orElse(new BigDecimal(0.0)))
@@ -235,7 +234,7 @@ public class WalletTabPageController {
         return transaction
                 .getOutputs()
                 .stream()
-                .filter(t -> t.getReceiverAddress().equals(configuration.getPublicKey()) || t.getReceiverAddress().equals("0"))
+                .filter(t -> t.getReceiverAddress().equals(Configuration.getInstance().getPublicKey()) || t.getReceiverAddress().equals("0"))
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("Could not find transaction output to this client"));
     }
@@ -244,8 +243,8 @@ public class WalletTabPageController {
         Timeline updateControlsTimeline = new Timeline(new KeyFrame(Duration.seconds(refreshTimeInSeconds), new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                balanceLabel.setText("" + getBalance());
                 observableRemainingTransactions = myRemainingTransactions();
+                balanceLabel.setText("" + getBalance(false));
                 inputsTableView.setItems(FXCollections.observableArrayList(observableRemainingTransactions));
             }
         }));
@@ -253,8 +252,8 @@ public class WalletTabPageController {
         updateControlsTimeline.play();
     }
 
-    private synchronized LinkedList<Transaction> myRemainingTransactions(){
-        String userPublicKey = configuration.getPublicKey();
+    private LinkedList<Transaction> myRemainingTransactions(){
+        String userPublicKey = Configuration.getInstance().getPublicKey();
 
         Map<TransactionOutput, Transaction> allTransactionsToMe = new HashMap<>();
 
@@ -280,7 +279,6 @@ public class WalletTabPageController {
                     String usedTxHash = input.getPreviousTransactionHash();
                     int usedTxIndex = input.getPreviousTransactionOutputIndex();
 
-                    boolean atLeastOneOutputToMeIsUnspent = false;
                     for(Transaction myTransaction : allTransactionsToMe.values()){
                         if(myTransaction.getHash().equals(usedTxHash)){
                             TransactionOutput usedOutput = myTransaction.getOutputs().get(usedTxIndex);
@@ -295,12 +293,17 @@ public class WalletTabPageController {
         return result.values().stream().distinct().collect(Collectors.toCollection(LinkedList::new));
     }
 
-    private BigDecimal getBalance() {
-        String userPublicKey = configuration.getPublicKey();
+    private BigDecimal getBalance(boolean useModel) {
+        String userPublicKey = Configuration.getInstance().getPublicKey();
         BigDecimal result = new BigDecimal(0.0);
 
-
-        for(Transaction transaction : observableRemainingTransactions){
+        LinkedList<Transaction> transactionsToUse;
+        if (useModel) {
+            transactionsToUse = modelRemainingTransactions;
+        } else {
+            transactionsToUse = observableRemainingTransactions;
+        }
+        for(Transaction transaction : transactionsToUse){
             for(TransactionOutput tx : transaction.getOutputs()){
                 if(tx.getReceiverAddress().equals(userPublicKey) || tx.getReceiverAddress().equals("0")){
                     result = result.add(tx.getAmount());
@@ -311,7 +314,7 @@ public class WalletTabPageController {
     }
 
     private void initializeTransactionsTable(){
-        String userPublicKey = configuration.getPublicKey();
+        String userPublicKey = Configuration.getInstance().getPublicKey();
 
         ObservableList<TableColumn<Transaction, String>> columns = inputsTableView.getColumns();
         TableColumn<Transaction, String> txIndexColumn = columns.get(0);
