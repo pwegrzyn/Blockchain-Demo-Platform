@@ -63,10 +63,12 @@ public class AppController {
         closeConfirmation.initModality(Modality.APPLICATION_MODAL);
         closeConfirmation.initOwner(this.primaryStage);
         Optional<ButtonType> closeResponse = closeConfirmation.showAndWait();
-        if (!ButtonType.OK.equals(closeResponse.get())) {
+
+        if (ButtonType.OK.equals(closeResponse.get())) {
             // All pre-exit stuff the app needs to do should go here
-            event.consume();
             this.node.disconnect();
+        } else {
+            event.consume();
         }
     };
 
