@@ -98,9 +98,7 @@ public class SummaryTabPageController {
                     break;
                 }
             }
-            String newAddr = "(me) " + myAddr;
             connectedUsers.remove(myAddr);
-            connectedUsers.add(newAddr);
             this.usersListView.setItems(FXCollections.observableArrayList(connectedUsers));
         }
     }

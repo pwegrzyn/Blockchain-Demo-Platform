@@ -188,7 +188,7 @@ public class InitController {
             dialogStage.setTitle("Please wait");
 
             final Label label = new Label();
-            label.setText("Connecting with other nodes...");
+            label.setText("Establishing connections with other nodes...");
             label.setFont(new Font(15));
 
             pb.setProgress(-1F);

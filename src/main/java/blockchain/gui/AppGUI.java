@@ -53,7 +53,7 @@ public class AppGUI {
             initStage.setScene(initScene);
             java.awt.image.BufferedImage imageIcon = ImageIO.read(getClass().getClassLoader().getResource("assets/icons/coin.png"));
             initStage.getIcons().add(SwingFXUtils.toFXImage(imageIcon, null));
-            initStage.setTitle("Blockchain Demo Platform - Init");
+            initStage.setTitle("Blockchain Demo Platform - Start");
             InitController initController = loader.getController();
             initController.setStage(initStage);
             initController.setPrimaryController(this.controller);

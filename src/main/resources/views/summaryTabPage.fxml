@@ -17,21 +17,21 @@
                            <children>
                               <VBox prefHeight="360.0" prefWidth="1200.0">
                                  <children>
-                                    <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="60.0" prefWidth="1200.0" style="-fx-background-color: #C0C0C0;" text="Public key" textAlignment="CENTER">
+                                    <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="60.0" prefWidth="1200.0" style="-fx-background-color: #C0C0C0;" text="Public key (Elliptic curve - Secp256k1)" textAlignment="CENTER">
                                        <font>
                                           <Font size="36.0" />
                                        </font>
                                     </Label>
                                     <Separator maxHeight="1.0" minHeight="1.0" prefHeight="1.0" prefWidth="1200.0" />
-                                    <TextField fx:id="publicKeyTextField" alignment="CENTER" editable="false" prefHeight="118.0" prefWidth="1200.0" />
+                                    <TextField fx:id="publicKeyTextField" alignment="CENTER" editable="false" focusTraversable="false" prefHeight="118.0" prefWidth="1200.0" />
                                     <Separator maxHeight="1.0" minHeight="1.0" prefHeight="1.0" prefWidth="1200.0" />
-                                    <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="60.0" prefWidth="1200.0" style="-fx-background-color: #C0C0C0;" text="Private key" textAlignment="CENTER">
+                                    <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="60.0" prefWidth="1200.0" style="-fx-background-color: #C0C0C0;" text="Private key (Elliptic curve - Secp256k1)" textAlignment="CENTER">
                                        <font>
                                           <Font size="36.0" />
                                        </font>
                                     </Label>
                                     <Separator maxHeight="1.0" minHeight="1.0" prefHeight="1.0" prefWidth="1200.0" />
-                                    <TextField fx:id="privateKeyTextField" alignment="CENTER" editable="false" prefHeight="118.0" prefWidth="1200.0">
+                                    <TextField fx:id="privateKeyTextField" alignment="CENTER" editable="false" focusTraversable="false" prefHeight="118.0" prefWidth="1200.0">
                                        <font>
                                           <Font size="7.0" />
                                        </font>
@@ -45,7 +45,7 @@
                            <children>
                               <VBox prefHeight="360.0" prefWidth="600.0">
                                  <children>
-                                    <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="40.0" prefWidth="600.0" style="-fx-background-color: #C0C0C0;" text="System" textAlignment="CENTER">
+                                    <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="40.0" prefWidth="600.0" style="-fx-background-color: #C0C0C0;" text="System Info" textAlignment="CENTER">
                                        <font>
                                           <Font size="24.0" />
                                        </font>
@@ -53,7 +53,7 @@
                                     <Separator prefWidth="200.0" />
                                     <AnchorPane prefHeight="319.0" prefWidth="600.0">
                                        <children>
-                                          <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="73.0" prefWidth="300.0" text="Node Type" textAlignment="CENTER">
+                                          <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="73.0" prefWidth="300.0" text="Node type:" textAlignment="CENTER">
                                              <font>
                                                 <Font size="18.0" />
                                              </font>
@@ -63,7 +63,7 @@
                                                 <Font size="18.0" />
                                              </font>
                                           </Label>
-                                          <Label alignment="CENTER" contentDisplay="CENTER" layoutY="73.0" prefHeight="73.0" prefWidth="300.0" text="Connected Nodes" textAlignment="CENTER">
+                                          <Label alignment="CENTER" contentDisplay="CENTER" layoutY="73.0" prefHeight="73.0" prefWidth="300.0" text="Nodes in cluster:" textAlignment="CENTER">
                                              <font>
                                                 <Font size="18.0" />
                                              </font>
@@ -74,12 +74,12 @@
                                              </font>
                                           </Label>
                                           <Separator layoutY="147.0" maxHeight="1.0" minHeight="1.0" prefHeight="1.0" prefWidth="600.0" />
-                                          <Label alignment="CENTER" contentDisplay="CENTER" layoutY="148.0" prefHeight="50.0" prefWidth="600.0" style="-fx-background-color: #C0C0C0;" text="Active Users (click to copy to clipboard)" textAlignment="CENTER">
+                                          <Label alignment="CENTER" contentDisplay="CENTER" layoutY="148.0" prefHeight="50.0" prefWidth="600.0" style="-fx-background-color: #C0C0C0;" text="Connected neighbours (click to copy to clipboard)" textAlignment="CENTER">
                                              <font>
                                                 <Font size="24.0" />
                                              </font>
                                           </Label>
-                                          <ListView fx:id="usersListView" layoutY="198.0" prefHeight="120.0" prefWidth="600.0" />
+                                          <ListView fx:id="usersListView" focusTraversable="false" layoutY="198.0" prefHeight="120.0" prefWidth="600.0" />
                                           <Separator layoutX="1.0" layoutY="73.0" maxHeight="1.0" minHeight="1.0" prefHeight="1.0" prefWidth="600.0" />
                                        </children>
                                     </AnchorPane>
@@ -88,7 +88,7 @@
                               <Separator minWidth="1.0" orientation="VERTICAL" prefHeight="360.0" prefWidth="1.0" />
                               <VBox prefHeight="360.0" prefWidth="600.0">
                                  <children>
-                                    <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="40.0" prefWidth="600.0" style="-fx-background-color: #C0C0C0;" text="Blockchain" textAlignment="CENTER">
+                                    <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="40.0" prefWidth="600.0" style="-fx-background-color: #C0C0C0;" text="Blockchain Statistics" textAlignment="CENTER">
                                        <font>
                                           <Font size="24.0" />
                                        </font>
@@ -96,17 +96,17 @@
                                     <Separator prefWidth="200.0" />
                                     <AnchorPane prefHeight="319.0" prefWidth="600.0">
                                        <children>
-                                          <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="105.0" prefWidth="300.0" text="Total blocks" textAlignment="CENTER">
+                                          <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="105.0" prefWidth="300.0" text="Total blocks:" textAlignment="CENTER">
                                              <font>
                                                 <Font size="18.0" />
                                              </font>
                                           </Label>
-                                          <Label alignment="CENTER" contentDisplay="CENTER" layoutY="106.0" prefHeight="105.0" prefWidth="300.0" text="Total transactions" textAlignment="CENTER">
+                                          <Label alignment="CENTER" contentDisplay="CENTER" layoutY="106.0" prefHeight="105.0" prefWidth="300.0" text="Total transactions:" textAlignment="CENTER">
                                              <font>
                                                 <Font size="18.0" />
                                              </font>
                                           </Label>
-                                          <Label alignment="CENTER" contentDisplay="CENTER" layoutY="212.0" prefHeight="105.0" prefWidth="300.0" text="Total currency" textAlignment="CENTER">
+                                          <Label alignment="CENTER" contentDisplay="CENTER" layoutY="212.0" prefHeight="105.0" prefWidth="300.0" text="Sum of currency value:" textAlignment="CENTER">
                                              <font>
                                                 <Font size="18.0" />
                                              </font>

@@ -34,35 +34,35 @@
                 <Separator minHeight="1.0" minWidth="1200.0" prefHeight="1.0" prefWidth="1200.0" />
             </children>
         </VBox>
-        <Label alignment="CENTER" contentDisplay="BOTTOM" layoutY="101.0" minHeight="120.0" minWidth="1200.0" text="Last found hash on this miner:" textAlignment="CENTER">
+        <Label alignment="CENTER" contentDisplay="BOTTOM" layoutY="101.0" minHeight="120.0" minWidth="1200.0" text="Last hash found on this miner:" textAlignment="CENTER">
             <font>
                 <Font size="34.0" />
             </font>
         </Label>
-        <Label fx:id="lastCalculatedHashLabel" alignment="CENTER" contentDisplay="CENTER" layoutY="178.0" minHeight="100.0" minWidth="1200.0" text="Hash">
+        <Label fx:id="lastCalculatedHashLabel" alignment="CENTER" contentDisplay="CENTER" layoutY="189.0" minHeight="100.0" minWidth="1200.0" text="Hash">
             <font>
                 <Font size="22.0" />
             </font>
         </Label>
-        <Separator layoutY="301.0" maxHeight="1.0" maxWidth="1200.0" minHeight="1.0" minWidth="1200.0" prefHeight="1.0" prefWidth="1200.0" />
-      <Label alignment="CENTER" contentDisplay="BOTTOM" layoutY="302.0" minHeight="120.0" minWidth="1200.0" text="Total mining time:" textAlignment="CENTER">
+        <Separator layoutY="309.0" maxHeight="1.0" maxWidth="1200.0" minHeight="1.0" minWidth="1200.0" prefHeight="1.0" prefWidth="1200.0" />
+      <Label alignment="CENTER" contentDisplay="BOTTOM" layoutY="309.0" minHeight="120.0" minWidth="1200.0" text="Total mining time:" textAlignment="CENTER">
          <font>
             <Font size="34.0" />
          </font></Label>
-      <Label id="totalRunningTime" fx:id="totalRunningTime" alignment="CENTER" contentDisplay="CENTER" layoutY="380.0" minHeight="100.0" minWidth="1200.0" text="Label">
+      <Label id="totalRunningTime" fx:id="totalRunningTime" alignment="CENTER" contentDisplay="CENTER" layoutY="398.0" minHeight="100.0" minWidth="1200.0" text="Label">
          <font>
             <Font size="22.0" />
          </font>
       </Label>
-      <Separator layoutY="498.0" maxWidth="1200.0" minWidth="1200.0" prefHeight="1.0" prefWidth="1200.0" />
-      <Label alignment="CENTER" contentDisplay="BOTTOM" layoutY="498.0" minHeight="120.0" minWidth="1200.0" text="GPU card:" textAlignment="CENTER">
+      <Separator layoutY="524.0" maxWidth="1200.0" minWidth="1200.0" prefHeight="1.0" prefWidth="1200.0" />
+      <Label alignment="CENTER" contentDisplay="BOTTOM" layoutY="525.0" minHeight="120.0" minWidth="1200.0" text="GPU card:" textAlignment="CENTER">
          <font>
             <Font size="34.0" />
          </font>
       </Label>
-      <Label id="gpuInfo" fx:id="gpuInfo" alignment="CENTER" contentDisplay="CENTER" layoutY="575.0" minHeight="100.0" minWidth="1200.0" text="Label">
+      <Label id="gpuInfo" fx:id="gpuInfo" alignment="CENTER" contentDisplay="CENTER" layoutY="606.0" minHeight="100.0" minWidth="1200.0" text="Label">
          <font>
             <Font size="22.0" />
          </font></Label>
-      <Separator layoutY="693.0" maxWidth="1200.0" minWidth="1200.0" prefWidth="1200.0" />
+      <Separator layoutY="718.0" maxWidth="1200.0" minWidth="1200.0" prefHeight="1.0" prefWidth="1200.0" />
     </children></AnchorPane>
