@@ -192,7 +192,7 @@ public class Validator {
             return false;
         }
 
-        // If it is Fee tx end verification here
+        // If it is Fee or Reward tx end verification here
         if (tx.getType() == TransactionType.FEE || tx.getType() == TransactionType.REWARD)
             return true;
 
@@ -282,6 +282,9 @@ public class Validator {
         return true;
     }
 
+    /*
+    Validate REWARD transaction
+    */
     private boolean validateRewardTx(Transaction rewardTx) {
         BigDecimal amount = Configuration.getInstance().getBlockRewardValue();
 
