@@ -45,24 +45,24 @@
             </font>
         </Label>
         <Separator layoutY="301.0" maxHeight="1.0" maxWidth="1200.0" minHeight="1.0" minWidth="1200.0" prefHeight="1.0" prefWidth="1200.0" />
-      <Label alignment="CENTER" contentDisplay="BOTTOM" layoutX="460.0" layoutY="344.0" text="Total mining time:" textAlignment="CENTER">
+      <Label alignment="CENTER" contentDisplay="BOTTOM" layoutY="302.0" minHeight="120.0" minWidth="1200.0" text="Total mining time:" textAlignment="CENTER">
          <font>
             <Font size="34.0" />
          </font></Label>
-      <Label id="totalRunningTime" fx:id="totalRunningTime" alignment="CENTER" contentDisplay="CENTER" layoutY="386.0" minHeight="100.0" minWidth="1200.0" text="Label">
+      <Label id="totalRunningTime" fx:id="totalRunningTime" alignment="CENTER" contentDisplay="CENTER" layoutY="380.0" minHeight="100.0" minWidth="1200.0" text="Label">
          <font>
             <Font size="22.0" />
          </font>
       </Label>
-      <Separator layoutX="-4.0" layoutY="509.0" maxWidth="1200.0" minWidth="1200.0" prefHeight="1.0" prefWidth="1200.0" />
-      <Label alignment="CENTER" contentDisplay="BOTTOM" layoutX="522.0" layoutY="534.0" text="GPU card:" textAlignment="CENTER">
+      <Separator layoutY="498.0" maxWidth="1200.0" minWidth="1200.0" prefHeight="1.0" prefWidth="1200.0" />
+      <Label alignment="CENTER" contentDisplay="BOTTOM" layoutY="498.0" minHeight="120.0" minWidth="1200.0" text="GPU card:" textAlignment="CENTER">
          <font>
             <Font size="34.0" />
          </font>
       </Label>
-      <Label id="gpuInfo" fx:id="gpuInfo" alignment="CENTER" contentDisplay="CENTER" layoutX="-4.0" layoutY="580.0" minHeight="100.0" minWidth="1200.0" text="Label">
+      <Label id="gpuInfo" fx:id="gpuInfo" alignment="CENTER" contentDisplay="CENTER" layoutY="575.0" minHeight="100.0" minWidth="1200.0" text="Label">
          <font>
             <Font size="22.0" />
          </font></Label>
-      <Separator layoutX="-4.0" layoutY="693.0" maxWidth="1200.0" minWidth="1200.0" prefWidth="1200.0" />
+      <Separator layoutY="693.0" maxWidth="1200.0" minWidth="1200.0" prefWidth="1200.0" />
     </children></AnchorPane>
