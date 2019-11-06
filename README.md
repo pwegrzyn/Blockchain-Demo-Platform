@@ -13,7 +13,3 @@ Blockchain demo platform for educational purposes
 mvn packge
 java -jar <generated.jar>
 ```
-
-## Notes
-The application has the ability to connect to an external client to pass the data for visualization
-(for example by using the provided Electron client)
