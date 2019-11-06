@@ -1,5 +1,7 @@
 package blockchain.model;
 
+import blockchain.util.Utils;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -8,10 +10,12 @@ public class TransactionOutput implements Serializable {
 
     private final BigDecimal amount;
     private final String receiverAddress;
+    private final String uuid;
 
     public TransactionOutput(BigDecimal amount, String receiverAddress) {
         this.amount = amount;
         this.receiverAddress = receiverAddress;
+        this.uuid = Utils.generateRandomString(16);
     }
 
     public BigDecimal getAmount() {
@@ -27,13 +31,14 @@ public class TransactionOutput implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         TransactionOutput that = (TransactionOutput) o;
-        return that.amount.equals(this.amount) &&
-                Objects.equals(receiverAddress, that.receiverAddress);
+        return amount.equals(that.amount) &&
+                receiverAddress.equals(that.receiverAddress) &&
+                uuid.equals(that.uuid);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(amount, receiverAddress);
+        return Objects.hash(amount, receiverAddress, uuid);
     }
 
     @Override
