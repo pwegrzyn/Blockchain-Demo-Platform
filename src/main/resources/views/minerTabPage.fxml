@@ -34,7 +34,7 @@
                 <Separator minHeight="1.0" minWidth="1200.0" prefHeight="1.0" prefWidth="1200.0" />
             </children>
         </VBox>
-        <Label alignment="CENTER" contentDisplay="BOTTOM" layoutY="101.0" minHeight="120.0" minWidth="1200.0" text="Last calculated hash on this miner:" textAlignment="CENTER">
+        <Label alignment="CENTER" contentDisplay="BOTTOM" layoutY="101.0" minHeight="120.0" minWidth="1200.0" text="Last found hash on this miner:" textAlignment="CENTER">
             <font>
                 <Font size="34.0" />
             </font>
@@ -45,4 +45,30 @@
             </font>
         </Label>
         <Separator layoutY="301.0" maxHeight="1.0" maxWidth="1200.0" minHeight="1.0" minWidth="1200.0" prefHeight="1.0" prefWidth="1200.0" />
+      <Label alignment="CENTER" contentDisplay="BOTTOM" layoutX="460.0" layoutY="320.0" text="Total mining time:" textAlignment="CENTER">
+         <font>
+            <Font size="34.0" />
+         </font></Label>
+      <Label id="totalRunningTime" fx:id="totalRunningTime" alignment="CENTER" contentDisplay="CENTER" layoutX="545.0" layoutY="400.0" text="Label">
+         <font>
+            <Font size="22.0" />
+         </font>
+         <padding>
+            <Insets bottom="50.0" />
+         </padding>
+      </Label>
+      <Separator layoutY="480.0" maxWidth="1200.0" minWidth="1200.0" prefWidth="1200.0" />
+      <Label alignment="CENTER" contentDisplay="BOTTOM" layoutX="520.0" layoutY="510.0" text="GPU card:" textAlignment="CENTER">
+         <font>
+            <Font size="34.0" />
+         </font>
+      </Label>
+      <Label id="gpuInfo" fx:id="gpuInfo" alignment="CENTER" contentDisplay="CENTER" layoutX="480.0" layoutY="575.0" text="Label">
+         <font>
+            <Font size="22.0" />
+         </font>
+         <padding>
+            <Insets bottom="50.0" />
+         </padding></Label>
+      <Separator layoutY="645.0" maxWidth="1200.0" minWidth="1200.0" prefWidth="1200.0" />
     </children></AnchorPane>

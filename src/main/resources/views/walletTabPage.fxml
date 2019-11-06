@@ -25,7 +25,7 @@
                               </Label>
                               <TableView fx:id="inputsTableView" prefHeight="668.0" prefWidth="600.0">
                                 <columns>
-                                  <TableColumn prefWidth="498.0" text="Input transaction index" />
+                                  <TableColumn prefWidth="498.0" text="Input transaction hash" />
                                   <TableColumn prefWidth="100.0" text="Value" />
                                 </columns>
                               </TableView>

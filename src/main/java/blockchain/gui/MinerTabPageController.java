@@ -12,7 +12,12 @@ import javafx.scene.control.Labeled;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
+import org.apache.commons.lang3.time.StopWatch;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
@@ -32,6 +37,14 @@ public class MinerTabPageController {
     @FXML
     private Label lastCalculatedHashLabel;
 
+    @FXML
+    private Label gpuInfo;
+
+    @FXML
+    private Label totalRunningTime;
+
+    private StopWatch stopWatch = new StopWatch();
+
     private FullNode node;
     private long refreshTimeInSeconds = 1;
 
@@ -39,19 +52,36 @@ public class MinerTabPageController {
 
     @FXML
     public void initialize() {
+        String foundGPU = extractCardName();
+        if (foundGPU != null) {
+            this.gpuInfo.setText(foundGPU);
+        } else {
+            this.gpuInfo.setText("Could not extract the GPU card name :(");
+        }
+
         addListenerToMinerToggleButton();
         Timeline updateControlsTimeline = new Timeline(new KeyFrame(Duration.seconds(refreshTimeInSeconds), new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 updateLastHashLabel();
+                updateStopWatch();
             }
         }));
+
         updateControlsTimeline.setCycleCount(Timeline.INDEFINITE);
         updateControlsTimeline.play();
     }
 
     private void updateLastHashLabel() {
-        lastCalculatedHashLabel.setText(System.getProperty("lastCalculatedHash"));
+        if (System.getProperty("lastCalculatedHash")!= null && !System.getProperty("lastCalculatedHash").equals("")) {
+            lastCalculatedHashLabel.setText(System.getProperty("lastCalculatedHash"));
+        } else {
+            lastCalculatedHashLabel.setText("-");
+        }
+    }
+
+    private void updateStopWatch() {
+        this.totalRunningTime.setText(this.stopWatch.toString());
     }
 
     private void addListenerToMinerToggleButton(){
@@ -63,10 +93,16 @@ public class MinerTabPageController {
                 logger.info("Starting miner process");
                 minerThread = Executors.newSingleThreadExecutor();
                 minerThread.submit(new Miner(node));
+                if (this.stopWatch.isSuspended()) {
+                    this.stopWatch.resume();
+                } else {
+                    this.stopWatch.start();
+                }
             } else {
                 logger.info("Shutting down miner process");
                 minerThread.shutdownNow();
                 setLabelToRedOFF(minerToggleLabel);
+                this.stopWatch.suspend();
             }
         });
     }
@@ -82,6 +118,29 @@ public class MinerTabPageController {
 
     public void setNode(FullNode node) {
         this.node = node;
+    }
+
+    // this only works on Windows
+    private String extractCardName() {
+        String foundInfo = null;
+        try {
+            String filePath = "./dxdiag_output.txt";
+            ProcessBuilder pb = new ProcessBuilder("cmd.exe", "/c", "dxdiag", "/t", filePath);
+            Process p = pb.start();
+            p.waitFor();
+            try(BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+                String line;
+                while((line = br.readLine()) != null){
+                    if(line.trim().startsWith("Card name:")) {
+                        foundInfo = line.trim().split(":")[1].trim();
+                    }
+                }
+            }
+            new File(filePath).delete();
+        } catch (Exception e) {
+            logger.warning("Failed to extract GPU card name!");
+        }
+        return foundInfo;
     }
 
 }
