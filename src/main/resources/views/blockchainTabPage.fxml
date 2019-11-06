@@ -98,8 +98,8 @@
                                     <Label layoutX="42.0" layoutY="210.0" text="Input transactions" wrapText="true" />
                                     <TableView fx:id="txInputTxTable" layoutX="166.0" layoutY="169.0" prefHeight="95.0" prefWidth="222.0">
                                       <columns>
-                                        <TableColumn prefWidth="74.0" text="Hash" />
-                                        <TableColumn prefWidth="73.0" text="Index" />
+                                        <TableColumn prefWidth="110.0" text="Hash" />
+                                        <TableColumn prefWidth="110.0" text="Index" />
                                       </columns>
                                     </TableView>
                                     <TableView fx:id="txOutputTxTable" layoutX="166.0" layoutY="281.0" prefHeight="95.0" prefWidth="222.0">
