@@ -26,7 +26,7 @@
                               <TableView fx:id="inputsTableView" prefHeight="668.0" prefWidth="600.0">
                                 <columns>
                                   <TableColumn prefWidth="498.0" text="Input transaction index" />
-                                  <TableColumn prefWidth="87.0" text="Value" />
+                                  <TableColumn prefWidth="100.0" text="Value" />
                                 </columns>
                               </TableView>
                            </children>
