@@ -11,8 +11,10 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.Duration;
 
@@ -108,6 +110,22 @@ public class TransactionsTabPageController {
         usedTxHashColumn.setCellValueFactory(new PropertyValueFactory<TransactionInput, String>("previousTransactionHash"));
         indexColumn.setCellValueFactory(new PropertyValueFactory<TransactionInput, String>("previousTransactionOutputIndex"));
         senderColumn.setCellValueFactory(new PropertyValueFactory<TransactionInput, String>("fromAddress"));
+        senderColumn.setCellFactory(column -> new TableCell<TransactionInput, String>()
+        {
+            @Override
+            protected void updateItem(String item, boolean empty)
+            {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else if (item.equals("0") || item.equals("1") || item.equals("2")) {
+                    setText("<system>");
+                } else {
+                    setText(item);
+                }
+            }
+        });
     }
 
     private void initOutputsTableView() {

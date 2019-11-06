@@ -43,7 +43,7 @@
                            <columns>
                               <TableColumn prefWidth="240.0" text="Used transaction output hash" />
                               <TableColumn minWidth="0.0" prefWidth="50.0" text="Index" />
-                              <TableColumn prefWidth="510.0" text="Sender" />
+                              <TableColumn prefWidth="510.0" text="Received from" />
                            </columns>
                         </TableView>
                      </children>
