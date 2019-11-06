@@ -201,6 +201,9 @@ public class Miner extends Thread {
         for (Transaction tx : proposedTransactions)
             amount = amount.add(tx.getFee());
 
+        // Don't create empty fee tx
+        if (amount.compareTo(new BigDecimal(0)) == 0) return;
+
         TransactionOutput feesOutput = new TransactionOutput(amount, Configuration.getInstance().getPublicKey());
         List<TransactionOutput> feeOutputs = new LinkedList<>();
         feeOutputs.add(feesOutput);

@@ -173,13 +173,16 @@ public class WalletTabPageController {
 
     private List<TransactionOutput> generateOutputTransactions(BigDecimal spentAmount) {
         BigDecimal transactionCost = new BigDecimal(transactionAmountLabel.getText());
-
         BigDecimal remainingAmount = spentAmount.subtract(transactionCost).subtract(new BigDecimal(transactionFee.getText()));
 
-         return Arrays.asList(
-                new TransactionOutput(transactionCost, transactionAddressLabel.getText()),
-                new TransactionOutput(remainingAmount, Configuration.getInstance().getPublicKey())
-        );
+        List<TransactionOutput> outputs = new LinkedList<>();
+        outputs.add(new TransactionOutput(transactionCost, transactionAddressLabel.getText()));
+
+        // Return rest of founds to sender
+        if (remainingAmount.compareTo(new BigDecimal(0)) != 0)
+            outputs.add(new TransactionOutput(remainingAmount, Configuration.getInstance().getPublicKey()));
+
+        return outputs;
     }
 
     private synchronized List<TransactionInput> selectInputTransactions() {

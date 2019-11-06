@@ -10,6 +10,6 @@ Blockchain demo platform for educational purposes
 
 ## Starting
 ```bash
-mvn packge
+mvn package
 java -jar <generated.jar>
 ```
