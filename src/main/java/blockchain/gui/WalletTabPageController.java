@@ -63,6 +63,9 @@ public class WalletTabPageController {
                 String transactionId = Utils.generateRandomString(32);
                 TransactionType type = TransactionType.REGULAR;
                 List<TransactionInput> inputList = selectInputTransactions();
+
+                logger.info("Inputs for new transaction: " + inputList.stream().map(x -> x.getPreviousTransactionHash() + "[" + x.getPreviousTransactionOutputIndex() + "]").collect(Collectors.joining(", ")));
+
                 BigDecimal spentAmount = amountOfInputTransactions(inputList);
                 List<TransactionOutput> outputList = generateOutputTransactions(spentAmount);
 
