@@ -10,6 +10,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 
 public class Blockchain implements Serializable {
@@ -179,6 +180,33 @@ public class Blockchain implements Serializable {
                 }
             }
         }
+        this.getUnconfirmedTransactions().removeAll(txsToRemoveFromQueue);
+
+        // Remove from the queue all the transactions that are already spent
+        txsToRemoveFromQueue = new LinkedList<>();
+        for(Block block : newMainChain){
+            for(Transaction tx : block.getTransactions()){
+                for(TransactionInput input : tx.getInputs()){
+
+                    for(Transaction unconfirmedTransaction : this.getUnconfirmedTransactions()){
+                        for(TransactionInput unconfirmedTxInput : unconfirmedTransaction.getInputs()){
+                            String usedHash = input.getPreviousTransactionHash();
+                            int usedIndex = input.getPreviousTransactionOutputIndex();
+
+                            String unconfirmedUsedHash = unconfirmedTxInput.getPreviousTransactionHash();
+                            int unconfirmedUsedIndex = unconfirmedTxInput.getPreviousTransactionOutputIndex();
+
+                            if(usedHash.equals(unconfirmedUsedHash) && usedIndex == unconfirmedUsedIndex){
+                                LOGGER.info("Removing transaction from unconfirmed transactions because it is already spent: " + unconfirmedTransaction);
+                                txsToRemoveFromQueue.add(unconfirmedTransaction);
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+
         this.getUnconfirmedTransactions().removeAll(txsToRemoveFromQueue);
 
         // Add to the queue all transactions that will become unconfirmed
