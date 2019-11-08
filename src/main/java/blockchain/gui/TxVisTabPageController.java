@@ -80,6 +80,8 @@ public class TxVisTabPageController {
                     }
                 }
 
+                txGraph.edges().forEach(e -> {e.setAttribute("layout.weight", 30);});
+
                 Thread.sleep(5000);
             } catch (Exception e) {
                 LOGGER.warning("Error while generating tx graph");
