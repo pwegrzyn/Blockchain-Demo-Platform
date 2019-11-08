@@ -8,7 +8,7 @@ edge {
 
 node {
     shape: freeplane;
-    fill-color: green;
+    fill-color: gray;
     text-offset: 1px, -3px;
     size-mode: fit;
     stroke-mode: plain;

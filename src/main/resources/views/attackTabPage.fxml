@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="720.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="blockchain.gui.AttackTabPageController">
+   <children>
+      <AnchorPane id="attackContainer" fx:id="attackContainer" prefHeight="720.0" prefWidth="1200.0" />
+      <Label id="idleInfoText" fx:id="idleInfoText" alignment="CENTER" contentDisplay="CENTER" focusTraversable="false" layoutX="126.0" layoutY="293.0" text="There's no attack currently being performed on the network" textAlignment="CENTER">
+         <font>
+            <Font size="36.0" />
+         </font>
+      </Label>
+      <Hyperlink id="startAttackHyperlink" fx:id="startAttackHyperlink" layoutX="448.0" layoutY="377.0" onMouseClicked="#startNewAttack" text="Would you like to start a new one?">
+         <font>
+            <Font size="19.0" />
+         </font>
+      </Hyperlink>
+   </children>
+</AnchorPane>

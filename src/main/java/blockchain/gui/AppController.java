@@ -41,6 +41,8 @@ public class AppController {
     private BlockchainVisTabPageController bcVisTabPageController;
     @FXML
     private Tab minerTab;
+    @FXML
+    private AttackTabPageController attackTabPageController;
 
     // Possibly can add new themes for javaFX here
     private List<String> themesList = new LinkedList<String>() {
@@ -117,6 +119,9 @@ public class AppController {
         } else {
             minerTabPageController.setNode((FullNode) this.node);
         }
+
+        // Init the majority attack scene
+        attackTabPageController.init();
 
     }
 

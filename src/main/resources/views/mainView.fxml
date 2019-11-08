@@ -14,17 +14,20 @@
       <Tab fx:id="transactionsTab" closable="false" text="Unconfirmed TXs">
           <fx:include fx:id="transactionsTabPage" source="transactionsTabPage.fxml"/>
       </Tab>
+      <Tab fx:id="walletTab" closable="false" text="Wallet">
+          <fx:include fx:id="walletTabPage" source="walletTabPage.fxml"/>
+      </Tab>
       <Tab fx:id="bcVisualizationTab" closable="false" text="Block Graph">
           <fx:include fx:id="bcVisTabPage" source="bcVisTabPage.fxml"/>
       </Tab>
       <Tab fx:id="txVisualizationTab" closable="false" text="TXs Graph">
           <fx:include fx:id="txVisTabPage" source="txVisTabPage.fxml"/>
       </Tab>
-      <Tab fx:id="walletTab" closable="false" text="Wallet">
-        <fx:include fx:id="walletTabPage" source="walletTabPage.fxml"/>
-      </Tab>
       <Tab fx:id="minerTab" closable="false" text="Miner">
         <fx:include fx:id="minerTabPage" source="minerTabPage.fxml"/>
+      </Tab>
+      <Tab fx:id="attackTab" closable="false" text="Majority Attack">
+          <fx:include fx:id="attackTabPage" source="attackTabPage.fxml"/>
       </Tab>
   </tabs>
 </TabPane>
