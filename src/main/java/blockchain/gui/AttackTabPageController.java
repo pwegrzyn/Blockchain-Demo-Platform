@@ -9,13 +9,17 @@ import blockchain.net.ProtocolMessage;
 import blockchain.net.WalletNode;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import javax.imageio.ImageIO;
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -185,8 +189,15 @@ public class AttackTabPageController {
     }
 
     private void showAlert(String header, String content, Alert.AlertType type) {
-        String title = "Majority Attack";
+        String title = "Majority Attack Error";
         Alert alert = new Alert(type);
+        try {
+            Stage alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
+            java.awt.image.BufferedImage imageIcon = ImageIO.read(getClass().getClassLoader().getResource("assets/icons/coin.png"));
+            alertStage.getIcons().add(SwingFXUtils.toFXImage(imageIcon, null));
+        } catch (IOException e) {
+            logger.warning("Error while setting icon for alert!");
+        }
         alert.setTitle(title);
         alert.setHeaderText(header);
         alert.setContentText(content);
