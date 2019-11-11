@@ -10,7 +10,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 
 public class Blockchain implements Serializable {
@@ -58,6 +57,15 @@ public class Blockchain implements Serializable {
         List<Block> mainBranch = getMainBranch();
         for (Block block : mainBranch) {
             Transaction result = block.findTransaction(hash);
+            if (result != null) return result;
+        }
+        return null;
+    }
+
+    public Transaction findTransactionInMainChainById(String id) {
+        List<Block> mainBranch = getMainBranch();
+        for (Block block : mainBranch) {
+            Transaction result = block.findTransactionById(id);
             if (result != null) return result;
         }
         return null;

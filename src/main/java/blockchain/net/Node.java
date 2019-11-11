@@ -13,9 +13,11 @@ import org.jgroups.stack.Protocol;
 import org.jgroups.stack.ProtocolStack;
 import org.jgroups.util.Util;
 
+import java.awt.*;
 import java.io.*;
 import java.net.*;
 import java.util.Enumeration;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,7 +31,14 @@ public abstract class Node {
     private String clusterName;
     private Validator validator;
 
+    // List (probably could be a single field, since we will support only one attack at a time most likely)
+    // of info messages about an 51% attack
+    protected List<String> attackInfoList;
+    // Also connected with the 51% attack
+    protected Long attackLastHeartbeat;
+
     public Node(String clusterName) {
+        this.attackInfoList = new LinkedList<>();
         System.setProperty("java.net.preferIPv4Stack", "true");
         this.clusterName = clusterName;
         this.validator = new Validator();
@@ -82,6 +91,29 @@ public abstract class Node {
             return this.channel.getView().getMembers().stream().map(Object::toString).collect(Collectors.toList());
         }
         return null;
+    }
+
+    public void addAttackInfo(String attackInfo) {
+        if (!this.attackInfoList.contains(attackInfo)) {
+            this.attackInfoList.add(attackInfo);
+        }
+        this.attackLastHeartbeat = System.currentTimeMillis();
+    }
+
+    public List<String> getAttackInfoList() {
+        return attackInfoList;
+    }
+
+    public void setAttackInfoList(List<String> attackInfoList) {
+        this.attackInfoList = attackInfoList;
+    }
+
+    public Long getAttackLastHeartbeat() {
+        return attackLastHeartbeat;
+    }
+
+    public void setAttackLastHeartbeat(Long attackLastHeartbeat) {
+        this.attackLastHeartbeat = attackLastHeartbeat;
     }
 
     private Protocol[] getProtocolStack() {
@@ -172,6 +204,8 @@ public abstract class Node {
                             return null;
                         });
                     }
+                } else if (message.getType() == ProtocolMessage.MessageType.ATTACK_INFO) {
+                    Node.this.addAttackInfo(message.getAttackInfo());
                 } else {
                     LOGGER.warning("Unknown message type received: " + message.getType());
                 }

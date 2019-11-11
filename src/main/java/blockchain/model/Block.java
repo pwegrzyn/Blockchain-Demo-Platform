@@ -38,6 +38,15 @@ public class Block implements Serializable {
         return null;
     }
 
+    public Transaction findTransactionById(String id) {
+        for (Transaction tx : this.transactions) {
+            if (tx.getId().equals(id)) {
+                return tx;
+            }
+        }
+        return null;
+    }
+
     public static Block getGenesisBlock() {
         String txId = "0";
         int index = 0;
