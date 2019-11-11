@@ -7,6 +7,7 @@ import blockchain.model.Transaction;
 import blockchain.net.FullNode;
 import blockchain.net.ProtocolMessage;
 import blockchain.net.WalletNode;
+import blockchain.protocol.AttackMiner;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
@@ -52,7 +53,7 @@ public class AttackTabPageController {
     Label foundCancelledTxIdLabel;
 
     private Timeline infoListener;
-    private WalletNode node;
+    private FullNode node;
     private ExecutorService attackInformerThread;
     private ExecutorService attackInformerReceiverThread;
 
@@ -79,11 +80,12 @@ public class AttackTabPageController {
         pollAttackInfo();
     }
 
-    public void setNode(WalletNode node)  {
+    public void setNode(FullNode node)  {
         this.node = node;
     }
 
     private void startNewAttack() {
+        System.out.println("startNewAttack");
         this.infoListener.pause();
         this.foundAttacksContainer.setVisible(false);
         this.newAttackContainer.setVisible(true);

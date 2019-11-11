@@ -42,6 +42,8 @@ public class AppController {
     @FXML
     private Tab minerTab;
     @FXML
+    private Tab attackTab;
+    @FXML
     private AttackTabPageController attackTabPageController;
 
     // Possibly can add new themes for javaFX here
@@ -116,14 +118,13 @@ public class AppController {
         // Disable the miner tab if Running Mode is WALLET
         if (Configuration.getInstance().getNodeRunningMode() != Mode.FULL) {
             this.minerTab.setDisable(true);
+            this.attackTab.setDisable(true);
         } else {
             minerTabPageController.setNode((FullNode) this.node);
+            // Init the majority attack scene
+            attackTabPageController.setNode((FullNode) this.node);
+            attackTabPageController.init();
         }
-
-        // Init the majority attack scene
-        attackTabPageController.setNode(this.node);
-        attackTabPageController.init();
-
     }
 
     public void setNode(WalletNode node) {
@@ -145,7 +146,10 @@ public class AppController {
             txList.add(tx);
             Block block = new Block(i, txList, previousHash, i, i);
             previousHash = block.getCurrentHash();
-            SynchronizedBlockchainWrapper.useBlockchain(b -> {b.addBlock(block); return null;});
+            SynchronizedBlockchainWrapper.useBlockchain(b -> {
+                b.addBlock(block);
+                return null;
+            });
         }
     }
 
