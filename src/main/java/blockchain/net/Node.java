@@ -102,6 +102,10 @@ public abstract class Node {
         this.attackLastHeartbeat = System.currentTimeMillis();
     }
 
+    public void setAttackMiner(AttackMiner miner) {
+        this.attackMiner = miner;
+    }
+
     public List<String> getAttackInfoList() {
         return attackInfoList;
     }

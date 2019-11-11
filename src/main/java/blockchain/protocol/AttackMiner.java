@@ -15,7 +15,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.*;
 import java.util.logging.Logger;
 
-public class AttackMiner extends Miner {
+public class AttackMiner extends Miner implements Runnable {
 
     private static final Logger LOGGER = Logger.getLogger(AttackMiner.class.getName());
     private String cancelledTxId;
@@ -24,8 +24,10 @@ public class AttackMiner extends Miner {
 
     public AttackMiner(FullNode node) {
         super(node);
+        node.setAttackMiner(this);
     }
 
+    @Override
     public void run() {
         try {
             startMining();
@@ -67,7 +69,7 @@ public class AttackMiner extends Miner {
 
             /* Check if mined block is valid and broadcast to other nodes */
             if (validator.validateBlock(newMinedBlock)) {
-                LOGGER.info("Valid block has been mined (nonce: " + newMinedBlock.getNonce() + ") - broadcasting to neighbours...");
+                LOGGER.info("Valid attack block has been mined (nonce: " + newMinedBlock.getNonce() + ") - broadcasting to neighbours...");
                 this.lastAttackedBlockHash = newMinedBlock.getCurrentHash();
                 ProtocolMessage message = new ProtocolMessage(cancelledTxId, lastAttackedBlockHash, newMinedBlock);
                 this.fullNode.broadcast(message);
@@ -138,9 +140,9 @@ public class AttackMiner extends Miner {
 
         while (toCheck.size() > 0) {
             checkedBlock = toCheck.remove(toCheck.size() - 1);
-            for (Transaction tx : checkedBlock.getTransactions()) {
-                tryToAddUnconfirmedTransactions(transactionsToAdd, tx);
-            }
+            for (Transaction tx : checkedBlock.getTransactions())
+                if (tx.getType() == TransactionType.REGULAR)
+                    tryToAddUnconfirmedTransactions(transactionsToAdd, tx);
         }
 
         Iterator<Transaction> queueIterator = SynchronizedBlockchainWrapper

@@ -56,6 +56,8 @@ public class AttackTabPageController {
     private FullNode node;
     private ExecutorService attackInformerThread;
     private ExecutorService attackInformerReceiverThread;
+    private Thread attackMinerThread;
+    private AttackMiner attackMiner;
 
     public void init() {
         // set up event handlers for all the events in this scene
@@ -80,12 +82,12 @@ public class AttackTabPageController {
         pollAttackInfo();
     }
 
-    public void setNode(FullNode node)  {
+    public void setNode(FullNode node) {
         this.node = node;
+        this.attackMiner = new AttackMiner(node);
     }
 
     private void startNewAttack() {
-        System.out.println("startNewAttack");
         this.infoListener.pause();
         this.foundAttacksContainer.setVisible(false);
         this.newAttackContainer.setVisible(true);
@@ -127,7 +129,6 @@ public class AttackTabPageController {
             this.attackInformerReceiverThread = Executors.newSingleThreadExecutor();
             this.attackInformerReceiverThread.submit(new AttackInformerReceiverThread(attackInfoSplit[0], attackInfoSplit[1]));
         }
-
         // TODO: all the stuff associated with a an actual attack (either when starting a new one or joining an existing one) goes here;
         // TODO: here will come the code with starting a new custom miner probably
 
@@ -135,10 +136,16 @@ public class AttackTabPageController {
         this.newAttackContainer.setVisible(false);
         this.currentAttackContainer.setVisible(true);
         this.noAttacksFoundContainer.setVisible(false);
+
+        this.attackMiner.setAttackTarget(cancelledTxTextField.getText());
+        this.attackMinerThread = new Thread(this.attackMiner);
+        attackMinerThread.start();
+
+
     }
 
     private void pollAttackInfo() {
-         this.infoListener = new Timeline(new KeyFrame(Duration.seconds(1), new EventHandler<ActionEvent>() {
+        this.infoListener = new Timeline(new KeyFrame(Duration.seconds(1), new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 if (AttackTabPageController.this.node.getAttackInfoList().isEmpty()) {
@@ -206,7 +213,7 @@ public class AttackTabPageController {
         }
 
         void pingLoop() {
-            while(true) {
+            while (true) {
                 String messageStr = this.subnetworkId + ";" + this.cancelledTxId;
                 node.broadcastAttackInfo(messageStr);
                 try {
@@ -230,7 +237,7 @@ public class AttackTabPageController {
 
         @Override
         public void run() {
-            while(true) {
+            while (true) {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
