@@ -17,6 +17,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import main.App;
 
 import javax.imageio.ImageIO;
 import java.io.IOException;
