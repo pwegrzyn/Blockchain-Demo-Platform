@@ -9,6 +9,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -63,6 +65,16 @@ public class AppGUI {
         }catch(IOException e){
             LOGGER.log(Level.SEVERE, "Error while loading init view!", e);
         }
+    }
+
+    static java.awt.image.BufferedImage configTransparency(java.awt.image.BufferedImage imageToChange) {
+        java.awt.image.BufferedImage imageIconARGB = new java.awt.image.BufferedImage(imageToChange.getWidth(), imageToChange.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = imageIconARGB.createGraphics();
+        g2d.setComposite(AlphaComposite.Clear);
+        g2d.fillRect(0, 0, imageToChange.getWidth(), imageToChange.getHeight());
+        g2d.setComposite(AlphaComposite.Src);
+        g2d.drawImage(imageToChange, 0, 0, imageToChange.getWidth(), imageToChange.getHeight(), Color.BLACK, null);
+        return imageIconARGB;
     }
 
 }
