@@ -121,6 +121,7 @@ public class AppController {
         }
 
         // Init the majority attack scene
+        attackTabPageController.setNode(this.node);
         attackTabPageController.init();
 
     }

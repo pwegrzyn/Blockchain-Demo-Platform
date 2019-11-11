@@ -29,12 +29,19 @@ public class Blockchain implements Serializable {
     // Mempool of unconfirmed transactions
     private Queue<Transaction> unconfirmedTransactions;
 
+    // List (probably could be a single field, since we will support only one attack at a time most likely)
+    // of info messages about an 51% attack
+    private List<String> attackInfoList;
+    // Also connected with the 51% attack
+    private Long attackLastHeartbeat;
+
     public Blockchain() {
         this.latestBlock = new SimpleObjectProperty<>();
         this.blockDB = new ConcurrentHashMap<>();
         this.unconfirmedTransactions = new PriorityQueue<>(new MaximumFeeComparator());
         this.latestBlocksInOtherBranches = Collections.emptyList();
         this.addBlock(Block.getGenesisBlock());
+        this.attackInfoList = new LinkedList<>();
     }
 
     public Block getLatestBlock() {
@@ -58,6 +65,15 @@ public class Blockchain implements Serializable {
         List<Block> mainBranch = getMainBranch();
         for (Block block : mainBranch) {
             Transaction result = block.findTransaction(hash);
+            if (result != null) return result;
+        }
+        return null;
+    }
+
+    public Transaction findTransactionInMainChainById(String id) {
+        List<Block> mainBranch = getMainBranch();
+        for (Block block : mainBranch) {
+            Transaction result = block.findTransactionById(id);
             if (result != null) return result;
         }
         return null;
@@ -143,6 +159,13 @@ public class Blockchain implements Serializable {
             return;
         }
 
+    }
+
+    public void addAttackInfo(String attackInfo) {
+        if (!this.attackInfoList.contains(attackInfo)) {
+            this.attackInfoList.add(attackInfo);
+        }
+        this.attackLastHeartbeat = System.currentTimeMillis();
     }
 
     private void updateMainBranch(Block newMinedBlock) {
@@ -274,12 +297,29 @@ public class Blockchain implements Serializable {
         latestBlock = new SimpleObjectProperty<>((Block) stream.readObject());
         blockDB = (ConcurrentMap<String, Block>) stream.readObject();
         unconfirmedTransactions = (Queue<Transaction>) stream.readObject();
+        attackInfoList = (List<String>) stream.readObject();
     }
 
     private void writeObject(ObjectOutputStream stream) throws IOException {
         stream.writeObject(latestBlock.get());
         stream.writeObject(blockDB);
         stream.writeObject(unconfirmedTransactions);
+        stream.writeObject(attackInfoList);
     }
 
+    public List<String> getAttackInfoList() {
+        return attackInfoList;
+    }
+
+    public void setAttackInfoList(List<String> attackInfoList) {
+        this.attackInfoList = attackInfoList;
+    }
+
+    public Long getAttackLastHeartbeat() {
+        return attackLastHeartbeat;
+    }
+
+    public void setAttackLastHeartbeat(Long attackLastHeartbeat) {
+        this.attackLastHeartbeat = attackLastHeartbeat;
+    }
 }

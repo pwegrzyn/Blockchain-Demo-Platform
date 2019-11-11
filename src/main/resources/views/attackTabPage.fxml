@@ -1,22 +1,90 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
 <AnchorPane prefHeight="720.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="blockchain.gui.AttackTabPageController">
    <children>
-      <AnchorPane id="attackContainer" fx:id="attackContainer" prefHeight="720.0" prefWidth="1200.0" />
-      <Label id="idleInfoText" fx:id="idleInfoText" alignment="CENTER" contentDisplay="CENTER" focusTraversable="false" layoutX="126.0" layoutY="293.0" text="There's no attack currently being performed on the network" textAlignment="CENTER">
-         <font>
-            <Font size="36.0" />
-         </font>
-      </Label>
-      <Hyperlink id="startAttackHyperlink" fx:id="startAttackHyperlink" layoutX="448.0" layoutY="377.0" onMouseClicked="#startNewAttack" text="Would you like to start a new one?">
-         <font>
-            <Font size="19.0" />
-         </font>
-      </Hyperlink>
+      <AnchorPane id="newAttackContainer" fx:id="newAttackContainer" prefHeight="720.0" prefWidth="1200.0">
+         <children>
+            <Label layoutX="100.0" layoutY="70.0" prefHeight="58.0" prefWidth="532.0" text="Initiating a new 51% attack:">
+               <font>
+                  <Font size="40.0" />
+               </font></Label>
+            <Label layoutX="100.0" layoutY="200.0" text="Subnetwork ID:" />
+            <TextField id="subNetworkIdTextField" fx:id="subNetworkIdTextField" layoutX="100.0" layoutY="220.0" prefHeight="39.0" prefWidth="345.0">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </TextField>
+            <Label layoutX="100.0" layoutY="300.0" text="ID of the transaction you wish to cancel:" />
+            <TextField id="cancelledTxTextField" fx:id="cancelledTxTextField" layoutX="100.0" layoutY="320.0" prefWidth="345.0">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </TextField>
+            <Button id="createNewAttackButton" fx:id="createNewAttackButton" layoutX="100.0" layoutY="450.0" mnemonicParsing="false" text="Create">
+               <font>
+                  <Font size="17.0" />
+               </font>
+            </Button>
+            <Button id="cancelNewAttackButton" fx:id="cancelNewAttackButton" layoutX="200.0" layoutY="450.0" mnemonicParsing="false" text="Cancel">
+               <font>
+                  <Font size="17.0" />
+               </font>
+            </Button>
+         </children></AnchorPane>
+      <AnchorPane id="foundAttacksContainer" fx:id="foundAttacksContainer" prefHeight="720.0" prefWidth="1200.0">
+         <children>
+            <Label layoutX="100.0" layoutY="80.0" text="A majority attack has been detected in the network!">
+               <font>
+                  <Font size="32.0" />
+               </font>
+            </Label>
+            <Label layoutX="100.0" layoutY="200.0" text="ID of the transaction being cancelled:">
+               <font>
+                  <Font size="13.0" />
+               </font>
+            </Label>
+            <Label id="foundCancelledTxIdLabel" fx:id="foundCancelledTxIdLabel" layoutX="100.0" layoutY="220.0" text="Label">
+               <font>
+                  <Font size="23.0" />
+               </font>
+            </Label>
+            <Label layoutX="100.0" layoutY="300.0" text="Subnetwork ID used by the attackers:">
+               <font>
+                  <Font size="13.0" />
+               </font>
+            </Label>
+            <Label id="foundSubnetworkIdLabel" fx:id="foundSubnetworkIdLabel" layoutX="100.0" layoutY="320.0" text="Label">
+               <font>
+                  <Font size="23.0" />
+               </font>
+            </Label>
+            <Button id="joinAttackButton" fx:id="joinAttackButton" layoutX="100.0" layoutY="450.0" mnemonicParsing="false" text="Join the attack!" textAlignment="CENTER">
+               <font>
+                  <Font name="System Bold" size="20.0" />
+               </font>
+            </Button>
+         </children></AnchorPane>
+      <AnchorPane id="noAttacksFoundContainer" fx:id="noAttacksFoundContainer" prefHeight="720.0" prefWidth="1200.0">
+         <children>
+            <Hyperlink id="startAttackHyperlink" fx:id="startAttackHyperlink" layoutX="449.0" layoutY="382.0" text="Would you like to start a new one?">
+               <font>
+                  <Font size="19.0" />
+               </font>
+            </Hyperlink>
+            <Label id="idleInfoText" fx:id="idleInfoText" alignment="CENTER" contentDisplay="CENTER" focusTraversable="false" layoutX="126.0" layoutY="295.0" text="There's no attack currently being performed on the network" textAlignment="CENTER">
+               <font>
+                  <Font size="36.0" />
+               </font>
+            </Label>
+         </children>
+      </AnchorPane>
+      <AnchorPane id="currentAttackContainer" fx:id="currentAttackContainer" prefHeight="720.0" prefWidth="1200.0" />
    </children>
 </AnchorPane>

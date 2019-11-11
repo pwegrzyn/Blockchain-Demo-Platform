@@ -13,6 +13,7 @@ import org.jgroups.stack.Protocol;
 import org.jgroups.stack.ProtocolStack;
 import org.jgroups.util.Util;
 
+import java.awt.*;
 import java.io.*;
 import java.net.*;
 import java.util.Enumeration;
@@ -172,6 +173,12 @@ public abstract class Node {
                             return null;
                         });
                     }
+                } else if (message.getType() == ProtocolMessage.MessageType.ATTACK_INFO) {
+                    SynchronizedBlockchainWrapper.useBlockchain(b -> {
+                        b.addAttackInfo(message.getAttackInfo());
+                        b.setAttackLastHeartbeat(System.currentTimeMillis());
+                        return null;
+                    });
                 } else {
                     LOGGER.warning("Unknown message type received: " + message.getType());
                 }
