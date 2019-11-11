@@ -104,7 +104,7 @@ public class AttackTabPageController {
     }
 
     private void showFoundAttacks() {
-        List<String> foundAttackInfo = SynchronizedBlockchainWrapper.javaFxReadOnlyBlockchain().getAttackInfoList();
+        List<String> foundAttackInfo = this.node.getAttackInfoList();
         // lets assume for now that only one attack can be happening at once and that only one attack will be done in
         // the whole lifecycle of the network
         String[] attackInfoSplit = foundAttackInfo.get(0).split(";");
@@ -120,7 +120,7 @@ public class AttackTabPageController {
     private void showCurrentAttack() {
         // Start the attack informer receiver thread but only if we were not the ones who started this attack
         if (this.attackInformerThread == null) {
-            List<String> foundAttackInfo = SynchronizedBlockchainWrapper.javaFxReadOnlyBlockchain().getAttackInfoList();
+            List<String> foundAttackInfo = this.node.getAttackInfoList();
             String[] attackInfoSplit = foundAttackInfo.get(0).split(";");
             this.attackInformerReceiverThread = Executors.newSingleThreadExecutor();
             this.attackInformerReceiverThread.submit(new AttackInformerReceiverThread(attackInfoSplit[0], attackInfoSplit[1]));
@@ -139,19 +139,15 @@ public class AttackTabPageController {
          this.infoListener = new Timeline(new KeyFrame(Duration.seconds(1), new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                SynchronizedBlockchainWrapper.useBlockchain(b -> {
-                    if (b.getAttackInfoList().isEmpty()) {
-                        AttackTabPageController.this.foundAttacksContainer.setVisible(false);
-                        AttackTabPageController.this.newAttackContainer.setVisible(false);
-                        AttackTabPageController.this.currentAttackContainer.setVisible(false);
-                        AttackTabPageController.this.noAttacksFoundContainer.setVisible(true);
-                        return null;
-                    } else {
-                        AttackTabPageController.this.infoListener.stop();
-                        showFoundAttacks();
-                    }
-                    return null;
-                });
+                if (AttackTabPageController.this.node.getAttackInfoList().isEmpty()) {
+                    AttackTabPageController.this.foundAttacksContainer.setVisible(false);
+                    AttackTabPageController.this.newAttackContainer.setVisible(false);
+                    AttackTabPageController.this.currentAttackContainer.setVisible(false);
+                    AttackTabPageController.this.noAttacksFoundContainer.setVisible(true);
+                } else {
+                    AttackTabPageController.this.infoListener.stop();
+                    showFoundAttacks();
+                }
             }
         }));
         this.infoListener.setCycleCount(Timeline.INDEFINITE);
@@ -239,8 +235,9 @@ public class AttackTabPageController {
                     logger.warning("Attack Informer Receiver Thread got interrupted!");
                 }
 
-                Long lastHeartbeatTime = SynchronizedBlockchainWrapper.javaFxReadOnlyBlockchain().getAttackLastHeartbeat();
+                Long lastHeartbeatTime = node.getAttackLastHeartbeat();
                 if (lastHeartbeatTime == null || lastHeartbeatTime == 0) {
+                    logger.warning("Failed to get last heartbeat!");
                     continue;
                 }
                 Long currentTime = System.currentTimeMillis();
@@ -252,20 +249,30 @@ public class AttackTabPageController {
                         logger.warning("Attack Informer Receiver tried to get the connected Users list but failed");
                         continue;
                     }
+
                     String myPublicKey = Configuration.getInstance().getPublicKey();
-                    long myPublicKeyAsNumber = Long.parseLong(myPublicKey, 16);
                     boolean amITheLowest = true;
                     for (String publicKey : connectedUsers) {
                         if (publicKey.equals(myPublicKey)) {
                             continue;
                         }
-                        if (Long.parseLong(publicKey, 16) < myPublicKeyAsNumber) {
-                            amITheLowest = false;
+
+                        switch (myPublicKey.compareTo(publicKey)) {
+                            case 1:
+                                amITheLowest = false;
+                                break;
+                            case -1:
+                            case 0:
+                            default:
+                                break;
                         }
+
                     }
                     if (amITheLowest) {
                         logger.info("Previous Attack Informer died - this node now is the new informer");
                         pingLoop();
+                    } else {
+                        logger.info("Previous Attack Informed died - this node has not been chosen as the new informer");
                     }
                 }
             }

@@ -6,13 +6,10 @@ import blockchain.model.*;
 import blockchain.net.Node;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
@@ -24,7 +21,6 @@ import javafx.scene.input.ClipboardContent;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 
 public class SummaryTabPageController {

@@ -19,5 +19,4 @@ public class WalletNode extends Node {
         ProtocolMessage message = new ProtocolMessage(attackInfo);
         this.broadcast(message);
     }
-
 }
