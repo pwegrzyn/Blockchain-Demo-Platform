@@ -140,6 +140,7 @@ public class AttackTabPageController {
         // TODO: here will come the code with starting a new custom miner probably
         this.appController.getMinerTabPageController().stopMiner();
 
+
         this.foundAttacksContainer.setVisible(false);
         this.newAttackContainer.setVisible(false);
         this.currentAttackContainer.setVisible(true);

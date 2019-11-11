@@ -21,12 +21,12 @@ import java.util.logging.Logger;
 public class Miner extends Thread {
 
     private static final Logger LOGGER = Logger.getLogger(Miner.class.getName());
-    private Validator validator;
-    private FullNode fullNode;
-    private boolean isMining;
-    private static final int MAX_TRANSACTIONS_PER_BLOCK = 5;
+    protected Validator validator;
+    protected FullNode fullNode;
+    protected boolean isMining;
+    protected static final int MAX_TRANSACTIONS_PER_BLOCK = 5;
     // TODO fetch mining difficulty from the properties file
-    private static final int MINING_DIFFICULTY = 4;
+    protected static final int MINING_DIFFICULTY = 4;
 
     public Miner(FullNode node) {
         this.validator = new Validator();
@@ -79,8 +79,7 @@ public class Miner extends Thread {
         this.isMining = false;
     }
 
-    private Block mineBlock() throws InterruptedException, NoSuchAlgorithmException, UnsupportedEncodingException, SignatureException,
-            NoSuchProviderException, InvalidKeyException, InvalidKeySpecException {
+    Block mineBlock() throws InterruptedException {
         Block latestBlock = SynchronizedBlockchainWrapper.useBlockchain(Blockchain::getLatestBlock);
         int newBlockIndex = latestBlock.getIndex() + 1;
         String previousHash = latestBlock.getCurrentHash();
@@ -195,7 +194,7 @@ public class Miner extends Thread {
     as a voluntary fee, which transaction creators can add as an incentive for miners to add their transactions
     to the blockchain quicker. We need to go through all the transactions and add to the block a new transaction,
     which takes all the leftovers as inputs at sends to it the miners address;*/
-    private void assignLeftoverValueAsFee(List<Transaction> proposedTransactions, int blockIndex) {
+    protected void assignLeftoverValueAsFee(List<Transaction> proposedTransactions, int blockIndex) {
         BigDecimal amount = new BigDecimal(0);
 
         for (Transaction tx : proposedTransactions)
@@ -214,7 +213,7 @@ public class Miner extends Thread {
         proposedTransactions.add(feesTransaction);
     }
 
-    private void addRewardTransaction(List<Transaction> proposedTransactions, int blockIndex) {
+    protected void addRewardTransaction(List<Transaction> proposedTransactions, int blockIndex) {
         BigDecimal amount = Configuration.getInstance().getBlockRewardValue();
 
         TransactionOutput rewardOutput = new TransactionOutput(amount, Configuration.getInstance().getPublicKey());
