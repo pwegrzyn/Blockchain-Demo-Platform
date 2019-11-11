@@ -57,7 +57,7 @@ public class AttackTabPageController {
     Label foundCancelledTxIdLabel;
 
     private Timeline infoListener;
-    private WalletNode node;
+    private FullNode node;
     private ExecutorService attackInformerThread;
     private ExecutorService attackInformerReceiverThread;
     private AppController appController;
@@ -85,7 +85,7 @@ public class AttackTabPageController {
         pollAttackInfo();
     }
 
-    public void setNode(WalletNode node)  {
+    public void setNode(FullNode node)  {
         this.node = node;
     }
 
@@ -139,7 +139,7 @@ public class AttackTabPageController {
         // TODO: all the stuff associated with a an actual attack (either when starting a new one or joining an existing one) goes here;
         // TODO: here will come the code with starting a new custom miner probably
         this.appController.getMinerTabPageController().stopMiner();
-
+        this.appController.getMinerTab().setDisable(true);
 
         this.foundAttacksContainer.setVisible(false);
         this.newAttackContainer.setVisible(false);

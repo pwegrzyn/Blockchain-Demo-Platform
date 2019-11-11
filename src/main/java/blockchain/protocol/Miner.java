@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 
 public class Miner extends Thread {
 
-    private static final Logger LOGGER = Logger.getLogger(Miner.class.getName());
+    protected static final Logger LOGGER = Logger.getLogger(Miner.class.getName());
     protected Validator validator;
     protected FullNode fullNode;
     protected boolean isMining;

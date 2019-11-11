@@ -48,8 +48,6 @@ public class MinerTabPageController {
     private FullNode node;
     private long refreshTimeInSeconds = 1;
 
-    private ExecutorService minerThread;
-
     @FXML
     public void initialize() {
         String foundGPU = extractCardName();
@@ -72,11 +70,15 @@ public class MinerTabPageController {
         updateControlsTimeline.play();
     }
 
+    public ToggleButton getIsMinerOnToggle() {
+        return this.isMinerOnToggle;
+    }
+
     public void stopMiner() {
-        if (minerThread == null || minerThread.isShutdown()) {
+        if (node.getMinerThread() == null || node.getMinerThread().isShutdown()) {
             return;
         }
-        minerThread.shutdownNow();
+        node.getMinerThread().shutdownNow();
         setLabelToRedOFF(minerToggleLabel);
         this.stopWatch.suspend();
     }
@@ -100,8 +102,8 @@ public class MinerTabPageController {
             if(newValue){
                 setLabelToGreenON(minerToggleLabel);
                 logger.info("Starting miner process");
-                minerThread = Executors.newSingleThreadExecutor();
-                minerThread.submit(new Miner(node));
+                node.setMinerThread(Executors.newSingleThreadExecutor());
+                node.getMinerThread().submit(new Miner(node));
                 if (this.stopWatch.isSuspended()) {
                     this.stopWatch.resume();
                 } else {

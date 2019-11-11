@@ -28,6 +28,9 @@ public class Blockchain implements Serializable {
     // Mempool of unconfirmed transactions
     private Queue<Transaction> unconfirmedTransactions;
 
+    // Last non-main branch block received (used in the 51% attack scenario)
+    private String hashOfLastNonMainBranchBlockReceived;
+
     public Blockchain() {
         this.latestBlock = new SimpleObjectProperty<>();
         this.blockDB = new ConcurrentHashMap<>();
@@ -130,6 +133,7 @@ public class Blockchain implements Serializable {
             this.latestBlocksInOtherBranches.remove(blockToRemove);
             this.latestBlocksInOtherBranches.add(newMinedBlock);
             LOGGER.info("New block continues a non-main branch");
+            this.hashOfLastNonMainBranchBlockReceived = newMinedBlock.getCurrentHash();
             updateMainBranch(newMinedBlock);
             return;
         }
@@ -139,6 +143,7 @@ public class Blockchain implements Serializable {
         if (foundParentInMainChain != null && !foundParentInMainChain.getCurrentHash().equals(this.latestBlock.get().getCurrentHash())) {
             this.latestBlocksInOtherBranches.add(newMinedBlock);
             LOGGER.info("Added block started a new fork from the main branch");
+            this.hashOfLastNonMainBranchBlockReceived = newMinedBlock.getCurrentHash();
             updateMainBranch(newMinedBlock);
             return;
         }
@@ -282,12 +287,14 @@ public class Blockchain implements Serializable {
         latestBlock = new SimpleObjectProperty<>((Block) stream.readObject());
         blockDB = (ConcurrentMap<String, Block>) stream.readObject();
         unconfirmedTransactions = (Queue<Transaction>) stream.readObject();
+        hashOfLastNonMainBranchBlockReceived = (String) stream.readObject();
     }
 
     private void writeObject(ObjectOutputStream stream) throws IOException {
         stream.writeObject(latestBlock.get());
         stream.writeObject(blockDB);
         stream.writeObject(unconfirmedTransactions);
+        stream.writeObject(hashOfLastNonMainBranchBlockReceived);
     }
 
 }
