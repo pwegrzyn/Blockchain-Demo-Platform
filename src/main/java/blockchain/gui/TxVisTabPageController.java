@@ -6,12 +6,16 @@ import blockchain.model.Transaction;
 import blockchain.model.TransactionInput;
 import javafx.fxml.FXML;
 import javafx.scene.layout.VBox;
+import org.apache.commons.io.IOUtils;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
 import org.graphstream.ui.fx_viewer.FxViewPanel;
 import org.graphstream.ui.fx_viewer.FxViewer;
 import org.graphstream.ui.javafx.FxGraphRenderer;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -20,6 +24,7 @@ import java.util.stream.Stream;
 
 public class TxVisTabPageController {
     private static final Logger LOGGER = Logger.getLogger(BlockchainVisTabPageController.class.getName());
+    private static final String STYLESHEET_PATH = "stylesheet/txGraph.css";
 
     private SingleGraph txGraph;
     @FXML
@@ -32,7 +37,7 @@ public class TxVisTabPageController {
 
         txGraph.setAttribute("ui.antialias");
         txGraph.setAttribute("ui.quality");
-        txGraph.setAttribute("ui.stylesheet", "url(src/main/resources/stylesheet/txGraph.css)");
+        txGraph.setAttribute("ui.stylesheet", readStyleSheet());
         txGraph.setAutoCreate(true);
 
         v.enableAutoLayout();
@@ -44,6 +49,17 @@ public class TxVisTabPageController {
 
         Thread thread = new Thread(() -> drawGraph());
         thread.start();
+    }
+
+    private String readStyleSheet() {
+        try {
+            InputStream inputStream = TxVisTabPageController.class.getClassLoader().getResourceAsStream(STYLESHEET_PATH);
+            if(inputStream == null) throw new IOException();
+            return IOUtils.toString(inputStream, StandardCharsets.UTF_8.name());
+        } catch (IOException e) {
+            LOGGER.warning("Could not load the stylesheet");
+            return "";
+        }
     }
 
     private void drawGraph() {
