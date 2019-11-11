@@ -2,9 +2,16 @@ package blockchain.protocol;
 
 import blockchain.crypto.Sha256Proxy;
 import blockchain.model.*;
-import blockchain.net.AttackMessage;
+import blockchain.net.BlockBroadcastResult;
 import blockchain.net.FullNode;
+import blockchain.net.ProtocolMessage;
 
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.SignatureException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -12,37 +19,75 @@ public class AttackMiner extends Miner {
 
     private static final Logger LOGGER = Logger.getLogger(AttackMiner.class.getName());
     private String cancelledTxId;
-    private String previousBlockHash;
+    private String lastAttackedBlockHash;
     private String hashBeforeAttackedBlock;
 
     public AttackMiner(FullNode node) {
         super(node);
     }
 
-    public void setAttackTarget(String cancelledTxId, String previousBlockHash,
-                                String hashBeforeAttackedBlock) {
-        this.cancelledTxId = cancelledTxId;
-        this.previousBlockHash = previousBlockHash;
-        this.hashBeforeAttackedBlock = hashBeforeAttackedBlock;
-
-//        this.fullNode.broadcastAttackTarget(new AttackMessage(this.cancelledTxId, this.previousBlockHash,
-//                this.hashBeforeAttackedBlock));
+    public void run() {
+        try {
+            startMining();
+        } catch (InterruptedException e) {
+            LOGGER.info("AttackMiner process has stopped.");
+        } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException |
+                UnsupportedEncodingException | NoSuchProviderException | InvalidKeySpecException e) {
+            e.printStackTrace();
+            LOGGER.severe("AttackMiner encountered a fatal error and has stopped running");
+        }
     }
 
-    private Block mineBlock() throws InterruptedException {
-        Block latestBlock = SynchronizedBlockchainWrapper.useBlockchain(Blockchain::getBlockDB).get(previousBlockHash);
+    public void setAttackTarget(String cancelledTxId, String previousBlockHash) {
+        this.cancelledTxId = cancelledTxId;
+        this.lastAttackedBlockHash = previousBlockHash;
+        this.hashBeforeAttackedBlock = calculateHashBeforeAttackedBlock();
+    }
+
+    public void setAttackTarget(String cancelledTxId) {
+        this.cancelledTxId = cancelledTxId;
+        this.lastAttackedBlockHash = calculateHashBeforeAttackedBlock();
+        this.hashBeforeAttackedBlock = this.lastAttackedBlockHash;
+    }
+
+    public void broadcastAttackData() {
+        ProtocolMessage message = new ProtocolMessage(cancelledTxId, lastAttackedBlockHash, null);
+        this.fullNode.broadcast(message);
+    }
+
+    // Probably should run in its own thread
+    @Override
+    protected void startMining() throws InterruptedException, NoSuchAlgorithmException, UnsupportedEncodingException, SignatureException,
+            NoSuchProviderException, InvalidKeyException, InvalidKeySpecException {
+        this.isMining = true;
+        while (isMining) {
+            Block newMinedBlock = this.mineBlock();
+            if (newMinedBlock == null)
+                continue;
+
+            /* Check if mined block is valid and broadcast to other nodes */
+            if (validator.validateBlock(newMinedBlock)) {
+                LOGGER.info("Valid block has been mined (nonce: " + newMinedBlock.getNonce() + ") - broadcasting to neighbours...");
+                this.lastAttackedBlockHash = newMinedBlock.getCurrentHash();
+                ProtocolMessage message = new ProtocolMessage(cancelledTxId, lastAttackedBlockHash, newMinedBlock);
+                this.fullNode.broadcast(message);
+            }
+
+        }
+    }
+
+    @Override
+    protected Block mineBlock() throws InterruptedException {
+        Block latestBlock = SynchronizedBlockchainWrapper.useBlockchain(Blockchain::getBlockDB).get(lastAttackedBlockHash);
         int newBlockIndex = latestBlock.getIndex() + 1;
         String previousHash = latestBlock.getCurrentHash();
 
-        /*Go through all the unconfirmed transactions and pick at most MAX_TRANSACTIONS_PER_BLOCK of them to be included
-        in the next block */
         List<Transaction> transactionsToAdd = new LinkedList<>();
 
         addOneTxToPending(transactionsToAdd, latestBlock);
 
         if (transactionsToAdd.size() < 1) {
-            //TODO
-//            createTxToSelf(transactionsToAdd);
+            createTxToSelf(transactionsToAdd);
             Thread.sleep(2000);
             return null;
         }
@@ -67,7 +112,7 @@ public class AttackMiner extends Miner {
                     previousHash, currentTimestamp), targetStr);
 
             /* Check if a new block has appeared in blockchain during mining */
-            if (!previousHash.equals(previousBlockHash)) {
+            if (!previousHash.equals(lastAttackedBlockHash)) {
                 LOGGER.info("While working on a block the AttackMiner received a new latest block from neighbours. Recycling TXs and starting again.");
                 return null;
             }
@@ -160,6 +205,16 @@ public class AttackMiner extends Miner {
 
         LOGGER.info("AttackMiner: Tx (id: " + unconfirmedTransaction.getId() + ") has been definitely added to the new block - OK");
         transactionsToAdd.add(unconfirmedTransaction);
+    }
+
+    private String calculateHashBeforeAttackedBlock() {
+        for (Block block : SynchronizedBlockchainWrapper.useBlockchain(Blockchain::getMainBranch))
+            for (Transaction tx : block.getTransactions())
+                if (tx.getId().equals(cancelledTxId))
+                    return block.getCurrentHash();
+
+        throw new IllegalStateException("Could not find block containing " + cancelledTxId + " transaction");
+
     }
 
 }

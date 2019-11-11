@@ -21,8 +21,8 @@ import java.util.logging.Logger;
 public class Miner extends Thread {
 
     private static final Logger LOGGER = Logger.getLogger(Miner.class.getName());
-    private Validator validator;
-    private boolean isMining;
+    protected Validator validator;
+    protected boolean isMining;
     protected FullNode fullNode;
     protected static final int MAX_TRANSACTIONS_PER_BLOCK = 5;
     // TODO fetch mining difficulty from the properties file
@@ -47,7 +47,7 @@ public class Miner extends Thread {
     }
 
     // Probably should run in its own thread
-    private void startMining() throws InterruptedException, NoSuchAlgorithmException, UnsupportedEncodingException, SignatureException,
+    protected void startMining() throws InterruptedException, NoSuchAlgorithmException, UnsupportedEncodingException, SignatureException,
             NoSuchProviderException, InvalidKeyException, InvalidKeySpecException {
         this.isMining = true;
         while (isMining) {
@@ -79,7 +79,7 @@ public class Miner extends Thread {
         this.isMining = false;
     }
 
-    private Block mineBlock() throws InterruptedException, NoSuchAlgorithmException, UnsupportedEncodingException, SignatureException,
+    protected Block mineBlock() throws InterruptedException, NoSuchAlgorithmException, UnsupportedEncodingException, SignatureException,
             NoSuchProviderException, InvalidKeyException, InvalidKeySpecException {
         Block latestBlock = SynchronizedBlockchainWrapper.useBlockchain(Blockchain::getLatestBlock);
         int newBlockIndex = latestBlock.getIndex() + 1;

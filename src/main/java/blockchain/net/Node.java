@@ -2,6 +2,7 @@ package blockchain.net;
 
 import blockchain.config.Configuration;
 import blockchain.model.Blockchain;
+import blockchain.protocol.AttackMiner;
 import blockchain.protocol.Validator;
 import blockchain.model.SynchronizedBlockchainWrapper;
 import org.jgroups.JChannel;
@@ -30,6 +31,7 @@ public abstract class Node {
     private JChannel channel;
     private String clusterName;
     private Validator validator;
+    private AttackMiner attackMiner;
 
     // List (probably could be a single field, since we will support only one attack at a time most likely)
     // of info messages about an 51% attack
@@ -114,6 +116,10 @@ public abstract class Node {
 
     public void setAttackLastHeartbeat(Long attackLastHeartbeat) {
         this.attackLastHeartbeat = attackLastHeartbeat;
+    }
+
+    public void broadcastAttackTarget() {
+
     }
 
     private Protocol[] getProtocolStack() {
@@ -206,6 +212,17 @@ public abstract class Node {
                     }
                 } else if (message.getType() == ProtocolMessage.MessageType.ATTACK_INFO) {
                     Node.this.addAttackInfo(message.getAttackInfo());
+                } else if (message.getType() == ProtocolMessage.MessageType.ATTACK_DATA) {
+                    if (attackMiner != null)
+                        attackMiner.setAttackTarget(message.getCancelledTxId(), message.getLastAttackedBlockHash());
+                    if (message.getBlock() != null) {
+                        if (Node.this.validator.validateBlock(message.getBlock())) {
+                            SynchronizedBlockchainWrapper.useBlockchain(b -> {
+                                b.addBlock(message.getBlock());
+                                return null;
+                            });
+                        }
+                    }
                 } else {
                     LOGGER.warning("Unknown message type received: " + message.getType());
                 }
