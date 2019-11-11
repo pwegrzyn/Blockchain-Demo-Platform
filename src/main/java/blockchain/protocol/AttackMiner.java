@@ -37,23 +37,8 @@ public class AttackMiner extends Miner {
         /*Go through all the unconfirmed transactions and pick at most MAX_TRANSACTIONS_PER_BLOCK of them to be included
         in the next block */
         List<Transaction> transactionsToAdd = new LinkedList<>();
-        Transaction unconfirmedTransaction;
 
-        Iterator<Transaction> queueIterator = SynchronizedBlockchainWrapper
-                .useBlockchain(b -> b.getUnconfirmedTransactions().iterator());
-
-        while (queueIterator.hasNext()) {
-            unconfirmedTransaction = queueIterator.next();
-            tryToAddUnconfirmedTransactions(transactionsToAdd, unconfirmedTransaction);
-            LOGGER.info("AttackMiner chose new transaction (id: " + unconfirmedTransaction.getId() + ") to add to the new block being mined");
-        }
-
-        Block checkedBlock = latestBlock;
-        while (!checkedBlock.getCurrentHash().equals(hashBeforeAttackedBlock)) {
-            for (Transaction tx : checkedBlock.getTransactions()) {
-                tryToAddUnconfirmedTransactions(transactionsToAdd, tx);
-            }
-        }
+        addOneTxToPending(transactionsToAdd, latestBlock);
 
         if (transactionsToAdd.size() < 1) {
             //TODO
@@ -96,10 +81,38 @@ public class AttackMiner extends Miner {
         //TODO create tx to self
     }
 
+    private void addOneTxToPending(List<Transaction> transactionsToAdd, Block latestBlock) {
+        Transaction unconfirmedTransaction;
+
+        Block checkedBlock = latestBlock;
+        List<Block> toCheck = new LinkedList<>();
+        while (!checkedBlock.getCurrentHash().equals(hashBeforeAttackedBlock)) {
+            toCheck.add(checkedBlock);
+            checkedBlock = SynchronizedBlockchainWrapper.useBlockchain(Blockchain::getBlockDB).get(checkedBlock.getPreviousHash());
+        }
+
+        while (toCheck.size() > 0) {
+            checkedBlock = toCheck.remove(toCheck.size() - 1);
+            for (Transaction tx : checkedBlock.getTransactions()) {
+                tryToAddUnconfirmedTransactions(transactionsToAdd, tx);
+            }
+        }
+
+        Iterator<Transaction> queueIterator = SynchronizedBlockchainWrapper
+                .useBlockchain(b -> b.getUnconfirmedTransactions().iterator());
+        while (queueIterator.hasNext()) {
+            unconfirmedTransaction = queueIterator.next();
+            tryToAddUnconfirmedTransactions(transactionsToAdd, unconfirmedTransaction);
+            LOGGER.info("AttackMiner chose new transaction (id: " + unconfirmedTransaction.getId() + ") to add to the new block being mined");
+        }
+    }
+
     private void tryToAddUnconfirmedTransactions(List<Transaction> transactionsToAdd, Transaction unconfirmedTransaction) {
 
-        if (unconfirmedTransaction.getId().equals(cancelledTxId))
+        if (unconfirmedTransaction.getId().equals(cancelledTxId)) {
+            createTxToSelf(transactionsToAdd);
             return;
+        }
 
         List<TransactionInput> inputs = unconfirmedTransaction.getInputs();
         List<TransactionOutput> outputs = unconfirmedTransaction.getOutputs();
