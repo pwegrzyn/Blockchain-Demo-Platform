@@ -55,6 +55,7 @@ public class AttackTabPageController {
     private WalletNode node;
     private ExecutorService attackInformerThread;
     private ExecutorService attackInformerReceiverThread;
+    private AppController appController;
 
     public void init() {
         // set up event handlers for all the events in this scene
@@ -81,6 +82,10 @@ public class AttackTabPageController {
 
     public void setNode(WalletNode node)  {
         this.node = node;
+    }
+
+    public void setAppController(AppController appController) {
+        this.appController = appController;
     }
 
     private void startNewAttack() {
@@ -128,6 +133,7 @@ public class AttackTabPageController {
 
         // TODO: all the stuff associated with a an actual attack (either when starting a new one or joining an existing one) goes here;
         // TODO: here will come the code with starting a new custom miner probably
+        this.appController.getMinerTabPageController().stopMiner();
 
         this.foundAttacksContainer.setVisible(false);
         this.newAttackContainer.setVisible(false);

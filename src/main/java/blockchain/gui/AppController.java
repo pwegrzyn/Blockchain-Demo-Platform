@@ -122,12 +122,17 @@ public class AppController {
 
         // Init the majority attack scene
         attackTabPageController.setNode(this.node);
+        attackTabPageController.setAppController(this);
         attackTabPageController.init();
 
     }
 
     public void setNode(WalletNode node) {
         this.node = node;
+    }
+
+    public MinerTabPageController getMinerTabPageController() {
+        return this.minerTabPageController;
     }
 
     // Test method to check if the Blockchain gui is working

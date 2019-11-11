@@ -72,6 +72,15 @@ public class MinerTabPageController {
         updateControlsTimeline.play();
     }
 
+    public void stopMiner() {
+        if (minerThread == null || minerThread.isShutdown()) {
+            return;
+        }
+        minerThread.shutdownNow();
+        setLabelToRedOFF(minerToggleLabel);
+        this.stopWatch.suspend();
+    }
+
     private void updateLastHashLabel() {
         if (System.getProperty("lastCalculatedHash")!= null && !System.getProperty("lastCalculatedHash").equals("")) {
             lastCalculatedHashLabel.setText(System.getProperty("lastCalculatedHash"));
@@ -100,9 +109,7 @@ public class MinerTabPageController {
                 }
             } else {
                 logger.info("Shutting down miner process");
-                minerThread.shutdownNow();
-                setLabelToRedOFF(minerToggleLabel);
-                this.stopWatch.suspend();
+                this.stopMiner();
             }
         });
     }
