@@ -1,5 +1,6 @@
 package main;
 
+import blockchain.config.Configuration;
 import blockchain.gui.AppGUI;
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -18,6 +19,9 @@ public class App extends Application {
 
     public static void main(String[] args) {
         try {
+            if(args.length > 0){
+                Configuration.setConfigFilePath(args[0]);
+            }
             launch(args);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "A fatal error occurred during runtime!", e);

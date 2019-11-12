@@ -11,6 +11,7 @@ import blockchain.protocol.Validator;
 import blockchain.util.Utils;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -22,6 +23,8 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+import javax.imageio.ImageIO;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
@@ -164,8 +167,15 @@ public class InitController {
     }
 
     private void showAlert(String header, String content, Alert.AlertType type) {
-        String title = "BDP Initialization";
+        String title = "BDP Initialization Error";
         Alert alert = new Alert(type);
+        try {
+            Stage alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
+            java.awt.image.BufferedImage imageIcon = ImageIO.read(getClass().getClassLoader().getResource("assets/icons/coin.png"));
+            alertStage.getIcons().add(SwingFXUtils.toFXImage(imageIcon, null));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         alert.setTitle(title);
         alert.setHeaderText(header);
         alert.setContentText(content);

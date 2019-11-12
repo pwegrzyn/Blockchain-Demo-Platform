@@ -10,13 +10,18 @@ import javafx.animation.Timeline;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import javax.imageio.ImageIO;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.security.*;
@@ -344,8 +349,15 @@ public class WalletTabPageController {
     }
 
     private void showAlert(String header, String content, Alert.AlertType type) {
-        String title = "Wallet";
+        String title = "Wallet Error";
         Alert alert = new Alert(type);
+        try {
+            Stage alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
+            java.awt.image.BufferedImage imageIcon = ImageIO.read(getClass().getClassLoader().getResource("assets/icons/coin.png"));
+            alertStage.getIcons().add(SwingFXUtils.toFXImage(imageIcon, null));
+        } catch (IOException e) {
+            logger.warning("Error while setting icon for alert!");
+        }
         alert.setTitle(title);
         alert.setHeaderText(header);
         alert.setContentText(content);
