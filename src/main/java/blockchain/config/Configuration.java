@@ -2,6 +2,8 @@ package blockchain.config;
 
 import blockchain.util.Utils;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -13,6 +15,7 @@ public class Configuration {
 
     private static final Logger LOGGER = Logger.getLogger(Configuration.class.getName());
     private static Configuration instance;
+    private static String configFilePath = null;
 
     private Mode nodeRunningMode;
     private String mcast_addr;
@@ -31,6 +34,10 @@ public class Configuration {
         initVersion(properties);
         initVisualizationPort(properties);
         initNetworkInterfaceName(properties);
+    }
+
+    public static void setConfigFilePath(String filePath){
+        configFilePath = filePath;
     }
 
     public static Configuration getInstance() {
@@ -100,7 +107,7 @@ public class Configuration {
     }
 
     private Properties loadProperties() {
-        try (InputStream input = Configuration.class.getClassLoader().getResourceAsStream("config.properties")) {
+        try (InputStream input = configFileInputStream()) {
             Properties prop = new Properties();
             if (input == null) {
                 LOGGER.severe("Unable to find config.properties!");
@@ -112,6 +119,19 @@ public class Configuration {
         } catch (IOException ex) {
             ex.printStackTrace();
             return null;
+        }
+    }
+
+    private InputStream configFileInputStream() {
+        if(configFilePath == null){
+            return Configuration.class.getClassLoader().getResourceAsStream("config.properties");
+        } else {
+            try {
+                return new FileInputStream(configFilePath);
+            } catch (FileNotFoundException e) {
+                LOGGER.warning("Given config file was not found.");
+                return Configuration.class.getClassLoader().getResourceAsStream("config.properties");
+            }
         }
     }
 
