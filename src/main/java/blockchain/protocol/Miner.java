@@ -25,8 +25,7 @@ public class Miner extends Thread {
     private FullNode fullNode;
     private boolean isMining;
     private static final int MAX_TRANSACTIONS_PER_BLOCK = 5;
-    // TODO fetch mining difficulty from the properties file
-    private static final int MINING_DIFFICULTY = 4;
+    private static final int MINING_DIFFICULTY = Configuration.getInstance().getMiningDifficulty();
 
     public Miner(FullNode node) {
         this.validator = new Validator();

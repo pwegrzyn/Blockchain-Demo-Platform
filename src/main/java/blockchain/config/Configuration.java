@@ -26,6 +26,7 @@ public class Configuration {
     private int visualizationPort;
     private String networkInterfaceName;
     private BigDecimal blockRewardValue = new BigDecimal(10);
+    private int miningDifficulty;
 
     private Configuration() {
         Properties properties = loadProperties();
@@ -34,6 +35,7 @@ public class Configuration {
         initVersion(properties);
         initVisualizationPort(properties);
         initNetworkInterfaceName(properties);
+        initMiningDifficulty(properties);
     }
 
     public static void setConfigFilePath(String filePath){
@@ -52,6 +54,10 @@ public class Configuration {
 
     public void setNodeRunningMode(Mode nodeRunningMode) {
         this.nodeRunningMode = nodeRunningMode;
+    }
+
+    public int getMiningDifficulty() {
+        return this.miningDifficulty;
     }
 
     public String getMcast_addr() {
@@ -179,6 +185,10 @@ public class Configuration {
     private void initNetworkInterfaceName(Properties properties) {
         String intName = properties.getProperty("networkInterfaceName").trim();
         this.networkInterfaceName = intName;
+    }
+
+    private void initMiningDifficulty(Properties properties) {
+        this.miningDifficulty = Integer.parseInt(properties.getProperty("miningDifficulty").trim());
     }
 
 }
