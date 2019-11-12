@@ -138,10 +138,9 @@ public class AttackTabPageController {
         this.noAttacksFoundContainer.setVisible(false);
 
         this.attackMiner.setAttackTarget(cancelledTxTextField.getText());
+        this.attackMiner.broadcastAttackData();
         this.attackMinerThread = new Thread(this.attackMiner);
         attackMinerThread.start();
-
-
     }
 
     private void pollAttackInfo() {
