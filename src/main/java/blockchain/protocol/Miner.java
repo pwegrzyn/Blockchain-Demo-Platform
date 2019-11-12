@@ -116,7 +116,7 @@ public class Miner extends Thread {
             if (!previousHash.equals(potentialNewLatestBlock.getCurrentHash())) {
                 LOGGER.info("While working on a block the miner received a new latest block from neighbours. Recycling TXs and starting again.");
                 for (Transaction tx : transactionsToAdd) {
-                    if (potentialNewLatestBlock.findTransaction(tx.getHash()) == null) {
+                    if (potentialNewLatestBlock.findTransaction(tx.getHash()) == null && tx.getType() == TransactionType.REGULAR) {
                         SynchronizedBlockchainWrapper
                                 .useBlockchain(b -> {
                                     b.getUnconfirmedTransactions().add(tx);
