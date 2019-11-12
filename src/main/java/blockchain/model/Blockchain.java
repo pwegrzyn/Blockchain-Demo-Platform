@@ -239,7 +239,7 @@ public class Blockchain implements Serializable {
         }
     }
 
-    private List<Block> getArbitraryBranch(Block startBlock) {
+    public List<Block> getArbitraryBranch(Block startBlock) {
         if (startBlock == null) return Collections.emptyList();
         List<Block> result = new LinkedList<>();
         if (startBlock.getPreviousHash().equals("0")) {
@@ -270,6 +270,10 @@ public class Blockchain implements Serializable {
 
     public void setUnconfirmedTransactions(Queue<Transaction> unconfirmedTransactions) {
         this.unconfirmedTransactions = unconfirmedTransactions;
+    }
+
+    public String getHashOfLastNonMainBranchBlockReceived() {
+        return this.hashOfLastNonMainBranchBlockReceived;
     }
 
     // The queue of unconfirmed transactions is sorted by the maximum possible fee for miners

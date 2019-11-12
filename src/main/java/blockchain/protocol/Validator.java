@@ -84,12 +84,6 @@ public class Validator {
      */
     public boolean validateBlock(Block block) throws NoSuchAlgorithmException, UnsupportedEncodingException,
             SignatureException, NoSuchProviderException, InvalidKeyException, InvalidKeySpecException {
-        // Check if block is the last one (previous index + 1)
-        int lastBlockIndexInBlockchain = SynchronizedBlockchainWrapper.useBlockchain(b -> b.getLatestBlock().getIndex());
-        if (block.getIndex() != lastBlockIndexInBlockchain + 1) {
-            LOGGER.warning("Incoming block validation failed: bad index");
-            return false;
-        }
 
         // The previous block is correct (previous hash of it == block.previousHash)
         String hashOfPrevBlock = SynchronizedBlockchainWrapper.useBlockchain(b -> b.getLatestBlock().getCurrentHash());

@@ -1,10 +1,10 @@
 package blockchain.protocol;
 
-import blockchain.model.Block;
-import blockchain.model.Blockchain;
-import blockchain.model.SynchronizedBlockchainWrapper;
+import blockchain.crypto.Sha256Proxy;
+import blockchain.model.*;
 import blockchain.net.FullNode;
 
+import java.util.*;
 import java.util.logging.Logger;
 
 
@@ -16,40 +16,60 @@ public class AttackMiner extends Miner {
     public AttackMiner(String cancelledTxId, FullNode node) {
         super(node);
         this.cancelledTxId = cancelledTxId;
+        this.MAX_TRANSACTIONS_PER_BLOCK = 1;
     }
 
+    // TODO: remove reward and fee txs
     @Override
     Block mineBlock() throws InterruptedException {
-        Block latestBlock = SynchronizedBlockchainWrapper.useBlockchain(Blockchain::getBlockDB).get(previousBlockHash);
+        String failInfoText = "Could not find block with given transaction in main branch in order to perform an attack.";
+
+        // try to continue the work of other attackers
+        Block latestBlockTmp = SynchronizedBlockchainWrapper.useBlockchain(b -> b.getBlockDB().get(b.getHashOfLastNonMainBranchBlockReceived()));
+        // or if you are the first attacker...
+        if (latestBlockTmp == null) {
+            Block attackedBlock = getAttackedBlock(failInfoText);
+            latestBlockTmp = SynchronizedBlockchainWrapper.useBlockchain(b -> b.getBlockDB().get(attackedBlock.getPreviousHash()));
+        }
+        // If you were still unable to find the valid latest attacker block then something is not right
+        if (latestBlockTmp == null) {
+            throw new IllegalStateException(failInfoText);
+        }
+
+        // Static typing gainz
+        final Block latestBlock = latestBlockTmp;
+
         int newBlockIndex = latestBlock.getIndex() + 1;
         String previousHash = latestBlock.getCurrentHash();
-
         /*Go through all the unconfirmed transactions and pick at most MAX_TRANSACTIONS_PER_BLOCK of them to be included
         in the next block */
         List<Transaction> transactionsToAdd = new LinkedList<>();
-        Transaction unconfirmedTransaction;
 
-        // TODO: reversed order of block traversal
-        // TODO: add memeory to start choosing txs based on what the attacker group has already mined
-        Block checkedBlock = latestBlock;
-        while (!checkedBlock.getCurrentHash().equals(hashBeforeAttackedBlock)) {
-            for (Transaction tx : checkedBlock.getTransactions()) {
-                tryToAddUnconfirmedTransactions(transactionsToAdd, tx);
+        SynchronizedBlockchainWrapper.useBlockchain(b -> {
+            // Prioritize adding transactions that will become invalidated
+            int indexOfAttackedBlock = b.getMainBranch().indexOf(getAttackedBlock(failInfoText));
+            List<Block> invalidatedBlocks = new LinkedList<>(b.getMainBranch().subList(indexOfAttackedBlock, b.getMainBranch().size()));
+            Collections.reverse(invalidatedBlocks);
+            for (Block invalidBlock : invalidatedBlocks) {
+                for (Transaction invalidTransaction : invalidBlock.getTransactions()) {
+                    tryToAddUnconfirmedTransactions(transactionsToAdd, invalidTransaction);
+                }
             }
-        }
 
-        Iterator<Transaction> queueIterator = SynchronizedBlockchainWrapper
-                .useBlockchain(b -> b.getUnconfirmedTransactions().iterator());
-        while (queueIterator.hasNext()) {
-            unconfirmedTransaction = queueIterator.next();
-            tryToAddUnconfirmedTransactions(transactionsToAdd, unconfirmedTransaction);
-            LOGGER.info("AttackMiner chose new transaction (id: " + unconfirmedTransaction.getId() + ") to add to the new block being mined");
-        }
-
+            // Now you can try to add txs from the global pool of unconfirmed transactions
+            while (transactionsToAdd.size() < MAX_TRANSACTIONS_PER_BLOCK) {
+                try {
+                    Transaction tx = b.getUnconfirmedTransactions().remove();
+                    tryToAddUnconfirmedTransactions(transactionsToAdd, tx);
+                } catch (NoSuchElementException e) {
+                    break;
+                }
+            }
+            return null;
+        });
 
         if (transactionsToAdd.size() < 1) {
-            //TODO
-//            createTxToSelf(transactionsToAdd);
+            createTxToSelf(transactionsToAdd);
             Thread.sleep(2000);
             return null;
         }
@@ -74,14 +94,22 @@ public class AttackMiner extends Miner {
                     previousHash, currentTimestamp), targetStr);
 
             /* Check if a new block has appeared in blockchain during mining */
-            if (!previousHash.equals(previousBlockHash)) {
-                LOGGER.info("While working on a block the AttackMiner received a new latest block from neighbours. Recycling TXs and starting again.");
+            Block potentialNewLatestBlock = SynchronizedBlockchainWrapper.useBlockchain(b -> b.getBlockDB().get(b.getHashOfLastNonMainBranchBlockReceived()));
+            if (!previousHash.equals(potentialNewLatestBlock.getCurrentHash())) {
+                LOGGER.info("While working on a block the miner received a new latest block from neighbours. Recycling TXs and starting again.");
                 return null;
             }
         } while (nonce < 0);
 
-        Block newBlock = new Block(newBlockIndex, transactionsToAdd, previousHash, nonce, currentTimestamp);
-        return newBlock;
+        return new Block(newBlockIndex, transactionsToAdd, previousHash, nonce, currentTimestamp);
+    }
+
+    private Block getAttackedBlock(String failInfoText) {
+        return SynchronizedBlockchainWrapper.useBlockchain(b -> {
+            Transaction attackedTransaction = b.findTransactionInMainChainById(this.cancelledTxId);
+            return b.getMainBranch().stream().filter(x -> x.getTransactions().contains(attackedTransaction)).findFirst().orElseThrow(() ->
+                    new IllegalArgumentException(failInfoText));
+        });
     }
 
     private void createTxToSelf(List<Transaction> transactionsToAdd) {
@@ -93,51 +121,33 @@ public class AttackMiner extends Miner {
         if (unconfirmedTransaction.getId().equals(cancelledTxId))
             return;
 
-        List<TransactionInput> inputs = unconfirmedTransaction.getInputs();
-        List<TransactionOutput> outputs = unconfirmedTransaction.getOutputs();
-        String id = unconfirmedTransaction.getId();
-        if (!unconfirmedTransaction.getHash().equals(Transaction.calculateTransactionHash(id, inputs, outputs))) {
-            LOGGER.warning("Newly added tx in AttackMiner has invalid hash - aborting!");
+        if (transactionsToAdd.size() == MAX_TRANSACTIONS_PER_BLOCK) {
             return;
         }
 
-        boolean txAlreadyIncluded = false;
-        for (Transaction tx : transactionsToAdd) {
-            if (unconfirmedTransaction.getHash().equals(tx.getHash())) {
-                txAlreadyIncluded = true;
-                break;
-            }
-        }
-        if (txAlreadyIncluded) {
-            LOGGER.warning("Newly added tx in AttackMiner is already included in the new block being mined - skipping!");
+        if (checkTransactionHash(unconfirmedTransaction)) {
+            LOGGER.warning("Newly added tx in miner has invalid hash - aborting!");
             return;
         }
 
-        if (SynchronizedBlockchainWrapper
-                .useBlockchain(b -> b.findTransactionInMainChain(unconfirmedTransaction.getHash()) != null)) {
-            LOGGER.warning("Newly added tx in AttackMiner is already included in the current blockchain - skipping!");
+        if (checkIfTransactionIsAlreadyIncluded(transactionsToAdd, unconfirmedTransaction)) {
+            LOGGER.warning("Newly added tx in miner is already included in the new block being mined - skipping!");
+            return;
+        }
+
+        if (checkIfTransactionIsAlreadyInBlockchain(unconfirmedTransaction)) {
+            LOGGER.warning("Newly added tx in miner is already included in the current blockchain - skipping!");
             return;
         }
 
         // Check if a tx added in an earlier iteration does not collide with our referenced outputs
-        boolean inputsReused = false;
-        for (Transaction txToBeChecked : transactionsToAdd) {
-            for (TransactionInput inputToCheck : unconfirmedTransaction.getInputs()) {
-                for (TransactionInput inputToBeChecked : txToBeChecked.getInputs()) {
-                    if (inputToCheck.getPreviousTransactionOutputIndex() == inputToBeChecked.getPreviousTransactionOutputIndex()
-                            && inputToCheck.getPreviousTransactionHash().equals(inputToBeChecked.getPreviousTransactionHash())) {
-                        inputsReused = true;
-                        return;
-                    }
-                }
-            }
-        }
-        if (inputsReused) {
-            LOGGER.warning("Newly added tx in AttackMiner uses already used inputs! - skipping!");
+        if (checkTransactionForAlreadySpentInputs(transactionsToAdd, unconfirmedTransaction)) {
+            LOGGER.warning("Newly added tx in miner uses already used inputs! - skipping!");
             return;
         }
 
-        // TODO: Add check, where we check if the removed transaction is in the past history of referenced txs
+        // TODO: need to check if this tx does not reference a tx that was removed by the attackers
+        // (because it was the targeted tx or a reward/fee tx
 
         LOGGER.info("AttackMiner: Tx (id: " + unconfirmedTransaction.getId() + ") has been definitely added to the new block - OK");
         transactionsToAdd.add(unconfirmedTransaction);

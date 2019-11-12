@@ -1,12 +1,14 @@
 package blockchain.gui;
 
 import blockchain.config.Configuration;
+import blockchain.model.Block;
 import blockchain.model.Blockchain;
 import blockchain.model.SynchronizedBlockchainWrapper;
 import blockchain.model.Transaction;
 import blockchain.net.FullNode;
 import blockchain.net.ProtocolMessage;
 import blockchain.net.WalletNode;
+import blockchain.protocol.AttackMiner;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.embed.swing.SwingFXUtils;
@@ -57,6 +59,7 @@ public class AttackTabPageController {
     Label foundCancelledTxIdLabel;
 
     private Timeline infoListener;
+    private Timeline attackProgresListener;
     private FullNode node;
     private ExecutorService attackInformerThread;
     private ExecutorService attackInformerReceiverThread;
@@ -128,19 +131,35 @@ public class AttackTabPageController {
     }
 
     private void showCurrentAttack() {
+        String attackedTxId;
+
         // Start the attack informer receiver thread but only if we were not the ones who started this attack
         if (this.attackInformerThread == null) {
             List<String> foundAttackInfo = this.node.getAttackInfoList();
             String[] attackInfoSplit = foundAttackInfo.get(0).split(";");
             this.attackInformerReceiverThread = Executors.newSingleThreadExecutor();
             this.attackInformerReceiverThread.submit(new AttackInformerReceiverThread(attackInfoSplit[0], attackInfoSplit[1]));
+            attackedTxId = attackInfoSplit[1];
+        } else {
+            attackedTxId = cancelledTxTextField.getText();
         }
 
-        // TODO: all the stuff associated with a an actual attack (either when starting a new one or joining an existing one) goes here;
-        // TODO: here will come the code with starting a new custom miner probably
+        // Disable the normal miner if he is on and also disable the mining tab, since
+        // when participating in an attack we must have a miner ON at all time and besides
+        // that we don't want to mix the timers of total mining time between these 2 miners
         this.appController.getMinerTabPageController().stopMiner();
         this.appController.getMinerTab().setDisable(true);
 
+        // We need to create a thread that will poll the local blockchain to see if the attack
+        // is still in progress; we need to do it in an Animation, since we will update the GUI
+        // according to the result of the poll
+        startAttackProgressPoll();
+
+        // Actually start the custom Attack Miner
+        this.node.setMinerThread(Executors.newSingleThreadExecutor());
+        this.node.getMinerThread().submit(new AttackMiner(attackedTxId, this.node));
+
+        // Usual GUI related refreshing
         this.foundAttacksContainer.setVisible(false);
         this.newAttackContainer.setVisible(false);
         this.currentAttackContainer.setVisible(true);
@@ -204,6 +223,28 @@ public class AttackTabPageController {
         alert.setHeaderText(header);
         alert.setContentText(content);
         alert.showAndWait();
+    }
+
+    private void startAttackProgressPoll() {
+        this.attackProgresListener = new Timeline(new KeyFrame(Duration.seconds(1), new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                Blockchain blockchain = SynchronizedBlockchainWrapper.javaFxReadOnlyBlockchain();
+                if (blockchain == null || blockchain.getHashOfLastNonMainBranchBlockReceived() == null) {
+                    return;
+                }
+                // check if the current mainBranch contains a block with a hash equal to Blockchain.hashOfLastNonMainBranchBlockReceived;
+                // if so it means we have switched the main branch to the attack branch, which in turn means the attack is finished
+                Block foundBlock = blockchain.findBlockInMainChain(blockchain.getHashOfLastNonMainBranchBlockReceived());
+                if (foundBlock != null) {
+                    AttackTabPageController.this.attackProgresListener.stop();
+                    AttackTabPageController.this.appController.getMinerTab().setDisable(false);
+                    AttackTabPageController.this.node.getMinerThread().shutdownNow();
+                }
+            }
+        }));
+        this.attackProgresListener.setCycleCount(Timeline.INDEFINITE);
+        this.attackProgresListener.play();
     }
 
     // Pings all other members of the original network with the info that an attack is present so they have the possibility to join
