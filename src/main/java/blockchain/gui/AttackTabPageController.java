@@ -114,6 +114,7 @@ public class AttackTabPageController {
         String[] attackInfoSplit = foundAttackInfo.get(0).split(";");
         this.foundCancelledTxIdLabel.setText(attackInfoSplit[1]);
         this.foundSubnetworkIdLabel.setText(attackInfoSplit[0]);
+        this.cancelledTxTextField.setText(attackInfoSplit[1]);
 
         this.foundAttacksContainer.setVisible(true);
         this.newAttackContainer.setVisible(false);
