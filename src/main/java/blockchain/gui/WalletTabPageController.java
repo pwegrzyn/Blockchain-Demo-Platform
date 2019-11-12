@@ -65,7 +65,7 @@ public class WalletTabPageController {
 
                 if(isNewTransactionIncorrect()) return;
 
-                String transactionId = Utils.generateRandomString(32);
+                String transactionId = Utils.generateRandomString(8);
                 TransactionType type = TransactionType.REGULAR;
                 List<TransactionInput> inputList = selectInputTransactions();
 

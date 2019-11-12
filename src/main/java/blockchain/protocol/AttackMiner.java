@@ -12,14 +12,17 @@ public class AttackMiner extends Miner {
 
     private static final Logger LOGGER = Logger.getLogger(AttackMiner.class.getName());
     private String cancelledTxId;
+    // List of all the transactions that get removed in an attack (obviously contains the targeted TX
+    // but also all TXs that reference this TX or reference a reward/fee tx
+    private Set<Transaction> removedTransactions;
 
     public AttackMiner(String cancelledTxId, FullNode node) {
         super(node);
         this.cancelledTxId = cancelledTxId;
         this.MAX_TRANSACTIONS_PER_BLOCK = 1;
+        this.removedTransactions = new HashSet<>();
     }
 
-    // TODO: remove reward and fee txs
     @Override
     Block mineBlock() throws InterruptedException {
         String failInfoText = "Could not find block with given transaction in main branch in order to perform an attack.";
@@ -69,9 +72,9 @@ public class AttackMiner extends Miner {
         });
 
         if (transactionsToAdd.size() < 1) {
-            createTxToSelf(transactionsToAdd);
+            // To make sure the polling Thread will have a chance to stop this AttackMiner
+            // right it time after switching from the attack branch to the new main branch
             Thread.sleep(2000);
-            return null;
         }
 
         assignLeftoverValueAsFee(transactionsToAdd, newBlockIndex);
@@ -112,42 +115,62 @@ public class AttackMiner extends Miner {
         });
     }
 
-    private void createTxToSelf(List<Transaction> transactionsToAdd) {
-        //TODO create tx to self
-    }
-
     private void tryToAddUnconfirmedTransactions(List<Transaction> transactionsToAdd, Transaction unconfirmedTransaction) {
-
-        if (unconfirmedTransaction.getId().equals(cancelledTxId))
-            return;
 
         if (transactionsToAdd.size() == MAX_TRANSACTIONS_PER_BLOCK) {
             return;
         }
 
+        if (unconfirmedTransaction.getId().equals(cancelledTxId)) {
+            this.removedTransactions.add(unconfirmedTransaction);
+            return;
+        }
+
+        // REWARD and FEE will never be inside unconfirmedTransactions queue so we can
+        // safely return if this tx is of any of these types because that means it comes from
+        // the invalidated part of the blockchain
+        if (unconfirmedTransaction.getType() == TransactionType.REWARD ||
+            unconfirmedTransaction.getType() == TransactionType.FEE) {
+            this.removedTransactions.add(unconfirmedTransaction);
+            return;
+        }
+
+        if (this.removedTransactions.contains(unconfirmedTransaction)) {
+            return;
+        }
+
+        for (TransactionInput input : unconfirmedTransaction.getInputs()) {
+            Transaction referencedTx = SynchronizedBlockchainWrapper.useBlockchain(b -> b.findTransaction(input.getPreviousTransactionHash()));
+            if (this.removedTransactions.contains(referencedTx)) {
+                this.removedTransactions.add(unconfirmedTransaction);
+                return;
+            }
+        }
+
         if (checkTransactionHash(unconfirmedTransaction)) {
             LOGGER.warning("Newly added tx in miner has invalid hash - aborting!");
+            this.removedTransactions.add(unconfirmedTransaction);
             return;
         }
 
         if (checkIfTransactionIsAlreadyIncluded(transactionsToAdd, unconfirmedTransaction)) {
             LOGGER.warning("Newly added tx in miner is already included in the new block being mined - skipping!");
+            this.removedTransactions.add(unconfirmedTransaction);
             return;
         }
 
         if (checkIfTransactionIsAlreadyInBlockchain(unconfirmedTransaction)) {
             LOGGER.warning("Newly added tx in miner is already included in the current blockchain - skipping!");
+            this.removedTransactions.add(unconfirmedTransaction);
             return;
         }
 
         // Check if a tx added in an earlier iteration does not collide with our referenced outputs
         if (checkTransactionForAlreadySpentInputs(transactionsToAdd, unconfirmedTransaction)) {
             LOGGER.warning("Newly added tx in miner uses already used inputs! - skipping!");
+            this.removedTransactions.add(unconfirmedTransaction);
             return;
         }
-
-        // TODO: need to check if this tx does not reference a tx that was removed by the attackers
-        // (because it was the targeted tx or a reward/fee tx
 
         LOGGER.info("AttackMiner: Tx (id: " + unconfirmedTransaction.getId() + ") has been definitely added to the new block - OK");
         transactionsToAdd.add(unconfirmedTransaction);
