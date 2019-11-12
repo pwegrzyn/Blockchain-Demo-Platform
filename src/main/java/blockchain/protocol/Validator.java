@@ -100,6 +100,15 @@ public class Validator {
             return false;
         }
 
+        // The hash must represent a valid difficulty level
+        int currentDifficulty = Configuration.getInstance().getMiningDifficulty();
+        for (int i = 0; i < currentDifficulty; i++) {
+            if (block.getCurrentHash().charAt(i) != '0') {
+                LOGGER.warning("Incoming block has an invalid difficulty level for its hash!");
+                return false;
+            }
+        }
+
         // All transactions inside the block must be valid
         if (!validateTXsInBlock(block)) {
             LOGGER.warning("Incoming block validation failed: bad transaction in the block");
