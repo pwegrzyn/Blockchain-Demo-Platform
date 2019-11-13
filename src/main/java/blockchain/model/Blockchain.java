@@ -35,7 +35,7 @@ public class Blockchain implements Serializable {
         this.latestBlock = new SimpleObjectProperty<>();
         this.blockDB = new ConcurrentHashMap<>();
         this.unconfirmedTransactions = new PriorityQueue<>(new MaximumFeeComparator());
-        this.latestBlocksInOtherBranches = Collections.emptyList();
+        this.latestBlocksInOtherBranches = new LinkedList<>();
         this.addBlock(Block.getGenesisBlock());
     }
 
@@ -155,6 +155,8 @@ public class Blockchain implements Serializable {
             this.blockDB.remove(newMinedBlock.getCurrentHash());
             return;
         }
+
+        LOGGER.warning("addBlock() method empty pass!");
 
     }
 
@@ -292,6 +294,7 @@ public class Blockchain implements Serializable {
         blockDB = (ConcurrentMap<String, Block>) stream.readObject();
         unconfirmedTransactions = (Queue<Transaction>) stream.readObject();
         hashOfLastNonMainBranchBlockReceived = (String) stream.readObject();
+        latestBlocksInOtherBranches = (List<Block>) stream.readObject();
     }
 
     private void writeObject(ObjectOutputStream stream) throws IOException {
@@ -299,6 +302,7 @@ public class Blockchain implements Serializable {
         stream.writeObject(blockDB);
         stream.writeObject(unconfirmedTransactions);
         stream.writeObject(hashOfLastNonMainBranchBlockReceived);
+        stream.writeObject(latestBlocksInOtherBranches);
     }
 
 }

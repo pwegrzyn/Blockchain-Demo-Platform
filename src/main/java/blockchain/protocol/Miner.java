@@ -37,7 +37,7 @@ public class Miner extends Thread {
         try {
             startMining();
         } catch (InterruptedException e) {
-            LOGGER.info("Miner process has stopped.");
+            LOGGER.info("Miner process got interrupted and will exit now");
         } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException |
                 UnsupportedEncodingException | NoSuchProviderException | InvalidKeySpecException e) {
             e.printStackTrace();

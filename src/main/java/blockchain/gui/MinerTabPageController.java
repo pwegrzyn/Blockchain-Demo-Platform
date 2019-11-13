@@ -76,8 +76,10 @@ public class MinerTabPageController {
 
     public void stopMiner() {
         if (node.getMinerThread() == null || node.getMinerThread().isShutdown()) {
+            logger.info("Trying to shutdown an already stopped Miner Thread!");
             return;
         }
+        logger.info("Shutting down Miner Thread");
         node.getMinerThread().shutdownNow();
         setLabelToRedOFF(minerToggleLabel);
         this.stopWatch.suspend();

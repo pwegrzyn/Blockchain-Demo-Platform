@@ -44,6 +44,8 @@ public class AppController {
     @FXML
     private Tab attackTab;
     @FXML
+    private Tab txVisualizationTab;
+    @FXML
     private AttackTabPageController attackTabPageController;
 
     // Possibly can add new themes for javaFX here
@@ -130,6 +132,10 @@ public class AppController {
 
     public Tab getMinerTab() {
         return this.minerTab;
+    }
+
+    public Tab getTxVisualizationTab() {
+        return this.txVisualizationTab;
     }
 
     public void setNode(WalletNode node) {

@@ -3,8 +3,12 @@ package blockchain.protocol;
 import blockchain.crypto.Sha256Proxy;
 import blockchain.model.*;
 import blockchain.net.FullNode;
+import javafx.scene.SnapshotParameters;
 
+import javax.sound.midi.SysexMessage;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Logger;
 
 
@@ -27,12 +31,19 @@ public class AttackMiner extends Miner {
     Block mineBlock() throws InterruptedException {
         String failInfoText = "Could not find block with given transaction in main branch in order to perform an attack.";
 
+        LOGGER.info("Starting Attack Miner thread...");
         // try to continue the work of other attackers
-        Block latestBlockTmp = SynchronizedBlockchainWrapper.useBlockchain(b -> b.getBlockDB().get(b.getHashOfLastNonMainBranchBlockReceived()));
+        //Block latestBlockTmp = SynchronizedBlockchainWrapper.useBlockchain(b -> b.getBlockDB().get(b.getHashOfLastNonMainBranchBlockReceived()));
+        String hashOfLastNonMainBranchBlockReceived = SynchronizedBlockchainWrapper.useBlockchain(Blockchain::getHashOfLastNonMainBranchBlockReceived);
+        ConcurrentMap<String, Block> blockDB = SynchronizedBlockchainWrapper.useBlockchain(Blockchain::getBlockDB);
+        Block latestBlockTmp = hashOfLastNonMainBranchBlockReceived == null ? null : blockDB.get(hashOfLastNonMainBranchBlockReceived);
         // or if you are the first attacker...
         if (latestBlockTmp == null) {
+            LOGGER.info("Starting new attack branch...");
             Block attackedBlock = getAttackedBlock(failInfoText);
             latestBlockTmp = SynchronizedBlockchainWrapper.useBlockchain(b -> b.getBlockDB().get(attackedBlock.getPreviousHash()));
+        } else {
+            LOGGER.info("Continuing an existing attack branch...");
         }
         // If you were still unable to find the valid latest attacker block then something is not right
         if (latestBlockTmp == null) {
@@ -44,6 +55,8 @@ public class AttackMiner extends Miner {
 
         int newBlockIndex = latestBlock.getIndex() + 1;
         String previousHash = latestBlock.getCurrentHash();
+        LOGGER.info("Trying to make a new block that follows the block with hash: " + previousHash);
+
         /*Go through all the unconfirmed transactions and pick at most MAX_TRANSACTIONS_PER_BLOCK of them to be included
         in the next block */
         List<Transaction> transactionsToAdd = new LinkedList<>();
@@ -51,7 +64,7 @@ public class AttackMiner extends Miner {
         SynchronizedBlockchainWrapper.useBlockchain(b -> {
             // Prioritize adding transactions that will become invalidated
             int indexOfAttackedBlock = b.getMainBranch().indexOf(getAttackedBlock(failInfoText));
-            List<Block> invalidatedBlocks = new LinkedList<>(b.getMainBranch().subList(indexOfAttackedBlock, b.getMainBranch().size()));
+            List<Block> invalidatedBlocks = new LinkedList<>(b.getMainBranch().subList(0, indexOfAttackedBlock + 1));
             Collections.reverse(invalidatedBlocks);
             for (Block invalidBlock : invalidatedBlocks) {
                 for (Transaction invalidTransaction : invalidBlock.getTransactions()) {
@@ -72,9 +85,10 @@ public class AttackMiner extends Miner {
         });
 
         if (transactionsToAdd.size() < 1) {
+            LOGGER.info("Attacking Miner creates an empty block with only his reward");
             // To make sure the polling Thread will have a chance to stop this AttackMiner
             // right it time after switching from the attack branch to the new main branch
-            Thread.sleep(2000);
+            Thread.sleep(1000);
         }
 
         assignLeftoverValueAsFee(transactionsToAdd, newBlockIndex);
@@ -97,8 +111,10 @@ public class AttackMiner extends Miner {
                     previousHash, currentTimestamp), targetStr);
 
             /* Check if a new block has appeared in blockchain during mining */
-            Block potentialNewLatestBlock = SynchronizedBlockchainWrapper.useBlockchain(b -> b.getBlockDB().get(b.getHashOfLastNonMainBranchBlockReceived()));
-            if (!previousHash.equals(potentialNewLatestBlock.getCurrentHash())) {
+            //Block potentialNewLatestBlock = SynchronizedBlockchainWrapper.useBlockchain(b -> b.getBlockDB().get(b.getHashOfLastNonMainBranchBlockReceived()));
+            String lastBlockHashFromAttackers = SynchronizedBlockchainWrapper.useBlockchain(Blockchain::getHashOfLastNonMainBranchBlockReceived);
+            Block potentialNewLatestBlock = hashOfLastNonMainBranchBlockReceived == null ? null : blockDB.get(lastBlockHashFromAttackers);
+            if (potentialNewLatestBlock != null && !previousHash.equals(potentialNewLatestBlock.getCurrentHash())) {
                 LOGGER.info("While working on a block the miner received a new latest block from neighbours. Recycling TXs and starting again.");
                 return null;
             }
@@ -139,12 +155,16 @@ public class AttackMiner extends Miner {
             return;
         }
 
+        boolean found = false;
         for (TransactionInput input : unconfirmedTransaction.getInputs()) {
             Transaction referencedTx = SynchronizedBlockchainWrapper.useBlockchain(b -> b.findTransaction(input.getPreviousTransactionHash()));
             if (this.removedTransactions.contains(referencedTx)) {
                 this.removedTransactions.add(unconfirmedTransaction);
-                return;
+                found = true;
             }
+        }
+        if (found) {
+            return;
         }
 
         if (checkTransactionHash(unconfirmedTransaction)) {

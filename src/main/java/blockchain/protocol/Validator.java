@@ -86,9 +86,9 @@ public class Validator {
             SignatureException, NoSuchProviderException, InvalidKeyException, InvalidKeySpecException {
 
         // The previous block is correct (previous hash of it == block.previousHash)
-        String hashOfPrevBlock = SynchronizedBlockchainWrapper.useBlockchain(b -> b.getLatestBlock().getCurrentHash());
-        if (!block.getPreviousHash().equals(hashOfPrevBlock)) {
-            LOGGER.warning("Incoming block validation failed: bad previous hash");
+        Block foundValidPreviousBlock = SynchronizedBlockchainWrapper.useBlockchain(b -> b.findBlock(block.getPreviousHash()));
+        if (foundValidPreviousBlock == null) {
+            LOGGER.warning("Block validation failed: bad previous hash");
             return false;
         }
 
@@ -96,7 +96,7 @@ public class Validator {
         String hashOfNewBlock = Block.calculateBlockHash(block.getIndex(), block.getTransactions(),
                 block.getPreviousHash(), block.getTimestamp(), block.getNonce());
         if (!block.getCurrentHash().equals(hashOfNewBlock)) {
-            LOGGER.warning("Incoming block validation failed: bad current hash");
+            LOGGER.warning("Block validation failed: bad current hash");
             return false;
         }
 
@@ -104,14 +104,14 @@ public class Validator {
         int currentDifficulty = Configuration.getInstance().getMiningDifficulty();
         for (int i = 0; i < currentDifficulty; i++) {
             if (block.getCurrentHash().charAt(i) != '0') {
-                LOGGER.warning("Incoming block has an invalid difficulty level for its hash!");
+                LOGGER.warning("Block has an invalid difficulty level for its hash!");
                 return false;
             }
         }
 
         // All transactions inside the block must be valid
         if (!validateTXsInBlock(block)) {
-            LOGGER.warning("Incoming block validation failed: bad transaction in the block");
+            LOGGER.warning("Block validation failed: bad transaction in the block");
             return false;
         }
 

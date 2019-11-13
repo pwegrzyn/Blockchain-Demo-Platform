@@ -16,4 +16,24 @@ public class TestValidator {
         assertTrue(result);
     }
 
+    @Test
+    public void testValidatePublicKeySeparate() {
+        String publicKey = "test";
+        Validator validator = new Validator();
+
+        boolean result = validator.validatePublicKey(publicKey);
+
+        assertFalse(result);
+    }
+
+    @Test
+    public void testValidatePrivateKeySeparate() {
+        String privateKey = "ab";
+        Validator validator = new Validator();
+
+        boolean result = validator.validatePrivateKey(privateKey);
+
+        assertFalse(result);
+    }
+
 }
