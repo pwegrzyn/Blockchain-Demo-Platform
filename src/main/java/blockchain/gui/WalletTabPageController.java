@@ -102,6 +102,16 @@ public class WalletTabPageController {
             return true;
         }
 
+        if(!transactionAddressLabel.getText().matches("[A-Za-z0-9]+")){
+            showAlert("New Transaction Error", "Only alphanumeric characters allowed!", Alert.AlertType.WARNING);
+            return true;
+        }
+
+        if(transactionAddressLabel.getText().length() != 176){
+            showAlert("New Transaction Error", "New transaction address length is incorrect!", Alert.AlertType.WARNING);
+            return true;
+        }
+
         // TODO Check transaction
 
         return false;
@@ -135,14 +145,9 @@ public class WalletTabPageController {
     }
 
     private boolean isFeeIncorrect() {
-        if (this.transactionFee.getText().length() == 0) {
-            showAlert("New Transaction Error", "Fee amount must be specified! Type 0 to pay no fee", Alert.AlertType.WARNING);
-            return true;
-        }
-
         BigDecimal newFeeAmount = new BigDecimal(0.0);
         try {
-            newFeeAmount = new BigDecimal(transactionFee.getText());
+            newFeeAmount = new BigDecimal(getTransactionFee());
         } catch (NumberFormatException e) {
             showAlert("New Transaction Error", "New transaction fee is not a valid number!", Alert.AlertType.WARNING);
             return true;
@@ -178,7 +183,7 @@ public class WalletTabPageController {
 
     private List<TransactionOutput> generateOutputTransactions(BigDecimal spentAmount) {
         BigDecimal transactionCost = new BigDecimal(transactionAmountLabel.getText());
-        BigDecimal remainingAmount = spentAmount.subtract(transactionCost).subtract(new BigDecimal(transactionFee.getText()));
+        BigDecimal remainingAmount = spentAmount.subtract(transactionCost).subtract(new BigDecimal(getTransactionFee()));
 
         List<TransactionOutput> outputs = new LinkedList<>();
         outputs.add(new TransactionOutput(transactionCost, transactionAddressLabel.getText()));
@@ -191,7 +196,7 @@ public class WalletTabPageController {
     }
 
     private synchronized List<TransactionInput> selectInputTransactions() {
-        BigDecimal transactionCost = new BigDecimal(transactionAmountLabel.getText()).add(new BigDecimal(transactionFee.getText()));
+        BigDecimal transactionCost = new BigDecimal(transactionAmountLabel.getText()).add(new BigDecimal(getTransactionFee()));
 
         LinkedList<Transaction> gatheredTransactionsToBeUsed = new LinkedList<>();
 
@@ -350,6 +355,8 @@ public class WalletTabPageController {
 
     private void showAlert(String header, String content, Alert.AlertType type) {
         String title = "Wallet Error";
+        if (type.equals(Alert.AlertType.INFORMATION))
+            title="Wallet Information";
         Alert alert = new Alert(type);
         try {
             Stage alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
@@ -362,5 +369,11 @@ public class WalletTabPageController {
         alert.setHeaderText(header);
         alert.setContentText(content);
         alert.showAndWait();
+    }
+
+    private String getTransactionFee() {
+        if (transactionFee.getText().length() > 0)
+            return transactionFee.getText();
+        return "0";
     }
 }

@@ -8,9 +8,13 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 
@@ -77,6 +81,17 @@ public class BlockchainTabPageController {
 
             setBlockchain(SynchronizedBlockchainWrapper.javaFxReadOnlyBlockchain());
         }).start();
+
+        this.txListView.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                String newValue = txListView.getSelectionModel().getSelectedItem().getId();
+                final Clipboard clipboard = Clipboard.getSystemClipboard();
+                final ClipboardContent content = new ClipboardContent();
+                content.putString(newValue);
+                clipboard.setContent(content);
+            }
+        });
     }
 
     private void updateSelectedBlock(String newSelectedHash) {
