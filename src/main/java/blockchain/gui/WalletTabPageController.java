@@ -145,14 +145,9 @@ public class WalletTabPageController {
     }
 
     private boolean isFeeIncorrect() {
-        if (this.transactionFee.getText().length() == 0) {
-            showAlert("New Transaction Error", "Fee amount must be specified! Type 0 to pay no fee", Alert.AlertType.WARNING);
-            return true;
-        }
-
         BigDecimal newFeeAmount = new BigDecimal(0.0);
         try {
-            newFeeAmount = new BigDecimal(transactionFee.getText());
+            newFeeAmount = new BigDecimal(getTransactionFee());
         } catch (NumberFormatException e) {
             showAlert("New Transaction Error", "New transaction fee is not a valid number!", Alert.AlertType.WARNING);
             return true;
@@ -188,7 +183,7 @@ public class WalletTabPageController {
 
     private List<TransactionOutput> generateOutputTransactions(BigDecimal spentAmount) {
         BigDecimal transactionCost = new BigDecimal(transactionAmountLabel.getText());
-        BigDecimal remainingAmount = spentAmount.subtract(transactionCost).subtract(new BigDecimal(transactionFee.getText()));
+        BigDecimal remainingAmount = spentAmount.subtract(transactionCost).subtract(new BigDecimal(getTransactionFee()));
 
         List<TransactionOutput> outputs = new LinkedList<>();
         outputs.add(new TransactionOutput(transactionCost, transactionAddressLabel.getText()));
@@ -201,7 +196,7 @@ public class WalletTabPageController {
     }
 
     private synchronized List<TransactionInput> selectInputTransactions() {
-        BigDecimal transactionCost = new BigDecimal(transactionAmountLabel.getText()).add(new BigDecimal(transactionFee.getText()));
+        BigDecimal transactionCost = new BigDecimal(transactionAmountLabel.getText()).add(new BigDecimal(getTransactionFee()));
 
         LinkedList<Transaction> gatheredTransactionsToBeUsed = new LinkedList<>();
 
@@ -374,5 +369,11 @@ public class WalletTabPageController {
         alert.setHeaderText(header);
         alert.setContentText(content);
         alert.showAndWait();
+    }
+
+    private String getTransactionFee() {
+        if (transactionFee.getText().length() > 0)
+            return transactionFee.getText();
+        return "0";
     }
 }
