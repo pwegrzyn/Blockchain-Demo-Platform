@@ -1,5 +1,6 @@
 package blockchain.model;
 
+import blockchain.protocol.Validator;
 import javafx.beans.property.SimpleObjectProperty;
 
 import java.io.IOException;
@@ -225,6 +226,7 @@ public class Blockchain implements Serializable {
         this.getUnconfirmedTransactions().removeAll(txsToRemoveFromQueue);
 
         // Add to the queue all transactions that will become unconfirmed
+        Validator validator = new Validator();
         for (Block blockInCurrent : currentMainChain) {
             for (Transaction transactionInCurrent : blockInCurrent.getTransactions()) {
                 if (transactionInCurrent.getType() != TransactionType.REGULAR)
@@ -237,7 +239,14 @@ public class Blockchain implements Serializable {
                         break;
                     }
                 }
-                if (!foundInNew) {
+
+                boolean isTxValid = false;
+                try {
+                    isTxValid = validator.validateNewIncomingTX(transactionInCurrent);
+                } catch (Exception e) {
+                }
+
+                if (!foundInNew && isTxValid) {
                     this.unconfirmedTransactions.add(transactionInCurrent);
                 }
             }
