@@ -82,6 +82,7 @@ public class MinerTabPageController {
         logger.info("Shutting down Miner Thread");
         node.getMinerThread().shutdownNow();
         setLabelToRedOFF(minerToggleLabel);
+        this.isMinerOnToggle.setSelected(false);
         this.stopWatch.suspend();
     }
 

@@ -9,6 +9,7 @@ import blockchain.net.FullNode;
 import blockchain.net.ProtocolMessage;
 import blockchain.net.WalletNode;
 import blockchain.protocol.AttackMiner;
+import blockchain.protocol.Miner;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.embed.swing.SwingFXUtils;
@@ -33,6 +34,8 @@ public class AttackTabPageController {
 
     private static final Logger logger = Logger.getLogger(AttackTabPageController.class.getName());
 
+    @FXML
+    AnchorPane attackCompleteContainer;
     @FXML
     AnchorPane foundAttacksContainer;
     @FXML
@@ -84,6 +87,7 @@ public class AttackTabPageController {
         this.newAttackContainer.setVisible(false);
         this.currentAttackContainer.setVisible(false);
         this.noAttacksFoundContainer.setVisible(true);
+        this.attackCompleteContainer.setVisible(false);
 
         pollAttackInfo();
     }
@@ -102,6 +106,7 @@ public class AttackTabPageController {
         this.newAttackContainer.setVisible(true);
         this.currentAttackContainer.setVisible(false);
         this.noAttacksFoundContainer.setVisible(false);
+        this.attackCompleteContainer.setVisible(false);
     }
 
     private void createNewAttackHelper() {
@@ -128,6 +133,7 @@ public class AttackTabPageController {
         this.newAttackContainer.setVisible(false);
         this.currentAttackContainer.setVisible(false);
         this.noAttacksFoundContainer.setVisible(false);
+        this.attackCompleteContainer.setVisible(false);
     }
 
     private void showCurrentAttack() {
@@ -164,6 +170,7 @@ public class AttackTabPageController {
         this.newAttackContainer.setVisible(false);
         this.currentAttackContainer.setVisible(true);
         this.noAttacksFoundContainer.setVisible(false);
+        this.attackCompleteContainer.setVisible(false);
     }
 
     private void pollAttackInfo() {
@@ -175,6 +182,7 @@ public class AttackTabPageController {
                     AttackTabPageController.this.newAttackContainer.setVisible(false);
                     AttackTabPageController.this.currentAttackContainer.setVisible(false);
                     AttackTabPageController.this.noAttacksFoundContainer.setVisible(true);
+                    AttackTabPageController.this.attackCompleteContainer.setVisible(false);
                 } else {
                     AttackTabPageController.this.infoListener.stop();
                     showFoundAttacks();
@@ -239,9 +247,19 @@ public class AttackTabPageController {
                 if (foundBlock != null) {
                     logger.info("Attack is now done since a block which was previously in a non main branch is now in the main branch");
                     AttackTabPageController.this.attackProgresListener.stop();
-                    AttackTabPageController.this.appController.getMinerTab().setDisable(false);
                     AttackTabPageController.this.node.getMinerThread().shutdownNow();
 
+                    if (AttackTabPageController.this.attackInformerReceiverThread != null)
+                        AttackTabPageController.this.attackInformerReceiverThread.shutdownNow();
+                    if (AttackTabPageController.this.attackInformerThread != null)
+                        AttackTabPageController.this.attackInformerThread.shutdownNow();
+                    AttackTabPageController.this.foundAttacksContainer.setVisible(false);
+                    AttackTabPageController.this.newAttackContainer.setVisible(false);
+                    AttackTabPageController.this.currentAttackContainer.setVisible(false);
+                    AttackTabPageController.this.noAttacksFoundContainer.setVisible(false);
+                    AttackTabPageController.this.attackCompleteContainer.setVisible(true);
+
+                    AttackTabPageController.this.appController.getMinerTab().setDisable(false);
                 }
             }
         }));
