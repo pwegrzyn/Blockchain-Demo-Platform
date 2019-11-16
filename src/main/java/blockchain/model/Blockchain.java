@@ -227,6 +227,9 @@ public class Blockchain implements Serializable {
         // Add to the queue all transactions that will become unconfirmed
         for (Block blockInCurrent : currentMainChain) {
             for (Transaction transactionInCurrent : blockInCurrent.getTransactions()) {
+                if (transactionInCurrent.getType() != TransactionType.REGULAR)
+                    continue;
+
                 boolean foundInNew = false;
                 for (Block blockInNew : newMainChain) {
                     if (blockInNew.findTransaction(transactionInCurrent.getHash()) != null) {
