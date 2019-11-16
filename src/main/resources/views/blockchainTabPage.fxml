@@ -26,7 +26,7 @@
                         </VBox>
                         <VBox>
                            <children>
-                              <Label alignment="CENTER" contentDisplay="CENTER" prefWidth="400.0" text="Transaction list" textAlignment="CENTER">
+                              <Label alignment="CENTER" contentDisplay="CENTER" prefWidth="400.0" text="Transaction list (click to copy)" textAlignment="CENTER">
                                  <font>
                                     <Font size="24.0" />
                                  </font>
