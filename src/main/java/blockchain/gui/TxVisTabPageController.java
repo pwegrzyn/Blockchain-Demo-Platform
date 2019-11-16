@@ -74,6 +74,7 @@ public class TxVisTabPageController {
                 //check if existing transactions should still exist
                 Stream<Node> nodes = txGraph.nodes();
                 nodes.forEach(e -> {
+                    if (e == null) return;
                     String label = e.getId();
                     if (transactionDB.containsKey(label)) {
                         transactionDB.remove(label);

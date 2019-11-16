@@ -240,9 +240,8 @@ public class AttackTabPageController {
                     logger.info("Attack is now done since a block which was previously in a non main branch is now in the main branch");
                     AttackTabPageController.this.attackProgresListener.stop();
                     AttackTabPageController.this.appController.getMinerTab().setDisable(false);
-                    // Since the TX graph throws an execption during the attack we just disable it :0
-                    AttackTabPageController.this.appController.getTxVisualizationTab().setDisable(true);
                     AttackTabPageController.this.node.getMinerThread().shutdownNow();
+
                 }
             }
         }));
