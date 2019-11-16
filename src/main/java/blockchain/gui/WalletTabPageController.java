@@ -102,6 +102,16 @@ public class WalletTabPageController {
             return true;
         }
 
+        if(!transactionAddressLabel.getText().matches("[A-Za-z0-9]+")){
+            showAlert("New Transaction Error", "Only alphanumeric characters allowed!", Alert.AlertType.WARNING);
+            return true;
+        }
+
+        if(transactionAddressLabel.getText().length() != 176){
+            showAlert("New Transaction Error", "New transaction address length is incorrect!", Alert.AlertType.WARNING);
+            return true;
+        }
+
         // TODO Check transaction
 
         return false;
