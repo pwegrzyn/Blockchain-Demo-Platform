@@ -350,6 +350,8 @@ public class WalletTabPageController {
 
     private void showAlert(String header, String content, Alert.AlertType type) {
         String title = "Wallet Error";
+        if (type.equals(Alert.AlertType.INFORMATION))
+            title="Wallet Information";
         Alert alert = new Alert(type);
         try {
             Stage alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
