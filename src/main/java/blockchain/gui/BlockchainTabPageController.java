@@ -85,6 +85,9 @@ public class BlockchainTabPageController {
         this.txListView.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
+                if (txListView == null || txListView.getSelectionModel().getSelectedItem() == null) {
+                    return;
+                }
                 String newValue = txListView.getSelectionModel().getSelectedItem().getId();
                 final Clipboard clipboard = Clipboard.getSystemClipboard();
                 final ClipboardContent content = new ClipboardContent();

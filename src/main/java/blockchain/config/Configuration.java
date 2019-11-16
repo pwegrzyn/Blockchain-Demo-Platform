@@ -115,10 +115,6 @@ public class Configuration {
     private Properties loadProperties() {
         try (InputStream input = configFileInputStream()) {
             Properties prop = new Properties();
-            if (input == null) {
-                LOGGER.severe("Unable to find config.properties!");
-                return null;
-            }
             prop.load(input);
             LOGGER.config("Properties successfully loaded from config.properties.");
             return prop;
@@ -130,15 +126,17 @@ public class Configuration {
 
     private InputStream configFileInputStream() {
         if(configFilePath == null){
-            return Configuration.class.getClassLoader().getResourceAsStream("config.properties");
+            LOGGER.severe("Config file path was not provided correctly!");
+            System.exit(1);
         } else {
             try {
                 return new FileInputStream(configFilePath);
             } catch (FileNotFoundException e) {
-                LOGGER.warning("Given config file was not found.");
-                return Configuration.class.getClassLoader().getResourceAsStream("config.properties");
+                LOGGER.warning("Given config file was not found on the given path!");
+                System.exit(1);
             }
         }
+        return null;
     }
 
     private void initMode(Properties properties) {

@@ -21,6 +21,9 @@ public class App extends Application {
         try {
             if(args.length > 0){
                 Configuration.setConfigFilePath(args[0]);
+            } else {
+                System.out.println("Need to specify a path to the config file!");
+                System.exit(1);
             }
             launch(args);
         } catch (Exception e) {
