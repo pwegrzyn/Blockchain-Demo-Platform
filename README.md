@@ -10,5 +10,5 @@ Blockchain demo platform for educational purposes
 ## Starting
 ```bash
 mvn package
-java -jar <generated.jar>
+java -jar <generated.jar> <path_to_config_file>
 ```
