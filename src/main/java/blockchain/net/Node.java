@@ -13,11 +13,9 @@ import org.jgroups.stack.Protocol;
 import org.jgroups.stack.ProtocolStack;
 import org.jgroups.util.Util;
 
-import java.awt.*;
 import java.io.*;
 import java.net.*;
-import java.util.Enumeration;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -145,26 +143,38 @@ public abstract class Node {
             String interfaceName = Configuration.getInstance().getNetworkInterfaceName();
 
             // bind to proper network interface
-            if (interfaceName.length() != 0) {
-                Enumeration<NetworkInterface> eni = NetworkInterface.getNetworkInterfaces();
+            Enumeration<NetworkInterface> eni = NetworkInterface.getNetworkInterfaces();
 
-                while (eni.hasMoreElements()) {
-                    NetworkInterface ni = eni.nextElement();
-
-                    if (ni.getDisplayName().equals(interfaceName)) {
-                        Enumeration<InetAddress> eia = ni.getInetAddresses();
-
-                        while (eia.hasMoreElements()) {
-                            InetAddress ia = eia.nextElement();
-
-                            if (ia instanceof Inet4Address) {
-                                udp.setBindAddress(ia);
-                                LOGGER.log(Level.INFO, "Connecting to desired network interface with IP: " + ia.getHostAddress());
-                                break;
-                            }
+            List<NetworkInterface> filteredInterfaces = Collections.list(eni).stream()
+                    .filter(networkInt -> {
+                        try {
+                            return networkInt.supportsMulticast() && networkInt.isUp() && !networkInt.isLoopback();
+                        } catch (SocketException e) {
+                            throw new IllegalStateException("Could not find proper network interface");
                         }
-                        break;
-                    }
+                    })
+                    .collect(Collectors.toList());
+
+            LOGGER.info(String.format("Possible interfaces: %s", filteredInterfaces));
+            LOGGER.info(String.format("Possible interfaces count: %d", filteredInterfaces.size()));
+
+            // If its positively filtered, get interface by its explicit name from config
+            Optional<NetworkInterface> explicitInterface = filteredInterfaces.stream().filter(x -> x.getDisplayName().equals(interfaceName)).findFirst();
+
+            if(explicitInterface.isPresent()){
+                filteredInterfaces = Collections.singletonList(explicitInterface.get());
+            }
+            // or else just try other interfaces
+
+            Enumeration<InetAddress> eia = filteredInterfaces.get(0).getInetAddresses();
+
+            while (eia.hasMoreElements()) {
+                InetAddress ia = eia.nextElement();
+
+                if (ia instanceof Inet4Address) {
+                    udp.setBindAddress(ia);
+                    LOGGER.log(Level.INFO, "Connecting to desired network interface with IP: " + ia.getHostAddress());
+                    break;
                 }
             }
 
