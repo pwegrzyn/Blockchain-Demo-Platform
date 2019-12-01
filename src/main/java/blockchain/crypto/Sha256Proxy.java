@@ -11,7 +11,7 @@ public class Sha256Proxy {
 
     public static String calculateShaHash(String input) {
         synchronized (sha256) {
-            sha256.setData(precessInput(input));
+            sha256.setData(input);
             return sha256.crypt();
         }
     }
