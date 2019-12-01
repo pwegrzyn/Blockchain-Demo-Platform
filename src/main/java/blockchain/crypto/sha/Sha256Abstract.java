@@ -21,6 +21,7 @@ public abstract class Sha256Abstract {
     // The platform, device type and device number that will be used
     protected static final long deviceType = CL_DEVICE_TYPE_GPU;
     protected static final int deviceIndex = 0;
+    protected static final int platformIndex = 0;
     protected String kernelPath = "";
 
     protected String kernelCode = ""; // Kernel source code
@@ -50,7 +51,7 @@ public abstract class Sha256Abstract {
         // Obtain a platform ID
         cl_platform_id platforms[] = new cl_platform_id[numPlatforms];
         clGetPlatformIDs(platforms.length, platforms, null);
-        cl_platform_id platform = platforms[numPlatforms - 1];
+        cl_platform_id platform = platforms[platformIndex];
 
         // Initialize the context properties
         cl_context_properties contextProperties = new cl_context_properties();
