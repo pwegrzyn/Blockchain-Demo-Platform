@@ -18,25 +18,15 @@ public class Sha256Proxy {
 
     public static String calculateShaHashWithNonce(String input, int nonce) {
         synchronized (sha256WithNonce) {
-            sha256WithNonce.setData(precessInput(input), nonce);
+            sha256WithNonce.setData(input, nonce);
             return sha256WithNonce.crypt();
         }
     }
 
     public static int searchForNonce(String input, String target) {
         synchronized (sha256NonceSearching) {
-            sha256NonceSearching.setData(precessInput(input), target);
+            sha256NonceSearching.setData(input, target);
             return sha256NonceSearching.crypt();
         }
     }
-
-    private static String precessInput(String input) {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(input);
-        while (stringBuilder.length() % 64 > 46) {
-            stringBuilder.append('0');
-        }
-        return stringBuilder.toString();
-    }
-
 }
