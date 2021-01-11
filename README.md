@@ -3,7 +3,7 @@
 
 Blockchain demo platform for educational purposes. Fully featured Blockchain platform with block and transactions history visualization, ready to be run on a LAN. Includes a GPU hash miner module.
 
-<img src="./images/summary_view.png" width="200">
+<img src="./images/summary_view.png" width="400">
 
 <img src="./images/wallet_view.png" width="100" height="100">
 
